@@ -1,11 +1,9 @@
 import ROOT
-import style
+from . import style
 import json
 
 with open("/vols/cms/LLP/color_dict_mk.json") as json_file:
     color_dict = json.load(json_file)
-
-print(color_dict)
 
 # A process is a combination of several "Samples" which are all added up internally
 class Process:
@@ -16,7 +14,6 @@ class Process:
         self.fillcolor = fillcolor
         if not linecolor:
             self.linecolor = color_dict[name][1]
-        print(self.linecolor)
         if not fillcolor:
             self.fillcolor = color_dict[name][0]
         self.hists = []
