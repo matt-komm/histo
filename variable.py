@@ -1,6 +1,5 @@
 import ROOT
-import style
-from style import *
+from . import style
 import numpy as np
 import os
 from array import array

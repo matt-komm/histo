@@ -1,7 +1,6 @@
 import ROOT
 import os
 import json
-import yaml
 
 def find_xsec(path, xsecs):
     for key, val in xsecs.items():
@@ -62,7 +61,6 @@ class Sample:
                     xsecs = json.load(xsec_file)
                 xsec = find_xsec(path, xsecs)
             self.rdf = self.rdf.Define("weightNominal", "IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_iso_nominal*tightMuons_weight_id_nominal*tightElectrons_weight_id_nominal*puweight_nominal*genweight*tightElectrons_weight_reco_nominal*looseElectrons_weight_reco_nominal*%s*1000.0*%s/%s" %(lumi[year], xsec, self.sum_weight))
-            #self.rdf = self.rdf.Define("weightNominal", "IsoMuTrigger_weight_trigger_nominal*tightMuon_weight_iso_nominal*tightMuon_weight_id_nominal*tightElectron_weight_id_nominal*puweight_nominal*genweight*tightElectron_weight_reco_nominal*looseElectrons_weight_reco_nominal*%s*1000.0*%s/%s" %(lumi[year], xsec, self.sum_weight))
 
             if "HNL" in name:
                 for coupling in range(2, 68):
