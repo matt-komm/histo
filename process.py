@@ -15,12 +15,12 @@ class Process:
             if name in color_dict:
                 self.linecolor = color_dict[name][1]
             else:
-                self.linecolor = '#000000'
+                self.linecolor = '#ffffff'
         if not fillcolor:
             if name in color_dict:
                 self.fillcolor = color_dict[name][0]
             else:
-                self.linecolor = '#000000'
+                self.fillcolor = '#ffffff'
         
         self.hists = []
         self.rdfs = []

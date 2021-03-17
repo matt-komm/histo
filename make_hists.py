@@ -6,7 +6,6 @@ import argparse
 from process import Process
 from sample import Sample
 
-
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
     Make a new histogram for categorised events passing the cuts and write it to file
@@ -250,7 +249,7 @@ while coupling < 67:
             category_variable = category_variable_nominal.replace("nominal", systName)
 
             # read in hist from nanoAOD friends
-            cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved)}) )"
+            cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region, syst=systName)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region, syst=systName)}) )"
             print(systName, category_variable, cut, weight)
 
             hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
@@ -275,7 +274,7 @@ while coupling < 67:
                 cut = macroCategory_cut
                 cut += f" and {mass_cut(region=region)}"
                 category_variable = category_variable_nominal
-                cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved)}) )"
+                cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region)}) )"
 
                 print(systName, category_variable, cut, weight)
 
@@ -288,7 +287,7 @@ while coupling < 67:
         cut = macroCategory_cut
         cut += f" and {mass_cut(region=region)}"
         category_variable = category_variable_nominal
-        cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved)}) )"
+        cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region)}) )"
         print(category_variable, cut)
 
         hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight="weightNominal")
