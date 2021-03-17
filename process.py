@@ -1,5 +1,4 @@
 import ROOT
-from . import style
 import json
 
 with open("/vols/cms/LLP/color_dict_mk.json") as json_file:
@@ -13,9 +12,16 @@ class Process:
         self.linecolor = linecolor
         self.fillcolor = fillcolor
         if not linecolor:
-            self.linecolor = color_dict[name][1]
+            if name in color_dict:
+                self.linecolor = color_dict[name][1]
+            else:
+                self.linecolor = '#000000'
         if not fillcolor:
-            self.fillcolor = color_dict[name][0]
+            if name in color_dict:
+                self.fillcolor = color_dict[name][0]
+            else:
+                self.linecolor = '#000000'
+        
         self.hists = []
         self.rdfs = []
 

@@ -1,0 +1,449 @@
+qcd:
+    2016:
+        qcd_15to20:
+            ["QCD_Pt-15to20_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_20to30: 
+            ["QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_30to50:
+            ["QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_50to80:
+            ["QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_80to120: 
+            ["QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_120to170:
+            ["QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_170to300:
+            ["QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_300to470:
+            ["QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_470to600:
+            ["QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_600to800:
+            ["QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_800to1000:
+            ["QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_1000toInf:
+            ["QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_20to30_EM:
+            ["QCD_Pt-20to30_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_30to50_EM:
+            ["QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_50to80_EM:
+            ["QCD_Pt-50to80_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_80to120_EM:
+            ["QCD_Pt-80to120_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_120to170_EM:
+            ["QCD_Pt-120to170_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_170to300_EM:
+            ["QCD_Pt-170to300_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+        qcd_300toInf_EM:
+            ["QCD_Pt-300toInf_EMEnriched_TuneCUETP8M1_13TeV_pythia8-2016"]
+    2017:
+        qcd_15to20: 
+            ["QCD_Pt-15to20_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"] 
+        qcd_20to30: 
+            ["QCD_Pt-20to30_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_30to50: 
+            ["QCD_Pt-30to50_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_50to80: 
+            ["QCD_Pt-50to80_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_80to120: 
+            ["QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_120to170: 
+            ["QCD_Pt-120to170_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_170to300: 
+            ["QCD_Pt-170to300_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_300to470: 
+            ["QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_470to600: 
+            ["QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_600to800: 
+            ["QCD_Pt-600to800_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_800to1000: 
+            ["QCD_Pt-800to1000_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_1000toInf: 
+            ["QCD_Pt-1000toInf_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2017"]
+        qcd_20to30_EM:
+            ["QCD_Pt-20to30_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_30to50_EM:
+            ["QCD_Pt-30to50_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_50to80_EM:
+            ["QCD_Pt-50to80_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_80to120_EM:
+            ["QCD_Pt-80to120_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_120to170_EM:
+            ["QCD_Pt-120to170_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_170to300_EM:
+            ["QCD_Pt-170to300_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+        qcd_300toInf_EM:
+            ["QCD_Pt-300toInf_EMEnriched_TuneCP5_13TeV_pythia8-2017"]
+    2018:
+        qcd_15to20: 
+            ["QCD_Pt-15to20_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"] 
+        qcd_20to30: 
+            ["QCD_Pt-20to30_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_30to50: 
+            ["QCD_Pt-30to50_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_50to80: 
+            ["QCD_Pt-50to80_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_80to120: 
+            ["QCD_Pt-80to120_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_120to170: 
+            ["QCD_Pt-120to170_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_170to300: 
+            ["QCD_Pt-170to300_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_300to470: 
+            ["QCD_Pt-300to470_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_470to600: 
+            ["QCD_Pt-470to600_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_600to800: 
+            ["QCD_Pt-600to800_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_800to1000: 
+            ["QCD_Pt-800to1000_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_1000toInf: 
+            ["QCD_Pt-1000toInf_MuEnrichedPt5_TuneCP5_13TeV_pythia8-2018"]
+        qcd_20to30_EM:
+            ["QCD_Pt-20to30_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_30to50_EM:
+            ["QCD_Pt-30to50_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_50to80_EM:
+            ["QCD_Pt-50to80_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_80to120_EM:
+            ["QCD_Pt-80to120_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_120to170_EM:
+            ["QCD_Pt-120to170_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_170to300_EM:
+            ["QCD_Pt-170to300_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+        qcd_300toInf_EM:
+            ["QCD_Pt-300toInf_EMEnriched_TuneCP5_13TeV_pythia8-2018"]
+
+topbkg:
+    2016:
+        ttsemilep:
+            ["TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8-2016"]
+        ttdilep:
+            ["TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8-2016"]
+        #tthad:
+            #["TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8-2016"]
+        #st_t_top:
+            #["ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1-2016"]
+        #st_t_antitop:
+            #["ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8-2016"]
+        #st_tW_top:
+            #["ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1-2016"]
+        #st_tW_antitop:
+            #["ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1-2016"]
+
+    2017:
+        ttsemilep:
+            ["TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_ext1-2017"]
+        ttdilep:
+            ["TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8-2017"]
+        #tthad:
+            #["TTToHadronic_TuneCP5_13TeV-powheg-pythia8-2017"]
+        #st_t_top:
+            #["ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8-2017"]
+        #st_t_antitop:
+            #["ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8-2017"]
+        #st_tW_top:
+            #["ST_tW_top_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8-2017"]
+        #st_tW_antitop:
+            #["ST_tW_antitop_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8-2017"]
+
+    2018:
+        ttsemilep:
+            ["TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8-2018"]
+        ttdilep: 
+            ["TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8-2018"]
+        #tthad: 
+            #["TTToHadronic_TuneCP5_13TeV-powheg-pythia8-2018"]
+        #st_t_top: 
+            #["ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8-2018"]
+        #st_t_antitop: 
+            #["ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8-2018"]
+        #st_tW_top: 
+            #["ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8-2018"]
+        #st_tW_antitop: 
+            #["ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8-2018"]
+
+wjets:
+    2016:
+        w0jets:
+            ["WToLNu_0J_13TeV-amcatnloFXFX-pythia8-ext1-2016"]
+        w1jets:
+            ["WToLNu_1J_13TeV-amcatnloFXFX-pythia8-2016"]
+        w2jets:
+            ["WToLNu_2J_13TeV-amcatnloFXFX-pythia8-ext4-2016"]
+    2017:
+        w0jets:
+            ["WJetsToLNu_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8-2017"]
+        w1jets:
+            ["WJetsToLNu_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8-ext1-2017"]
+        w2jets: 
+            ["WJetsToLNu_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8-2017"]
+    2018:
+        w0jets:
+            ["WJetsToLNu_0J_TuneCP5_13TeV-amcatnloFXFX-pythia8-2018"]
+        w1jets:
+            ["WJetsToLNu_1J_TuneCP5_13TeV-amcatnloFXFX-pythia8-2018"]
+        w2jets:
+            ["WJetsToLNu_2J_TuneCP5_13TeV-amcatnloFXFX-pythia8-2018"]
+dyjets:
+    2016:
+        dy10to50:
+            ["DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-2016"]
+        dy50:
+            ["DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-ext2-2016"]
+
+    2017:
+        dy10to50:
+            ["DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8-2017"]
+        dy50:
+            ["DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_ext1-2017"]
+    2018:
+        dy10to50:
+            ["DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8-2018"]
+        dy50:
+            ["DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_ext2-2018"]
+vgamma: 
+    2016:
+        wg:
+            ["WGToLNuG_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-2016"]
+        zg: 
+            ["ZGToLLG_01J_5f_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8-2016"]
+    2017:
+        wg:
+            ["WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8-2017"]
+        zg: 
+            ["ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8-2017"]
+    2018:
+        wg:
+            ["WGToLNuG_TuneCP5_13TeV-madgraphMLM-pythia8-2018"]
+        zg: 
+            ["ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8-2018-ext2-v2"]
+muon:
+    2016:
+        runb: 
+            ["SingleMuon_Run2016B_ver2"]
+        runc: 
+            ["SingleMuon_Run2016C"]
+        rund: 
+            ["SingleMuon_Run2016D"]
+        rune: 
+            ["SingleMuon_Run2016E"]
+        runf: 
+            ["SingleMuon_Run2016F"]
+        rung: 
+            ["SingleMuon_Run2016G"]
+        runh: 
+            ["SingleMuon_Run2016H"]
+    2017:
+        runb: 
+            ["SingleMuon_Run2017B"]
+        runc: 
+            ["SingleMuon_Run2017C"]
+        rund: 
+            ["SingleMuon_Run2017D"]
+        rune: 
+            ["SingleMuon_Run2017E"]
+        runf: 
+            ["SingleMuon_Run2017F"]
+    2018:
+        runa: 
+            ["SingleMuon_Run2018A"]
+        runb: 
+            ["SingleMuon_Run2018B"]
+        runc: 
+            ["SingleMuon_Run2018C"]
+        rund: 
+            ["SingleMuon_Run2018D"]
+electron: 
+    2016:
+        runb: 
+            ["SingleElectron_Run2016B_ver2"]
+        runc: 
+            ["SingleElectron_Run2016C"]
+        rund: 
+            ["SingleElectron_Run2016D"]
+        rune: 
+            ["SingleElectron_Run2016E"]
+        runf: 
+            ["SingleElectron_Run2016F"]
+        rung: 
+            ["SingleElectron_Run2016G"]
+        runh: 
+            ["SingleElectron_Run2016H"]
+    2017:
+        runb: 
+            ["SingleElectron_Run2017B"]
+        runc: 
+            ["SingleElectron_Run2017C"]
+        rund: 
+            ["SingleElectron_Run2017D"]
+        rune: 
+            ["SingleElectron_Run2017E"]
+        runf: 
+            ["SingleElectron_Run2017F"]
+    2018:
+        runa: 
+            ["EGamma_Run2018A"]
+        runb: 
+            ["EGamma_Run2018B"]
+        runc: 
+            ["EGamma_Run2018C"]
+        rund: 
+            ["EGamma_Run2018D"]
+
+    
+HNL_dirac_all_ctau1p0e-01_massHNL10p0_Vall5p262e-03:
+HNL_dirac_all_ctau1p0e-01_massHNL12p0_Vall3p272e-03:
+HNL_dirac_all_ctau1p0e-01_massHNL16p0_Vall1p551e-03:
+HNL_dirac_all_ctau1p0e-01_massHNL1p5_Vall8p442e-01:
+HNL_dirac_all_ctau1p0e-01_massHNL20p0_Vall8p709e-04:
+HNL_dirac_all_ctau1p0e-01_massHNL2p0_Vall4p066e-01:
+HNL_dirac_all_ctau1p0e-01_massHNL3p0_Vall1p388e-01:
+HNL_dirac_all_ctau1p0e-01_massHNL4p5_Vall4p549e-02:
+HNL_dirac_all_ctau1p0e-01_massHNL6p0_Vall2p054e-02:
+HNL_dirac_all_ctau1p0e-01_massHNL8p0_Vall9p475e-03:
+HNL_dirac_all_ctau1p0e-02_massHNL10p0_Vall1p664e-02:
+HNL_dirac_all_ctau1p0e-02_massHNL12p0_Vall1p035e-02:
+HNL_dirac_all_ctau1p0e-02_massHNL16p0_Vall4p905e-03:
+HNL_dirac_all_ctau1p0e-02_massHNL20p0_Vall2p754e-03:
+HNL_dirac_all_ctau1p0e-02_massHNL3p0_Vall4p390e-01:
+HNL_dirac_all_ctau1p0e-02_massHNL4p5_Vall1p438e-01:
+HNL_dirac_all_ctau1p0e-02_massHNL6p0_Vall6p496e-02:
+HNL_dirac_all_ctau1p0e-02_massHNL8p0_Vall2p996e-02:
+HNL_dirac_all_ctau1p0e-03_massHNL10p0_Vall5p262e-02:
+HNL_dirac_all_ctau1p0e-03_massHNL12p0_Vall3p272e-02:
+HNL_dirac_all_ctau1p0e-03_massHNL16p0_Vall1p551e-02:
+HNL_dirac_all_ctau1p0e-03_massHNL20p0_Vall8p709e-03:
+HNL_dirac_all_ctau1p0e-03_massHNL24p0_Vall5p432e-03:
+HNL_dirac_all_ctau1p0e-04_massHNL10p0_Vall1p664e-01:
+HNL_dirac_all_ctau1p0e-04_massHNL12p0_Vall1p035e-01:
+HNL_dirac_all_ctau1p0e-04_massHNL16p0_Vall4p905e-02:
+HNL_dirac_all_ctau1p0e-04_massHNL20p0_Vall2p754e-02:
+HNL_dirac_all_ctau1p0e-04_massHNL24p0_Vall1p718e-02:
+HNL_dirac_all_ctau1p0e-05_massHNL10p0_Vall5p262e-01:
+HNL_dirac_all_ctau1p0e-05_massHNL12p0_Vall3p272e-01:
+HNL_dirac_all_ctau1p0e-05_massHNL16p0_Vall1p551e-01:
+HNL_dirac_all_ctau1p0e-05_massHNL20p0_Vall8p709e-02:
+HNL_dirac_all_ctau1p0e-05_massHNL24p0_Vall5p432e-02:
+HNL_dirac_all_ctau1p0e00_massHNL10p0_Vall1p664e-03:
+HNL_dirac_all_ctau1p0e00_massHNL12p0_Vall1p035e-03:
+HNL_dirac_all_ctau1p0e00_massHNL16p0_Vall4p905e-04:
+HNL_dirac_all_ctau1p0e00_massHNL1p0_Vall7p460e-01:
+HNL_dirac_all_ctau1p0e00_massHNL1p5_Vall2p670e-01:
+HNL_dirac_all_ctau1p0e00_massHNL20p0_Vall2p754e-04:
+HNL_dirac_all_ctau1p0e00_massHNL2p0_Vall1p286e-01:
+HNL_dirac_all_ctau1p0e00_massHNL3p0_Vall4p390e-02:
+HNL_dirac_all_ctau1p0e00_massHNL4p5_Vall1p438e-02:
+HNL_dirac_all_ctau1p0e00_massHNL6p0_Vall6p496e-03:
+HNL_dirac_all_ctau1p0e00_massHNL8p0_Vall2p996e-03:
+HNL_dirac_all_ctau1p0e01_massHNL10p0_Vall5p262e-04:
+HNL_dirac_all_ctau1p0e01_massHNL12p0_Vall3p272e-04:
+HNL_dirac_all_ctau1p0e01_massHNL16p0_Vall1p551e-04:
+HNL_dirac_all_ctau1p0e01_massHNL1p0_Vall2p359e-01:
+HNL_dirac_all_ctau1p0e01_massHNL1p5_Vall8p442e-02:
+HNL_dirac_all_ctau1p0e01_massHNL20p0_Vall8p709e-05:
+HNL_dirac_all_ctau1p0e01_massHNL2p0_Vall4p066e-02:
+HNL_dirac_all_ctau1p0e01_massHNL3p0_Vall1p388e-02:
+HNL_dirac_all_ctau1p0e01_massHNL4p5_Vall4p549e-03:
+HNL_dirac_all_ctau1p0e01_massHNL6p0_Vall2p054e-03:
+HNL_dirac_all_ctau1p0e01_massHNL8p0_Vall9p475e-04:
+HNL_dirac_all_ctau1p0e02_massHNL10p0_Vall1p664e-04:
+HNL_dirac_all_ctau1p0e02_massHNL12p0_Vall1p035e-04:
+HNL_dirac_all_ctau1p0e02_massHNL1p0_Vall7p460e-02:
+HNL_dirac_all_ctau1p0e02_massHNL1p5_Vall2p670e-02:
+HNL_dirac_all_ctau1p0e02_massHNL2p0_Vall1p286e-02:
+HNL_dirac_all_ctau1p0e02_massHNL3p0_Vall4p390e-03:
+HNL_dirac_all_ctau1p0e02_massHNL4p5_Vall1p438e-03:
+HNL_dirac_all_ctau1p0e02_massHNL6p0_Vall6p496e-04:
+HNL_dirac_all_ctau1p0e02_massHNL8p0_Vall2p996e-04:
+HNL_dirac_all_ctau1p0e03_massHNL1p0_Vall2p359e-02:
+HNL_dirac_all_ctau1p0e03_massHNL1p5_Vall8p442e-03:
+HNL_dirac_all_ctau1p0e03_massHNL2p0_Vall4p066e-03:
+HNL_dirac_all_ctau1p0e03_massHNL3p0_Vall1p388e-03:
+HNL_dirac_all_ctau1p0e03_massHNL4p5_Vall4p549e-04:
+HNL_dirac_all_ctau1p0e03_massHNL6p0_Vall2p054e-04:
+HNL_dirac_all_ctau1p0e03_massHNL8p0_Vall9p475e-05:
+HNL_dirac_all_ctau1p0e04_massHNL1p0_Vall7p460e-03:
+HNL_dirac_all_ctau1p0e04_massHNL1p5_Vall2p670e-03:
+HNL_dirac_all_ctau1p0e04_massHNL2p0_Vall1p286e-03:
+HNL_dirac_all_ctau1p0e04_massHNL3p0_Vall4p390e-04:
+HNL_dirac_all_ctau1p0e04_massHNL4p5_Vall1p438e-04:
+HNL_majorana_all_ctau1p0e-01_massHNL10p0_Vall3p721e-03:
+HNL_majorana_all_ctau1p0e-01_massHNL12p0_Vall2p314e-03:
+HNL_majorana_all_ctau1p0e-01_massHNL16p0_Vall1p097e-03:
+HNL_majorana_all_ctau1p0e-01_massHNL1p5_Vall5p965e-01:
+HNL_majorana_all_ctau1p0e-01_massHNL20p0_Vall6p165e-04:
+HNL_majorana_all_ctau1p0e-01_massHNL2p0_Vall2p871e-01:
+HNL_majorana_all_ctau1p0e-01_massHNL3p0_Vall9p825e-02:
+HNL_majorana_all_ctau1p0e-01_massHNL4p5_Vall3p213e-02:
+HNL_majorana_all_ctau1p0e-01_massHNL6p0_Vall1p454e-02:
+HNL_majorana_all_ctau1p0e-01_massHNL8p0_Vall6p702e-03:
+HNL_majorana_all_ctau1p0e-02_massHNL10p0_Vall1p177e-02:
+HNL_majorana_all_ctau1p0e-02_massHNL12p0_Vall7p319e-03:
+HNL_majorana_all_ctau1p0e-02_massHNL16p0_Vall3p470e-03:
+HNL_majorana_all_ctau1p0e-02_massHNL20p0_Vall1p950e-03:
+HNL_majorana_all_ctau1p0e-02_massHNL3p0_Vall3p107e-01:
+HNL_majorana_all_ctau1p0e-02_massHNL4p5_Vall1p016e-01:
+HNL_majorana_all_ctau1p0e-02_massHNL6p0_Vall4p597e-02:
+HNL_majorana_all_ctau1p0e-02_massHNL8p0_Vall2p119e-02:
+HNL_majorana_all_ctau1p0e-03_massHNL10p0_Vall3p721e-02:
+HNL_majorana_all_ctau1p0e-03_massHNL12p0_Vall2p314e-02:
+HNL_majorana_all_ctau1p0e-03_massHNL16p0_Vall1p097e-02:
+HNL_majorana_all_ctau1p0e-03_massHNL20p0_Vall6p165e-03:
+HNL_majorana_all_ctau1p0e-03_massHNL24p0_Vall3p845e-03:
+HNL_majorana_all_ctau1p0e-04_massHNL10p0_Vall1p177e-01:
+HNL_majorana_all_ctau1p0e-04_massHNL12p0_Vall7p319e-02:
+HNL_majorana_all_ctau1p0e-04_massHNL16p0_Vall3p470e-02:
+HNL_majorana_all_ctau1p0e-04_massHNL20p0_Vall1p950e-02:
+HNL_majorana_all_ctau1p0e-04_massHNL24p0_Vall1p216e-02:
+HNL_majorana_all_ctau1p0e-05_massHNL10p0_Vall3p721e-01:
+HNL_majorana_all_ctau1p0e-05_massHNL12p0_Vall2p314e-01:
+HNL_majorana_all_ctau1p0e-05_massHNL16p0_Vall1p097e-01:
+HNL_majorana_all_ctau1p0e-05_massHNL20p0_Vall6p165e-02:
+HNL_majorana_all_ctau1p0e-05_massHNL24p0_Vall3p845e-02:
+HNL_majorana_all_ctau1p0e00_massHNL10p0_Vall1p177e-03:
+HNL_majorana_all_ctau1p0e00_massHNL12p0_Vall7p319e-04:
+HNL_majorana_all_ctau1p0e00_massHNL16p0_Vall3p470e-04:
+HNL_majorana_all_ctau1p0e00_massHNL1p0_Vall5p274e-01:
+HNL_majorana_all_ctau1p0e00_massHNL1p5_Vall1p886e-01:
+HNL_majorana_all_ctau1p0e00_massHNL20p0_Vall1p950e-04:
+HNL_majorana_all_ctau1p0e00_massHNL2p0_Vall9p078e-02:
+HNL_majorana_all_ctau1p0e00_massHNL3p0_Vall3p107e-02:
+HNL_majorana_all_ctau1p0e00_massHNL4p5_Vall1p016e-02:
+HNL_majorana_all_ctau1p0e00_massHNL6p0_Vall4p597e-03:
+HNL_majorana_all_ctau1p0e00_massHNL8p0_Vall2p119e-03:
+HNL_majorana_all_ctau1p0e01_massHNL10p0_Vall3p721e-04:
+HNL_majorana_all_ctau1p0e01_massHNL12p0_Vall2p314e-04:
+HNL_majorana_all_ctau1p0e01_massHNL16p0_Vall1p097e-04:
+HNL_majorana_all_ctau1p0e01_massHNL1p0_Vall1p668e-01:
+HNL_majorana_all_ctau1p0e01_massHNL1p5_Vall5p965e-02:
+HNL_majorana_all_ctau1p0e01_massHNL20p0_Vall6p165e-05:
+HNL_majorana_all_ctau1p0e01_massHNL2p0_Vall2p871e-02:
+HNL_majorana_all_ctau1p0e01_massHNL3p0_Vall9p825e-03:
+HNL_majorana_all_ctau1p0e01_massHNL4p5_Vall3p213e-03:
+HNL_majorana_all_ctau1p0e01_massHNL6p0_Vall1p454e-03:
+HNL_majorana_all_ctau1p0e01_massHNL8p0_Vall6p702e-04:
+HNL_majorana_all_ctau1p0e02_massHNL10p0_Vall1p177e-04:
+HNL_majorana_all_ctau1p0e02_massHNL12p0_Vall7p319e-05:
+HNL_majorana_all_ctau1p0e02_massHNL1p0_Vall5p274e-02:
+HNL_majorana_all_ctau1p0e02_massHNL1p5_Vall1p886e-02:
+HNL_majorana_all_ctau1p0e02_massHNL2p0_Vall9p078e-03:
+HNL_majorana_all_ctau1p0e02_massHNL3p0_Vall3p107e-03:
+HNL_majorana_all_ctau1p0e02_massHNL4p5_Vall1p016e-03:
+HNL_majorana_all_ctau1p0e02_massHNL6p0_Vall4p597e-04:
+HNL_majorana_all_ctau1p0e02_massHNL8p0_Vall2p119e-04:
+HNL_majorana_all_ctau1p0e03_massHNL1p0_Vall1p668e-02:
+HNL_majorana_all_ctau1p0e03_massHNL1p5_Vall5p965e-03:
+HNL_majorana_all_ctau1p0e03_massHNL2p0_Vall2p871e-03:
+HNL_majorana_all_ctau1p0e03_massHNL3p0_Vall9p825e-04:
+HNL_majorana_all_ctau1p0e03_massHNL4p5_Vall3p213e-04:
+HNL_majorana_all_ctau1p0e03_massHNL6p0_Vall1p454e-04:
+HNL_majorana_all_ctau1p0e03_massHNL8p0_Vall6p702e-05:
+HNL_majorana_all_ctau1p0e04_massHNL1p0_Vall5p274e-03:
+HNL_majorana_all_ctau1p0e04_massHNL1p5_Vall1p886e-03:
+HNL_majorana_all_ctau1p0e04_massHNL2p0_Vall9p078e-04:
+HNL_majorana_all_ctau1p0e04_massHNL3p0_Vall3p107e-04:
+HNL_majorana_all_ctau1p0e04_massHNL4p5_Vall1p016e-04:
