@@ -17,6 +17,7 @@ categories=[
       "emu_OS_prompt",
       "emu_SS_prompt",
       ]
+
 ncats=len(categories)
 
 regions = ["A", "B", "C", "D"]
