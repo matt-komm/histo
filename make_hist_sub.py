@@ -26,7 +26,7 @@ nregions = len(regions)
 procsbkg = []
 procsHNL = []
 procsData = []
-years = ["2016"] #, "2017", "2018"]
+years = ["2016", "2017", "2018"]
 
 import yaml
 with open("samples.yml") as samples_file:
