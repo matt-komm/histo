@@ -62,9 +62,9 @@ def removeNegEntries(hist: ROOT.TH1D):
 def mass_cut(region:str="D", syst:str="nominal") -> str:
     """ Returns mass window cut repending on region """
 
-    if region == "A" or region == "B":
+    if region == "B" or region == "C":
         return  f'({syst}_m_llj>95. or {syst}_m_llj<65.) '
-    elif region == "C" or region == "D":
+    elif region == "A" or region == "D":
         return  f'({syst}_m_llj<95.) and ({syst}_m_llj>65.) '
     else:
         return ""
@@ -197,7 +197,7 @@ if isMC:
 
 else:
     process.Define("category_nominal_index", "1.*(nominal_dR_l2j<0.4) + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
-    process.Define(f"tagger_score_nominal", tagger_compound_variable)
+    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal"))
 
 
 # create root file with nominal value histogram and various systematic variations
