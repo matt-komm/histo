@@ -36,7 +36,6 @@ for l in samples_dict:
     if "HNL" in l:
         procsHNL.append(l)
     elif l == "muon" or l == "electron": 
-        continue
         procsData.append(l)
     else:
         procsbkg.append(l)
