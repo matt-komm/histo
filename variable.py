@@ -1,11 +1,10 @@
 import ROOT
-from . import style
+import style
 import numpy as np
 import os
 from array import array
 
 lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
-
 
 # This class is responsible for making the histogram and plotting it for a given variable
 class Variable:
@@ -18,7 +17,7 @@ class Variable:
         self.name = name
         self.logx = logx
         self.logy = logy
-        self.leg = style.makeLegend(0.65, 0.70, 0.90, 0.88)
+        self.leg = style.makeLegend(0.55, 0.70, 0.90, 0.88)
         self.xmin = float(xmin)
         self.xmax = float(xmax)
         self.leg.SetTextSize(self.leg.GetTextSize()*0.8)
@@ -34,12 +33,15 @@ class Variable:
         if isSignal:
             self.signals.append(hist)
             hist.SetLineStyle(1+len(self.signals))
+            print("adding signal")
             self.leg.AddEntry(hist, title, "l")
         elif isData:
             self.data = hist
+            print("adding data")
             self.leg.AddEntry(hist, title, "p")
         else:
             self.stack.Add(hist)
+            print("adding bkg")
             self.leg.AddEntry(hist, title, "f")
     def Draw(self, suffix, opt, draw_text, year="2016", output_dir="test"):
         print ("plotting "+self.varexp)
@@ -54,7 +56,7 @@ class Variable:
         lowerPad.SetTopMargin(0.00001)
         lowerPad.SetBottomMargin(0.4)
         lowerPad.SetBorderMode(0)
-        canvas.SetBottomMargin(0.2)
+        canvas.SetBottomMargin(0.25)
         canvas.SetTopMargin(0.1)
         upperPad.Draw()
         lowerPad.Draw()
@@ -89,7 +91,7 @@ class Variable:
         axis.SetMinimum(0.25)
         axis.SetMaximum(1.75)
         axis.GetXaxis().SetTitle(self.name)
-        axis.GetXaxis().SetTitleOffset(2.5)
+        axis.GetXaxis().SetTitleOffset(3.5)
         if self.logx:
             lowerPad.SetLogx()
         axis.Draw("AXIS")
