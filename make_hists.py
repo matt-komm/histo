@@ -59,22 +59,29 @@ def removeNegEntries(hist: ROOT.TH1D):
         #print "bin%2i, %.1f+-%.1f (+-%.1f%%)"%(ibin,c,hist.GetBinError(ibin+1),100.*hist.GetBinError(ibin+1)/c if c>0 else -1)
 
 
-def mass_cut(region:str="D", syst:str="nominal") -> str:
+def mass_cut(region:str="D", syst:str="nominal", single_lepton=False) -> str:
     """ Returns mass window cut repending on region """
 
-    if region == "B" or region == "C":
-        return  f'({syst}_m_llj>95. or {syst}_m_llj<65.) '
-    elif region == "A" or region == "D":
-        return  f'({syst}_m_llj<95.) and ({syst}_m_llj>65.) '
+    if single_lepton:
+        if region == "B" or region == "C":
+            return  f'({syst}_m_l1j>100. or {syst}_m_l1j<50.) '
+        elif region == "A" or region == "D":
+            return  f'({syst}_m_l1j<100.) and ({syst}_m_l1j>50.) '
+        else:
+            return ""
     else:
-        return ""
+        if region == "B" or region == "C":
+            return  f'({syst}_m_llj>95. or {syst}_m_llj<65.) '
+        elif region == "A" or region == "D":
+            return  f'({syst}_m_llj<95.) and ({syst}_m_llj>65.) '
+        else:
+            return ""
 
-def tagger_cut(tagger_thresholds: list, region:str="D", syst:str="nominal") -> str:
+def tagger_cut(tagger_threshold: float, region:str="D", syst:str="nominal") -> str:
     """ Returns tagger score cut repending on region """
 
-    assert len(tagger_thresholds) == 3
-    lower_cut = tagger_thresholds[0]
-    upper_cut = tagger_thresholds[2]
+    lower_cut = tagger_threshold-0.4
+    upper_cut = tagger_threshold
     cut = ""
     cut += f'tagger_score_{syst} > {lower_cut}'
 
@@ -85,34 +92,23 @@ def tagger_cut(tagger_thresholds: list, region:str="D", syst:str="nominal") -> s
     return cut 
 
 
-def tagger_compound_variable(syst:str="nominal") -> str:
-    return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
+def tagger_compound_variable(syst:str="nominal", single_lepton=False) -> str:
+    if single_lepton:
+        return f"hnlJet_{syst}_llpdnnx_ratio_LLP_Q"
+    else:
+        return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
         ({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
             +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
-
-
-# # For data-driven background estimation
-# def abcd_cut(region="D", syst="nominal", isData=False, single=False):
-
-
-#     if region == "A" or region == "D":
-#         cut += f' and ((category_simplified_{syst}_llpdnnx_max>100 and category_simplified_{syst}_index==1) \
-#                     or (category_simplified_{syst}_llpdnnx_max>300 and category_simplified_{syst}_index==2))'
-#     elif region == "B" or region == "C":
-#         cut += f' and ((category_simplified_{syst}_llpdnnx_max>1 and category_simplified_{syst}_llpdnnx_max<100 and category_simplified_{syst}_index==1) \
-#                     or (category_simplified_{syst}_llpdnnx_max>1 and category_simplified_{syst}_llpdnnx_max<300 and category_simplified_{syst}_index==2))'
-
-#     return cut
-
 
 
 # make histograms per year, process
 parser = argparse.ArgumentParser()
 parser.add_argument("--year",default="2016")
+parser.add_argument("--leptons", choices=["1", "2"], default="2", action="store")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS_displaced")
 parser.add_argument("--region", default="D")
-parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/15Mar21_2l/") #03Dec20
+parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/15Mar21") #03Dec20
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 
@@ -120,11 +116,17 @@ args = parser.parse_args()
 year = args.year
 proc = args.proc
 macroCategory_name = args.category
-ntuple_path = os.path.join(args.ntuple_path, year)
+ntuple_path = os.path.join(f"{args.ntuple_path}_{args.leptons}l", year)
 region = args.region
 oneFile = args.oneFile
 isData = args.data
 isMC = not isData
+
+if args.leptons == "1":
+    single_lepton = True
+else:
+    single_lepton = False
+print(f"Single lepton, {single_lepton}")
 
 lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
 
@@ -145,26 +147,33 @@ systDict["tightElectrons_weight_reco"] = "tight_electron_reco"
 systDict["looseElectrons_weight_reco"] = "loose_electron_reco"
 systDict["puweight"] = "pu"
 
-systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown"]
+systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown", "unclEnUp", "unclEnDown"]
 
 ####################################
 
 # couplings to consider
 couplings = [2, 7, 12, 47, 52, 67]
+couplings = range(2, 68)
 
-with open('categories_2l.json', 'r') as fp:
+if single_lepton:
+    category_file = 'categories_1l.json'
+else:
+    category_file = 'categories_2l.json'
+ 
+with open(category_file, 'r') as fp:
     macroCategory_dict = json.load(fp)
 
 macroCategory_cut = macroCategory_dict[macroCategory_name]["varexp"]
-thresholds_merged = macroCategory_dict[macroCategory_name]["thresholds_merged"]
-thresholds_resolved = macroCategory_dict[macroCategory_name]["thresholds_resolved"]
+threshold_merged = macroCategory_dict[macroCategory_name]["threshold_merged"][year]
+if not single_lepton:
+    threshold_resolved = macroCategory_dict[macroCategory_name]["threshold_resolved"][year]
 
 diLeptonCategory_dict = {}
 diLeptonCategory_dict[1] = "ql" # Merged
 diLeptonCategory_dict[2] = "q" # Resolved
 
-# singleLeptonCategory_dict = {}
-# singleLeptonCategory_dict[1] = "qq"
+singleLeptonCategory_dict = {}
+singleLeptonCategory_dict[1] = "q"
 # singleLeptonCategory_dict[2] = "q"
 #####################################
 
@@ -186,18 +195,24 @@ if isMC:
     for systName, abrv in systDict.items():
         for variation in ["Up", "Down"]:
             if "HNL" in process.name:
-                for coupling in range(2, 68):
+                for coupling in couplings:
                     process.Define("weightHNL_{}_{}{}".format(coupling, abrv, variation), "weightNominalHNL_{}/{}*{}".format(coupling, systName+"_nominal", systName+"_"+variation.lower()))
             else:
                 process.Define("weight_{}{}".format(abrv, variation), "weightNominal/{}*{}".format(systName+"_nominal", systName+"_"+variation.lower()))
     for syst in systematics_shapes:
         # Define resolved and merged categories & tagger score variable
-        process.Define(f"category_{syst}_index", "1.*(nominal_dR_l2j<0.4) + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
-        process.Define(f"tagger_score_{syst}", tagger_compound_variable(syst))
+        if single_lepton:
+            process.Define(f"category_{syst}_index", "1.")
+        else:
+            process.Define(f"category_{syst}_index", f"1.*({syst}_dR_l2j<0.4) + 2.*({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)")
+        process.Define(f"tagger_score_{syst}", tagger_compound_variable(syst, single_lepton=single_lepton))
 
 else:
-    process.Define("category_nominal_index", "1.*(nominal_dR_l2j<0.4) + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
-    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal"))
+    if single_lepton:
+        process.Define(f"category_nominal_index", "1.")
+    else:
+        process.Define("category_nominal_index", "1.*(nominal_dR_l2j<0.4) + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
+    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal", single_lepton=single_lepton))
 
 
 # create root file with nominal value histogram and various systematic variations
@@ -208,7 +223,10 @@ root_file.cd()
 root_file.mkdir(macroCategory_name+"_"+region)
 root_file.cd(macroCategory_name+"_"+region)
 
-category_dict = diLeptonCategory_dict
+if single_lepton:
+    category_dict = singleLeptonCategory_dict
+else:
+    category_dict = diLeptonCategory_dict
 category_variable_nominal = "category_nominal_index"
 
 coupling = 1
@@ -243,13 +261,20 @@ while coupling < 67:
 
             # Systematic variation -- replace nominal by systematic in all cuts
             cut = macroCategory_cut.replace("nominal", systName)
-            cut += f" and {mass_cut(syst=systName, region=region)}"
+            # Hack
+            cut = cut.replace("nselectedJets_unclEnUp", "nselectedJets_nominal")
+            cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal")
+
+            cut += f" and {mass_cut(syst=systName, region=region, single_lepton=single_lepton)}"
 
             # Variable used to categorise the events. replace nominal by systematic
             category_variable = category_variable_nominal.replace("nominal", systName)
 
             # read in hist from nanoAOD friends
-            cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region, syst=systName)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region, syst=systName)}) )"
+            if single_lepton:
+                cut += f"and ({tagger_cut(threshold_merged, region=region, syst=systName)})"
+            else:
+                cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region, syst=systName)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region, syst=systName)}) )"
             print(systName, category_variable, cut, weight)
 
             hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
@@ -272,9 +297,12 @@ while coupling < 67:
 
                 # only nominal cut will be applied
                 cut = macroCategory_cut
-                cut += f" and {mass_cut(region=region)}"
+                cut += f" and {mass_cut(region=region, single_lepton=single_lepton)}"
                 category_variable = category_variable_nominal
-                cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region)}) )"
+                if single_lepton:
+                    cut += f"and ({tagger_cut(threshold_merged, region=region)})"
+                else:
+                    cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region)}) )"
 
                 print(systName, category_variable, cut, weight)
 
@@ -285,13 +313,19 @@ while coupling < 67:
     else:
         name = process.name
         cut = macroCategory_cut
-        cut += f" and {mass_cut(region=region)}"
+        cut += f" and {mass_cut(region=region, single_lepton=single_lepton)}"
         category_variable = category_variable_nominal
-        cut += f"and ( ({category_variable}==1 and {tagger_cut(thresholds_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(thresholds_resolved, region=region)}) )"
+        if single_lepton:
+            cut += f"and ({tagger_cut(threshold_merged, region=region)})"
+        else:
+            cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region)}) )"
         print(category_variable, cut)
 
         hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight="weightNominal")
         hist_nano = hist_nano.Clone()
-        write_hist(hist_nano, category_dict, "data", isMC=False)
+        if isMC:
+            write_hist(hist_nano, category_dict, name)
+        else:
+            write_hist(hist_nano, category_dict, "data", isMC=False)
 
 root_file.Close()
