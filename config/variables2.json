@@ -1,0 +1,118 @@
+ [
+  [
+    "selectedJets_nominal_phi[0]",
+    "leading jet #phi",
+    25,
+    -3.14,
+    3.14
+  ]
+]
+[
+  ["PV_npvsGood",
+    "number of PV",
+    30,
+    0,
+    60
+  ],
+  [
+    "nselectedJets_nominal",
+    "# of jets",
+    15,
+    0,
+    15
+  ],
+  [
+    "selectedJets_nominal_pt[0]",
+    "leading jet p_{T} [GeV]",
+    25,
+    0,
+    100
+  ],
+  [
+    "selectedJets_nominal_ptRaw[0]",
+    "leading jet raw p_{T} [GeV]",
+    25,
+    0,
+    100
+  ],
+  [
+    "selectedJets_nominal_ptSubtracted[0]",
+    "leading jet p_{T} subtracted [GeV]",
+    25,
+    0,
+    100
+  ],
+  [
+    "selectedJets_nominal_eta[0]",
+    "leading jet #eta",
+    25,
+    -2.4,
+    2.4
+  ],
+  [
+    "selectedJets_nominal_phi[0]",
+    "leading jet #phi",
+    25,
+    -3.14,
+    3.14
+  ],
+  [
+    "leadingLeptons_pt[0]",
+    "p_{T} (l_{1}) [GeV]",
+    25,
+    25,
+    100
+  ],
+  [
+    "subleadingLeptons_pt[0]",
+    "p_{T} (l_{2}) [GeV]",
+    25,
+    3,
+    100
+  ],
+  [
+    "subleadingLeptons_relIso[0]",
+    "rel. iso. l_{2}",
+    25,
+    1e-3,
+    10,
+    1
+  ],
+  [
+    "abs(subleadingLeptons_dxy[0])",
+    "|d_{xy}| l_{2} [cm]",
+    25,
+    1e-4,
+    10,
+    1
+  ],
+  [
+    "EventObservables_nominal_met",
+    "p_{T}^{miss} [GeV]",
+    25,
+    0,
+    100
+  ],
+  [
+    "dilepton_mass",
+    "m(l_{1}, l_{2})",
+    25,
+    20,
+    140
+  ],
+  [
+    "category_simplified_nominal_llpdnnx_max",
+    "tagger LLP score",
+    25,
+    0.01,
+    1000,
+    1
+  ],
+  [
+    "category_simplified_nominal_llpdnnx_m_llj",
+    "m(l_{1}l_{2}j)",
+    25,
+    80,
+    200
+  ]
+]

@@ -1,0 +1,12 @@
+[ 
+  [
+    "mu1mu2_OS_SR_",
+    "(Leptons_muonmuon>0) and (dilepton_charge<0) and (nleadingLeptons+nsubleadingLeptons == 2)",
+    "OS #mu#mu+jets"
+  ],
+  [
+    "mu1e2_SS_SR_",
+    "(Leptons_muonelectron>0) and (dilepton_charge>0) and (nleadingLeptons+nsubleadingLeptons == 2)",
+    "SS #mue+jets"
+  ]
+]

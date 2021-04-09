@@ -1,0 +1,38 @@
+[
+  [
+    "nselectedJets_nominal",
+    "# of jets",
+    10,
+    0,
+    10
+  ],
+  [
+    "abs(subleadingLeptons_dxy[0])",
+    "|d_{xy}| l_{2} [cm]",
+    25,
+    1e-4,
+    10,
+    1
+  ],
+  [
+    "nominal_met",
+    "p_{T}^{miss} [GeV]",
+    25,
+    0,
+    150
+  ],
+  [
+    "dilepton_mass",
+    "m(l_{1}, l_{2}) [GeV]",
+    25,
+    0,
+    140
+  ],
+  [
+    "nominal_dR_l2j",
+    "min #DeltaR(l_{2}, jets)",
+    25,
+    0,
+    2
+  ]
+]
