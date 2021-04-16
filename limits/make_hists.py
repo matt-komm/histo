@@ -18,7 +18,7 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
 
     index_new = 0
     hist_limits = ROOT.TH1D("hist", "hist", len(category_dict), 0, len(category_dict))
-
+    print(f"Writing hist {name}")
     for index, category in category_dict.items():
         index_new += 1
         hist_content = hist_nano.GetBinContent(hist_nano.FindBin(index))
@@ -85,15 +85,6 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
     else:
         return ""
 
-    # if single_lepton:
-    #     if region == "B" or region == "C":
-    #         return  f'({syst}_m_l1j>100. or {syst}_m_l1j<50.) '
-    #     elif region == "A" or region == "D":
-    #         return  f'({syst}_m_l1j<100.) and ({syst}_m_l1j>50.) '
-    #     else:
-    #         return ""
-    # else:
-
 def tagger_cut(tagger_threshold: float, lower_threshold: float=0.25, region:str="D", syst:str="nominal") -> str:
     """ Returns tagger score cut repending on region 
     Args:
@@ -126,6 +117,61 @@ def tagger_compound_variable(syst:str="nominal", single_lepton=False) -> str:
         ({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
         +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
 
+def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, category_variable_nominal, thresholds, region, coupling=None):
+
+    hists = {}
+
+    def make_hist(process, category_variable, thresholds, weight, cut, region, syst="nominal"):
+        threshold_merged, deltam_merged = thresholds["merged"]
+        threshold_resolved, deltam_resolved = thresholds["resolved"]
+        #print(f"Tagger thresholds, merged: {threshold_merged}, resolved: {threshold_resolved}")
+        #print(f"DeltaM, merged: {deltam_merged}, resolved: {deltam_resolved}")
+        mass_cut_merged = mass_cut(delta_m=deltam_merged, region=region, syst=syst)
+        mass_cut_resolved = mass_cut(delta_m=deltam_resolved, region=region, syst=syst)
+        tagger_cut_merged = tagger_cut(threshold_merged, region=region, syst=syst)
+        tagger_cut_resolved = tagger_cut(threshold_resolved, region=region, syst=syst)
+
+        cut += f"and ( ({category_variable}==1 and {mass_cut_merged} and {tagger_cut_merged}) or ({category_variable}==2 and {mass_cut_resolved} and {tagger_cut_resolved}) )"
+        print(syst, category_variable, cut, weight)
+
+        hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
+        hist_nano = hist_nano.Clone()
+        return hist_nano
+
+
+    # variations with constant shape but changing weight
+    for syst, abrv in systematics_rates.items():
+        for variation in ["Up", "Down"]:
+            if "HNL" in process.name:
+                name = f"{process.name}_coupling_{coupling}_{abrv}{variation}"
+                weight = f"weightHNL_{coupling}_{abrv}{variation}"
+            else:
+                name = f"{process.name}_{abrv}{variation}"
+                weight = f"weight_{abrv}{variation}"
+            hists[name] = make_hist(process, category_variable_nominal, thresholds, weight, cut_nominal, region, syst="nominal")
+
+
+    for syst in systematics_shapes:
+        if "HNL" in process.name:
+            name = f"{process.name}_coupling_{coupling}"
+            weight = f"weightNominalHNL_{coupling}"
+        else:
+            name = process.name
+            weight = "weightNominal"
+
+        # add name for variations
+        if syst != "nominal":
+            name += f"_{syst}"
+
+        # Systematic variation -- replace nominal by systematic in all cuts
+        cut = cut_nominal.replace("nominal", syst)
+        cut = cut.replace("nselectedJets_unclEnUp", "nselectedJets_nominal") #Hack!
+        cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal") #Hack!
+        category_variable = category_variable_nominal.replace("nominal", syst)
+        # read in hist from nanoAOD friends
+        hists[name] = make_hist(process, category_variable, thresholds, weight, cut, region, syst=syst)
+
+    return hists
 
 # make histograms per year, process
 parser = argparse.ArgumentParser()
@@ -144,21 +190,13 @@ print(vars(args))
 
 year = args.year
 proc = args.proc
-macroCategory_name = args.category
+category_name = args.category
 ntuple_path = os.path.join(f"{args.ntuple_path}_{args.leptons}l", year)
 region = args.region
 oneFile = args.oneFile
 isData = args.data
 isMC = not isData
 output_path = args.output_path
-
-if args.leptons == "1":
-    single_lepton = True
-else:
-    single_lepton = False
-
-# json for lumi
-lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
 
 with open("config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
@@ -168,14 +206,14 @@ with open("config/samples.yml") as samples_file:
 ### Various configurations go here
 
 # Systematic uncertainties
-systDict = {}
-systDict["IsoMuTrigger_weight_trigger"] = "trigger"
-systDict["tightMuons_weight_iso"] = "tight_muon_iso"
-systDict["tightMuons_weight_id"] = "tight_muon_id"
-systDict["tightElectrons_weight_id"] = "tight_electron_id"
-systDict["tightElectrons_weight_reco"] = "tight_electron_reco"
-systDict["looseElectrons_weight_reco"] = "loose_electron_reco"
-systDict["puweight"] = "pu"
+systematics_rates = {}
+systematics_rates["IsoMuTrigger_weight_trigger"] = "trigger"
+systematics_rates["tightMuons_weight_iso"] = "tight_muon_iso"
+systematics_rates["tightMuons_weight_id"] = "tight_muon_id"
+systematics_rates["tightElectrons_weight_id"] = "tight_electron_id"
+systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
+systematics_rates["looseElectrons_weight_reco"] = "loose_electron_reco"
+systematics_rates["puweight"] = "pu"
 
 systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown", "unclEnUp", "unclEnDown"]
 
@@ -185,80 +223,64 @@ systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown
 couplings = [2, 7, 12, 47, 52, 67]
 couplings = range(2, 68)
 
-# if single_lepton:
-#     category_file = 'config/categories_1l.json'
-# else:
 category_file = 'config/categories_2l.json'
 threshold_file = f'config/coordsBestThresholds_{year}.json'
 
 with open(category_file, 'r') as fp:
-    macroCategory_dict = json.load(fp)
+    categories_2l = json.load(fp)
 
 with open(threshold_file, 'r') as fp:
     threshold_dict = json.load(fp)
 
-macroCategory_cut = macroCategory_dict[macroCategory_name]["varexp"]
-threshold_merged, deltam_merged = threshold_dict[macroCategory_name]["merged"]
-threshold_resolved, deltam_resolved = threshold_dict[macroCategory_name]["resolved"]
-print(f"Tagger thresholds, merged: {threshold_merged}, resolved: {threshold_resolved}")
-print(f"DeltaM, merged: {deltam_merged}, resolved: {deltam_resolved}")
+category_cut = categories_2l[category_name]["varexp"]
+thresholds = threshold_dict[category_name]
 
-diLeptonCategory_dict = {}
-diLeptonCategory_dict[1] = "ql" # Merged
-diLeptonCategory_dict[2] = "q" # Resolved
-
-# singleLeptonCategory_dict = {}
-# singleLeptonCategory_dict[1] = "q"
-# singleLeptonCategory_dict[2] = "q"
-#####################################
-
+dilepton_category_dict = {}
+dilepton_category_dict[1] = "ql" # Merged
+dilepton_category_dict[2] = "q" # Resolved
 
 # Process configuration
 if "HNL" in proc:
     process = Process("HNL", proc)
-    process.add(Sample(proc, ntuple_path, ["{}-{}".format(proc, year)], year=year, limits=True))
+    process.Add(Sample(proc, ntuple_path, ["{}-{}".format(proc, year)], year=year, limits=True))
 else:
     process = Process(proc, proc)
     subprocesses = subprocesses[int(year)]
     for sample_name, sample_list in subprocesses.items():
         print(sample_name)
         sample = Sample(sample_name, ntuple_path, sample_list, year=year, oneFile=oneFile, isMC=isMC)
-        process.add(sample)
+        process.Add(sample)
 
 # Event weights: MC only
 if isMC:
-    for systName, abrv in systDict.items():
+    for syst, abrv in systematics_rates.items():
         for variation in ["Up", "Down"]:
             if "HNL" in process.name:
                 for coupling in couplings:
-                    process.Define("weightHNL_{}_{}{}".format(coupling, abrv, variation), "weightNominalHNL_{}/{}*{}".format(coupling, systName+"_nominal", systName+"_"+variation.lower()))
+                    process.Define("weightHNL_{}_{}{}".format(coupling, abrv, variation), "weightNominalHNL_{}/{}*{}".format(coupling, syst+"_nominal", syst+"_"+variation.lower()))
             else:
-                process.Define("weight_{}{}".format(abrv, variation), "weightNominal/{}*{}".format(systName+"_nominal", systName+"_"+variation.lower()))
+                process.Define("weight_{}{}".format(abrv, variation), "weightNominal/{}*{}".format(syst+"_nominal", syst+"_"+variation.lower()))
     for syst in systematics_shapes:
-        # Define resolved and merged categories & tagger score variable
-        if single_lepton:
-            process.Define(f"category_{syst}_index", "1.")
-        else:
-            process.Define(f"category_{syst}_index", f"1.*({syst}_dR_l2j<0.4) + 2.*({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)")
-        process.Define(f"tagger_score_{syst}", tagger_compound_variable(syst, single_lepton=single_lepton))
+        # Define resolved and merged categories & tagger score variable & mass cuts
+        process.Define(f"category_{syst}_index", f"1.*({syst}_dR_l2j<0.4) \
+                                                 + 2.*({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)")
+        process.Define(f"tagger_score_{syst}", tagger_compound_variable(syst, single_lepton=False))
 
 else:
-    if single_lepton:
-        process.Define(f"category_nominal_index", "1.")
-    else:
-        process.Define("category_nominal_index", "1.*(nominal_dR_l2j<0.4) + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
-    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal", single_lepton=single_lepton))
+    process.Define("category_nominal_index", "1.*(nominal_dR_l2j<0.4) \
+                                             + 2.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)")
+    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal", single_lepton=False))
 
 
 # create root file with nominal value histogram and various systematic variations
 # to be used with Combine Harvester
 root_file = ROOT.TFile.Open(os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}.root"), "RECREATE")
-print("The category name and cut are:", macroCategory_name, macroCategory_cut)
+print("The category name and cut are:", category_name, category_cut)
 root_file.cd()
-root_file.mkdir(macroCategory_name+"_"+region)
-root_file.cd(macroCategory_name+"_"+region)
+root_file.mkdir(category_name+"_"+region)
+root_file.cd(category_name+"_"+region)
 
-category_dict = diLeptonCategory_dict
+category_dict = dilepton_category_dict
 category_variable_nominal = "category_nominal_index"
 
 coupling = 1
@@ -272,91 +294,13 @@ while coupling < 67:
     else:
         coupling = 68
 
-    # variations with changing shape and constant weight
     if isMC:
-        for systName in systematics_shapes:
-            if "HNL" in process.name:
-                name = f"{process.name}_coupling_{coupling}"
-            else:
-                name = process.name
-
-            # Need to be changed for hnl
-            if "HNL" in process.name:
-                weight = f"weightNominalHNL_{coupling}"
-            else:
-                weight = "weightNominal"
-            
-            # add name for variations
-            if systName != "nominal":
-                name += f"_{systName}"
-
-            # Systematic variation -- replace nominal by systematic in all cuts
-            cut = macroCategory_cut.replace("nominal", systName)
-            # Hack
-            cut = cut.replace("nselectedJets_unclEnUp", "nselectedJets_nominal")
-            cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal")
-
-            cut += f" and {mass_cut(syst=systName, region=region, single_lepton=single_lepton)}"
-
-            # Variable used to categorise the events. replace nominal by systematic
-            category_variable = category_variable_nominal.replace("nominal", systName)
-
-            # read in hist from nanoAOD friends
-            if single_lepton:
-                cut += f"and ({tagger_cut(threshold_merged, region=region, syst=systName)})"
-            else:
-                cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region, syst=systName)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region, syst=systName)}) )"
-            print(systName, category_variable, cut, weight)
-
-            hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
-            hist_nano = hist_nano.Clone()
-            write_hist(hist_nano, category_dict, name)
-
-
-        # variations with constant shape but changing weight
-        for systName, abrv in systDict.items():
-            for variation in ["Up", "Down"]:
-                if "HNL" in process.name:
-                    name = f"{process.name}_coupling_{coupling}_{abrv}{variation}"
-                else:
-                    name = f"{process.name}_{abrv}{variation}"
-
-                if "HNL" in process.name:
-                    weight = f"weightHNL_{coupling}_{abrv}{variation}"
-                else:
-                    weight = f"weight_{abrv}{variation}"
-
-                # only nominal cut will be applied
-                cut = macroCategory_cut
-                cut += f" and {mass_cut(region=region, single_lepton=single_lepton)}"
-                category_variable = category_variable_nominal
-                if single_lepton:
-                    cut += f"and ({tagger_cut(threshold_merged, region=region)})"
-                else:
-                    cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region)}) )"
-
-                print(systName, category_variable, cut, weight)
-
-                # read in hist from nanoAOD friends
-                hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
-                hist_nano = hist_nano.Clone()
-                write_hist(hist_nano, category_dict, name)
+        hists = make_hists(process, systematics_shapes, systematics_rates, category_cut, category_variable_nominal, thresholds, region, coupling=coupling)
+        for name, hist in hists.items():
+            write_hist(hist, category_dict, name, isMC=True)
     else:
-        name = process.name
-        cut = macroCategory_cut
-        cut += f" and {mass_cut(region=region, single_lepton=single_lepton)}"
-        category_variable = category_variable_nominal
-        if single_lepton:
-            cut += f"and ({tagger_cut(threshold_merged, region=region)})"
-        else:
-            cut += f"and ( ({category_variable}==1 and {tagger_cut(threshold_merged, region=region)}) or ({category_variable}==2 and {tagger_cut(threshold_resolved, region=region)}) )"
-        print(category_variable, cut)
-
-        hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight="weightNominal")
-        hist_nano = hist_nano.Clone()
-        if isMC:
-            write_hist(hist_nano, category_dict, name)
-        else:
-            write_hist(hist_nano, category_dict, "data", isMC=False)
+        hists = make_hists(process, ["nominal"], None, category_cut, category_variable_nominal, thresholds, region, coupling=coupling)
+        for name, hist in hists.items():
+            write_hist(hist, category_dict, "data", isMC=False)
 
 root_file.Close()

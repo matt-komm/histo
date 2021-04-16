@@ -1,12 +1,22 @@
 import ROOT
 import json
 
-with open("/vols/cms/LLP/color_dict_mk.json") as json_file:
-    color_dict = json.load(json_file)
+color_dict = {
+    "wjets": ["#54bf59", "#327235"],
+    "dyjets": ["#4cbff2", "#2d7291"],
+    "vgamma": ["#ba3ff4", "#6f2692"],
+    "topbkg": ["#ffcc00", "#997a00"],
+    "qcd": ["#d8d8d8", "#828282"],
+    "data": ["#000000","#000000"]
+}
 
-# A process is a combination of several "Samples" which are all added up internally
 class Process:
-    def __init__(self, name, title, linecolor=None, fillcolor=None):
+    """ 
+    The process class is a combination of several "Samples" (with different cross-section etc) 
+    which are all added up internally for plotting/histogramming
+    Each sample is represented as a ROOT RDataFrame
+    """
+    def __init__(self, name:str, title:str, linecolor:str=None, fillcolor:str=None):
         self.name = name
         self.title = title
         self.linecolor = linecolor
@@ -25,16 +35,29 @@ class Process:
         self.hists = []
         self.rdfs = []
 
-    def add(self, *args):
+    def Add(self, *args):
+        """ Add sample(s)"""
         for arg in args:
             self.rdfs.append(arg.rdf)
 
-    def Define(self, var, varexp):
-        for i, rdf in enumerate(self.rdfs):
-            if var not in rdf.GetColumnNames():
-                self.rdfs[i] = rdf.Define(var, varexp)
+    def Define(self, var:str, varexp:str):
+        """ Define a variable with name var and expression varexp"""
+        if len(self.rdfs) == 0:
+            pass
+        if var not in self.rdfs[0].GetColumnNames():
+            self.rdfs = [rdf.Define(var, varexp) for rdf in self.rdfs]
 
-    def Histo1D(self, args, varexp, weight="weightNominal", cut=None):
+    def Histo1D(self, args:list, varexp:str, weight:str="weightNominal", cut:str=None):
+        """ 
+        Produce a 1D histogram
+        Takes: 
+        args: pass to RDataFrame (bins etc..)
+        varexp: variable to plot
+        weight: weight to apply
+        cut: cut to apply
+        Returns: ROOT TH1D Histogram
+
+        """
         for i, rdf in enumerate(self.rdfs):
             if cut is not None:
                 _rdf = rdf.Filter(cut)
@@ -56,18 +79,21 @@ class Process:
         hist.SetLineWidth(2)
         hist.SetName(self.name)
         hist.SetTitle(self.title)
-        self.hists.append(hist)
+        self.hists.append(hist) # To ensure no memory leaks
         return self.hists[-1]
-    
-    def AsNumpy(self, *args, cut=None):
-        output_dict = {}
-        for _, rdf in enumerate(self.rdfs):
-            _rdf = rdf.Filter(cut)
-            _dict = _rdf.AsNumpy(columns=args)
-            output_dict = {**output_dict, **_dict}
-        return output_dict
+ 
+    def Histo2D(self, args: list, varexp1: str, varexp2: str, weight: str="weight", cut: str=None):
+        """ 
+        Produce a 2D histogram
+        Takes: 
+        args: pass to RDataFrame (bins etc..)
+        varexp1: variable x to plot
+        varexp2: variable x to plot
+        weight: weight to apply
+        cut: cut to apply
+        Returns: ROOT TH1D Histogram
 
-    def Histo2D(self, args, varexp1, varexp2, weight="weight", cut=None):
+        """
         for i, rdf in enumerate(self.rdfs):
             if cut is not None:
                 _rdf = rdf.Filter(cut)
@@ -84,3 +110,13 @@ class Process:
                 hist.Add(tmp_hist)
         self.hists.append(hist)
         return self.hists[-1]
+    
+    def AsNumpy(self, *args, cut:str=None):
+        """ Return the stored dataframe as numpy array """
+        output_dict = {}
+        for _, rdf in enumerate(self.rdfs):
+            _rdf = rdf.Filter(cut)
+            _dict = _rdf.AsNumpy(columns=args)
+            output_dict = {**output_dict, **_dict}
+        return output_dict
+

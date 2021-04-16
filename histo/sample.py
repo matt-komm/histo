@@ -7,7 +7,6 @@ def find_xsec(path, xsecs):
         if key in path:
             return val
 
-
 lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
 
 # This class prepares a given sample by scaling to int. luminosity
