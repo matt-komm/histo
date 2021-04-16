@@ -81,7 +81,7 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
     if region == "B" or region == "C":
         return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
     elif region == "A" or region == "D":
-        return  f'({syst}_m_llj<{m_upper}) and ({syst}_m_llj>{m_lower}) '
+        return  f'({syst}_m_llj<{m_upper} and {syst}_m_llj>{m_lower}) '
     else:
         return ""
 
@@ -137,39 +137,39 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
         hist_nano = process.Histo1D((category_variable, category_variable, 2, 0.5, 2.5), category_variable, cut=cut, weight=weight)
         hist_nano = hist_nano.Clone()
         return hist_nano
-
-
+    if systematics_rates is not None:
     # variations with constant shape but changing weight
-    for syst, abrv in systematics_rates.items():
-        for variation in ["Up", "Down"]:
+        for syst, abrv in systematics_rates.items():
+            for variation in ["Up", "Down"]:
+                if "HNL" in process.name:
+                    name = f"{process.name}_coupling_{coupling}_{abrv}{variation}"
+                    weight = f"weightHNL_{coupling}_{abrv}{variation}"
+                else:
+                    name = f"{process.name}_{abrv}{variation}"
+                    weight = f"weight_{abrv}{variation}"
+                hists[name] = make_hist(process, category_variable_nominal, thresholds, weight, cut_nominal, region, syst="nominal")
+
+    if systematics_shapes is not None:
+
+        for syst in systematics_shapes:
             if "HNL" in process.name:
-                name = f"{process.name}_coupling_{coupling}_{abrv}{variation}"
-                weight = f"weightHNL_{coupling}_{abrv}{variation}"
+                name = f"{process.name}_coupling_{coupling}"
+                weight = f"weightNominalHNL_{coupling}"
             else:
-                name = f"{process.name}_{abrv}{variation}"
-                weight = f"weight_{abrv}{variation}"
-            hists[name] = make_hist(process, category_variable_nominal, thresholds, weight, cut_nominal, region, syst="nominal")
+                name = process.name
+                weight = "weightNominal"
 
+            # add name for variations
+            if syst != "nominal":
+                name += f"_{syst}"
 
-    for syst in systematics_shapes:
-        if "HNL" in process.name:
-            name = f"{process.name}_coupling_{coupling}"
-            weight = f"weightNominalHNL_{coupling}"
-        else:
-            name = process.name
-            weight = "weightNominal"
-
-        # add name for variations
-        if syst != "nominal":
-            name += f"_{syst}"
-
-        # Systematic variation -- replace nominal by systematic in all cuts
-        cut = cut_nominal.replace("nominal", syst)
-        cut = cut.replace("nselectedJets_unclEnUp", "nselectedJets_nominal") #Hack!
-        cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal") #Hack!
-        category_variable = category_variable_nominal.replace("nominal", syst)
-        # read in hist from nanoAOD friends
-        hists[name] = make_hist(process, category_variable, thresholds, weight, cut, region, syst=syst)
+            # Systematic variation -- replace nominal by systematic in all cuts
+            cut = cut_nominal.replace("nominal", syst)
+            cut = cut.replace("nselectedJets_unclEnUp", "nselectedJets_nominal") #Hack!
+            cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal") #Hack!
+            category_variable = category_variable_nominal.replace("nominal", syst)
+            # read in hist from nanoAOD friends
+            hists[name] = make_hist(process, category_variable, thresholds, weight, cut, region, syst=syst)
 
     return hists
 

@@ -3,11 +3,12 @@ import style
 import numpy as np
 import os
 from array import array
+from histo import lumi
 
-lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
-
-# This class is responsible for making the histogram and plotting it for a given variable
 class Variable:
+    """
+    This class is responsible for making the histogram and plotting it for a given variable
+    """
     def __init__(self, varexp, name, nbins, xmin, xmax, logx=False, logy=True):
         print(varexp, name, nbins, xmin, xmax, logx, logy)
         self.varexp = varexp

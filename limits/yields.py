@@ -126,7 +126,6 @@ def plot_yields(df: pd.DataFrame, topology: str="merged", years: list=["2016", "
     """
     Make a plot of a pandas dataframe
     """
-    lumi = {"2016": 35.9, "2017": 41.5, "2018": 59.7, "combined": 137.1}
 
     for year in years:
         bkg_predictions = df[f"pred{year}"].tolist()

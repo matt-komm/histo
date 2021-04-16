@@ -7,15 +7,7 @@ import numpy as np
 from array import array
 import argparse
 
-from process import Process
-from variable import Variable
-from sample import Sample
-
-
-
-#from variable import Variable
-
-lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
+from histo import Process, Variable, Sample, lumi
 signal_xsec = 1.
 
 parser = argparse.ArgumentParser()
