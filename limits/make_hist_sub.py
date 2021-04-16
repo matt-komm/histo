@@ -34,14 +34,13 @@ years = ["2016", "2017", "2018"]
 leptons = ["1", "2"]
 
 import yaml
-with open("samples.yml") as samples_file:
+with open("config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
 
 for l in samples_dict:
     if "HNL" in l:
         procsHNL.append(l)
     elif l == "muon" or l == "electron": 
-        continue
         procsData.append(l)
     else:
         continue
@@ -74,7 +73,7 @@ for lepton in leptons:
 #$ -e output/$JOB_ID_$TASK_ID.err
 #$ -t 1-{}
 """.format(njobs)
-        with open(f"subHists{lepton}_{year}.sh", "w") as f:
+        with open(f"limits/subHists{lepton}_{year}.sh", "w") as f:
             f.write(sub_string)
             f.write("date\n")
             f.write('eval "$(/vols/cms/$USER/miniconda3/bin/conda shell.bash hook)"; conda activate hnl\n')
@@ -82,21 +81,21 @@ for lepton in leptons:
             for proc in procsbkg:
                 for region in regions:
                     for category in categories:
-                        f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
+                        f.write(f'"python -u limits/make_hists.py --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
             
             for proc in procsHNL:
                 for category in categories:
-                    f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region D --year {year} --leptons {lepton}"\n')
+                    f.write(f'"python -u limits/make_hists.py --proc {proc} --category {category} --region D --year {year} --leptons {lepton}"\n')
 
             for proc in procsData:
                 for region in regions:
                     for category in categories:
                         if proc == "muon":
                             if category.startswith("mu"):
-                                f.write(f'"python -u make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
+                                f.write(f'"python -u limits/make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
                         elif proc == "electron":
                             if category.startswith("e"):
-                                f.write(f'"python -u make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
+                                f.write(f'"python -u limits/make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} --leptons {lepton}"\n')
 
             f.write(")\n")
             f.write("echo ${JOBS[$SGE_TASK_ID-1]}\n")

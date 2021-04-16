@@ -1,0 +1,14 @@
+name: hnl
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - uproot=3.11.2
+  - yaml
+  - pyyaml
+  - root
+  - scikit-learn
+  - matplotlib
+  - xgboost
+  - numpy
+  - pandas

@@ -3,4 +3,5 @@
 *.out
 *.err
 *.root
-*.sh
+hnlhisto.egg-info/
+sub*.sh

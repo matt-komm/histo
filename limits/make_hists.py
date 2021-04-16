@@ -3,8 +3,7 @@ import os
 import yaml
 import json
 import argparse
-from process import Process
-from sample import Sample
+from histo import Process, Sample
 
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
@@ -30,15 +29,15 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
         hist_limits.GetXaxis().SetBinLabel(index_new, category)
 
     if isMC:
-        removeNegEntries(hist_limits)
+        remove_neg_entries(hist_limits)
     hist_limits.SetTitle(name)
     hist_limits.SetName(name)
     hist_limits.SetDirectory(root_file)
     hist_limits.Write()
 
 
-def removeNegEntries(hist: ROOT.TH1D):
-    """ Removes negative entries from a histogram """
+def remove_neg_entries(hist: ROOT.TH1D):
+    """ Removes negative and/or small entries from a histogram """
 
     alpha = 1. - 0.6827
     upErr = ROOT.Math.gamma_quantile_c(alpha/2,1,1)
@@ -59,60 +58,90 @@ def removeNegEntries(hist: ROOT.TH1D):
         #print "bin%2i, %.1f+-%.1f (+-%.1f%%)"%(ibin,c,hist.GetBinError(ibin+1),100.*hist.GetBinError(ibin+1)/c if c>0 else -1)
 
 
-def mass_cut(region:str="D", syst:str="nominal", single_lepton=False) -> str:
-    """ Returns mass window cut repending on region """
+def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton=False) -> str:
+    """ 
+    Returns mass window cut repending on region
 
-    if single_lepton:
-        if region == "B" or region == "C":
-            return  f'({syst}_m_l1j>100. or {syst}_m_l1j<50.) '
-        elif region == "A" or region == "D":
-            return  f'({syst}_m_l1j<100.) and ({syst}_m_l1j>50.) '
-        else:
-            return ""
+    Args:
+    delta_m : mW+-delta_m used to define signal region band
+    region: A, B, C, D
+    syst: systematic variation
+    single_lepton: deprecated
+
+    Returns:
+    mass cut str 
+    """
+    mW=80.
+    m_upper = mW + delta_m
+    m_lower = mW - delta_m
+
+    if region not in ["A", "B", "C", "D"]:
+        raise ValueError(f"Invalid region {region} selected")
+
+    if region == "B" or region == "C":
+        return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
+    elif region == "A" or region == "D":
+        return  f'({syst}_m_llj<{m_upper}) and ({syst}_m_llj>{m_lower}) '
     else:
-        if region == "B" or region == "C":
-            return  f'({syst}_m_llj>95. or {syst}_m_llj<65.) '
-        elif region == "A" or region == "D":
-            return  f'({syst}_m_llj<95.) and ({syst}_m_llj>65.) '
-        else:
-            return ""
+        return ""
 
-def tagger_cut(tagger_threshold: float, region:str="D", syst:str="nominal") -> str:
-    """ Returns tagger score cut repending on region """
+    # if single_lepton:
+    #     if region == "B" or region == "C":
+    #         return  f'({syst}_m_l1j>100. or {syst}_m_l1j<50.) '
+    #     elif region == "A" or region == "D":
+    #         return  f'({syst}_m_l1j<100.) and ({syst}_m_l1j>50.) '
+    #     else:
+    #         return ""
+    # else:
 
-    lower_cut = tagger_threshold-0.4
-    upper_cut = tagger_threshold
-    cut = ""
-    cut += f'tagger_score_{syst} > {lower_cut}'
+def tagger_cut(tagger_threshold: float, lower_threshold: float=0.25, region:str="D", syst:str="nominal") -> str:
+    """ Returns tagger score cut repending on region 
+    Args:
+    tagger_threshold : define signal region
+    lower_threshold: lower tagger score threshold
+    region: A, B, C, D
+    syst: systematic variation
+
+    Returns:
+    tagger cut str 
+    """
+    if region not in ["A", "B", "C", "D"]:
+        raise ValueError(f"Invalid region {region} selected")
+
+    if tagger_threshold < lower_threshold:
+        raise ValueError("Inconsistent tagger thresholds")
 
     if region == "A" or region == "B":
-        cut+= f' and tagger_score_{syst} < {upper_cut}'
+        return f'tagger_score_{syst} > {lower_threshold} and tagger_score_{syst} < {tagger_threshold}'
     elif region == "C" or region == "D":
-        cut+= f' and tagger_score_{syst} > {upper_cut}'
-    return cut 
+        return f'tagger_score_{syst} > {tagger_threshold}'
 
 
 def tagger_compound_variable(syst:str="nominal", single_lepton=False) -> str:
-    if single_lepton:
-        return f"hnlJet_{syst}_llpdnnx_ratio_LLP_Q"
-    else:
-        return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
+    """ Compound tagger variable to facilitate categorisation """
+    # if single_lepton:
+    #     return f"hnlJet_{syst}_llpdnnx_ratio_LLP_Q"
+    # else:
+    return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
         ({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
-            +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
+        +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
 
 
 # make histograms per year, process
 parser = argparse.ArgumentParser()
 parser.add_argument("--year",default="2016")
-parser.add_argument("--leptons", choices=["1", "2"], default="2", action="store")
+parser.add_argument("--leptons", choices=["2"], default="2", action="store")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS_displaced")
 parser.add_argument("--region", default="D")
-parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/15Mar21") #03Dec20
+parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/15Mar21")
+parser.add_argument("--output_path", default="limits/hists")
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 
 args = parser.parse_args()
+print(vars(args))
+
 year = args.year
 proc = args.proc
 macroCategory_name = args.category
@@ -121,16 +150,17 @@ region = args.region
 oneFile = args.oneFile
 isData = args.data
 isMC = not isData
+output_path = args.output_path
 
 if args.leptons == "1":
     single_lepton = True
 else:
     single_lepton = False
-print(f"Single lepton, {single_lepton}")
 
+# json for lumi
 lumi = {"2016": 35.92, "2017": 41.53, "2018": 59.68}
 
-with open("samples.yml") as samples_file:
+with open("config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
     subprocesses = samples_dict[proc]
 
@@ -155,25 +185,30 @@ systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown
 couplings = [2, 7, 12, 47, 52, 67]
 couplings = range(2, 68)
 
-if single_lepton:
-    category_file = 'categories_1l.json'
-else:
-    category_file = 'categories_2l.json'
- 
+# if single_lepton:
+#     category_file = 'config/categories_1l.json'
+# else:
+category_file = 'config/categories_2l.json'
+threshold_file = f'config/coordsBestThresholds_{year}.json'
+
 with open(category_file, 'r') as fp:
     macroCategory_dict = json.load(fp)
 
+with open(threshold_file, 'r') as fp:
+    threshold_dict = json.load(fp)
+
 macroCategory_cut = macroCategory_dict[macroCategory_name]["varexp"]
-threshold_merged = macroCategory_dict[macroCategory_name]["threshold_merged"][year]
-if not single_lepton:
-    threshold_resolved = macroCategory_dict[macroCategory_name]["threshold_resolved"][year]
+threshold_merged, deltam_merged = threshold_dict[macroCategory_name]["merged"]
+threshold_resolved, deltam_resolved = threshold_dict[macroCategory_name]["resolved"]
+print(f"Tagger thresholds, merged: {threshold_merged}, resolved: {threshold_resolved}")
+print(f"DeltaM, merged: {deltam_merged}, resolved: {deltam_resolved}")
 
 diLeptonCategory_dict = {}
 diLeptonCategory_dict[1] = "ql" # Merged
 diLeptonCategory_dict[2] = "q" # Resolved
 
-singleLeptonCategory_dict = {}
-singleLeptonCategory_dict[1] = "q"
+# singleLeptonCategory_dict = {}
+# singleLeptonCategory_dict[1] = "q"
 # singleLeptonCategory_dict[2] = "q"
 #####################################
 
@@ -217,16 +252,13 @@ else:
 
 # create root file with nominal value histogram and various systematic variations
 # to be used with Combine Harvester
-root_file = ROOT.TFile.Open("hists/{}_{}_{}_{}.root".format(proc, args.category, region, year), "RECREATE")
+root_file = ROOT.TFile.Open(os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}.root"), "RECREATE")
 print("The category name and cut are:", macroCategory_name, macroCategory_cut)
 root_file.cd()
 root_file.mkdir(macroCategory_name+"_"+region)
 root_file.cd(macroCategory_name+"_"+region)
 
-if single_lepton:
-    category_dict = singleLeptonCategory_dict
-else:
-    category_dict = diLeptonCategory_dict
+category_dict = diLeptonCategory_dict
 category_variable_nominal = "category_nominal_index"
 
 coupling = 1
@@ -239,7 +271,6 @@ while coupling < 67:
             continue
     else:
         coupling = 68
-
 
     # variations with changing shape and constant weight
     if isMC:
