@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import json
-import style
+from histo.style import *
+from histo import lumi
 import ROOT
 import math
 from scipy.stats import chi2
@@ -174,7 +175,7 @@ def plot_yields(df: pd.DataFrame, topology: str="merged", years: list=["2016", "
         bkg_hist.SetMaximum(1.8*max(sig_hist.GetMaximum(), bkg_hist.GetMaximum()))
         bkg_hist.SetMinimum(0.)
 
-        cv = style.makeCanvas()
+        cv = makeCanvas()
         cv.SetBottomMargin(0.1)
         cv.SetLeftMargin(0.13)
         cv.SetRightMargin(0.1)
@@ -183,8 +184,8 @@ def plot_yields(df: pd.DataFrame, topology: str="merged", years: list=["2016", "
         bkg_hist.Draw("HIST")
         sig_hist.Draw("SAME HIST")
         err_hist.Draw("E2 SAME")
-        style.makeText(0.25, 0.8, 0.75, 0.86, topology)
-        legend = style.makeLegend(0.25, 0.7, 0.75, 0.8)
+        makeText(0.25, 0.8, 0.75, 0.86, topology)
+        legend = makeLegend(0.25, 0.7, 0.75, 0.8)
         legend.AddEntry(bkg_hist, 'Background prediction', 'lf')
         legend.AddEntry(sig_hist, 'm_{N}=8 GeV, c#tau_{0}=1mm, V_{#mu}=V_{e} (x10)', "l")
 
@@ -229,8 +230,8 @@ def plot_yields(df: pd.DataFrame, topology: str="merged", years: list=["2016", "
 
         legend.Draw("")
 
-        style.makeCMSText(0.15, 0.97, additionalText="Simulation Preliminary")
-        style.makeLumiText(0.82, 0.97, year=year, lumi=lumi[year])
+        makeCMSText(0.15, 0.97, additionalText="Simulation Preliminary")
+        makeLumiText(0.82, 0.97, year=year, lumi=lumi[year])
         cv.SaveAs(f"yields/{topology}_{year}.pdf")
 
 

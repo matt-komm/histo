@@ -220,8 +220,8 @@ systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown
 ####################################
 
 # couplings to consider
-couplings = [2, 7, 12, 47, 52, 67]
 couplings = range(2, 68)
+couplings = [2, 7, 12, 47, 52]
 
 category_file = 'config/categories_2l.json'
 threshold_file = f'config/coordsBestThresholds_{year}.json'
