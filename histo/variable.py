@@ -1,9 +1,10 @@
 import ROOT
-import style
 import numpy as np
 import os
 from array import array
-from histo import lumi
+from histo import style
+from histo.lumi import lumi
+
 
 class Variable:
     """
@@ -18,7 +19,7 @@ class Variable:
         self.name = name
         self.logx = logx
         self.logy = logy
-        self.leg = style.makeLegend(0.55, 0.70, 0.90, 0.88)
+        self.leg = style.makeLegend(0.82, 0.50, 0.99, 0.9)
         self.xmin = float(xmin)
         self.xmax = float(xmax)
         self.leg.SetTextSize(self.leg.GetTextSize()*0.8)
@@ -32,17 +33,15 @@ class Variable:
     def Add(self, hist, title, isSignal=False, isData=False):
         hist.SetDirectory(0)
         if isSignal:
-            self.signals.append(hist)
             hist.SetLineStyle(1+len(self.signals))
-            print("adding signal")
-            self.leg.AddEntry(hist, title, "l")
+            hist.SetTitle(title)
+            self.signals.append(hist)
+            #self.leg.AddEntry(hist, title, "l")
         elif isData:
             self.data = hist
-            print("adding data")
             self.leg.AddEntry(hist, title, "p")
         else:
             self.stack.Add(hist)
-            print("adding bkg")
             self.leg.AddEntry(hist, title, "f")
     def Draw(self, suffix, opt, draw_text, year="2016", output_dir="test"):
         print ("plotting "+self.varexp)
@@ -53,17 +52,23 @@ class Variable:
         lowerPad = ROOT.TPad("lowerPad", "lowerPad", 0, 0, 1, 0.33)
         upperPad.SetBottomMargin(0.00001)
         upperPad.SetBorderMode(0)
-        upperPad.SetTopMargin(0.15)
+        upperPad.SetTopMargin(0.05)
+        upperPad.SetRightMargin(0.2)
+        upperPad.SetLeftMargin(0.13)
         lowerPad.SetTopMargin(0.00001)
         lowerPad.SetBottomMargin(0.4)
+        lowerPad.SetRightMargin(0.2)
+        lowerPad.SetLeftMargin(0.13)
         lowerPad.SetBorderMode(0)
-        canvas.SetBottomMargin(0.25)
-        canvas.SetTopMargin(0.1)
+        #canvas.SetBottomMargin(0.2)
+        #canvas.SetTopMargin(0.05)
         upperPad.Draw()
         lowerPad.Draw()
         upperPad.cd()
 
         self.stack.Draw(opt)
+        self.stack.GetYaxis().SetTitle("Entries/bin")
+        self.stack.GetYaxis().SetTitleOffset(1.2)
         self.stack.SetMinimum(1)
 
         for signal in self.signals:
@@ -71,10 +76,17 @@ class Variable:
             signal.Draw("HIST SAME")
 
         if self.logy:
-            self.stack.SetMaximum(self.stack.GetMaximum()*100)
+            if len(self.signals) > 0:
+                self.stack.SetMaximum(self.stack.GetMaximum()*300)     
+            else:
+                self.stack.SetMaximum(self.stack.GetMaximum()*30)
+            self.stack.SetMinimum(0.1)
             upperPad.SetLogy()
         else:
-            self.stack.SetMaximum(self.stack.GetMaximum()*2)
+            if len(self.signals) > 0:
+                self.stack.SetMaximum(self.stack.GetMaximum()*2)
+            else:
+                self.stack.SetMaximum(self.stack.GetMaximum()*1.5)
 
         if self.logx:
             upperPad.SetLogx()
@@ -92,6 +104,8 @@ class Variable:
         axis.SetMinimum(0.25)
         axis.SetMaximum(1.75)
         axis.GetXaxis().SetTitle(self.name)
+        axis.GetYaxis().SetTitle("Data/MC")
+        axis.GetYaxis().SetTitleOffset(1.2)
         axis.GetXaxis().SetTitleOffset(3.5)
         if self.logx:
             lowerPad.SetLogx()
@@ -105,7 +119,7 @@ class Variable:
         rootObj.append(line)
 
         if self.data is not None:
-            style.makeText(0.1, 0.2, 0.2, 0.3, "data/MC = {0:.3g}".format(self.data.Integral()/sumMC.Integral()))
+            style.makeText(0.13, 0.13, 0.2, 0.2, "Data/MC = {0:.3g}".format(self.data.Integral()/sumMC.Integral()))
             for ibin in range(self.hist_ratio.GetNbinsX()):
                 e = self.data.GetBinError(ibin+1)
                 m = self.data.GetBinContent(ibin+1)
@@ -137,8 +151,21 @@ class Variable:
 
         canvas.cd()
         self.leg.Draw("SAME")
-        style.makeCMSText(0.13, 0.88, additionalText="Preliminary")
-        style.makeText(0.15, 0.94, 0.5, 0.94, draw_text)
-        style.makeLumiText(0.8, 0.97, lumi[year], year)
+        if len(self.signals) > 0:
+            self.leg_signal = style.makeLegend(0.15, 0.76, 0.7, 0.85)
+            self.leg_signal.SetTextSize(25)
+            for signal in self.signals:
+                self.leg_signal.AddEntry(signal, signal.GetTitle(), "l")
+            self.leg_signal.Draw("SAME")
+            style.makeCMSText(0.17, 0.94, additionalText="Simulation Preliminary", dx=0.07, size=26)
+            style.makeLumiText(0.58, 0.94, lumi[year], year, size=26)
+
+        else:
+            style.makeCMSText(0.17, 0.94, additionalText="Preliminary")
+            style.makeLumiText(0.5, 0.94, lumi[year], year, size=28)
+
+
+        style.makeText(0.15, 0.88, 0.5, 0.88, draw_text, size=25)
         canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".pdf"))
         canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".png"))
+        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".root"))

@@ -66,7 +66,7 @@ class Sample:
                 tightMuons_weight_id_nominal*tightElectrons_weight_id_nominal*puweight_nominal*genweight*\
                 tightElectrons_weight_reco_nominal*looseElectrons_weight_reco_nominal\
                 *{lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
-
+            #  *hnlJet_track_weight_3_adapted_nominal\
             if "HNL" in name:
                 for coupling in range(2, 68):
                     self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"weightNominal*LHEWeights_coupling_{coupling}/{self.sum_weightHNL[coupling]}")
