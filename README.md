@@ -13,3 +13,6 @@
 
 ## Some basic HNL kinematic plots
 * Have a look at hnl_kinematics directory
+
+## Lepton efficiency studies
+* Have a look at lepton_efficiency category
