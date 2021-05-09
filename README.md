@@ -10,3 +10,6 @@
 * An example job submission script producer is ```limits/make_hist_sub.py```
 * To combine produced histograms for limits run ```./limits/merge_hists.sh```
 * To make yields table and plot look at ```limits/yields.py```.
+
+## Some basic HNL kinematic plots
+* Have a look at hnl_kinematics directory
