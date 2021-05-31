@@ -1,6 +1,0 @@
-{
-    "mu_single": 
-        {"varexp": "(bdt_score_nominal>0.2) and (IsoMuTrigger_flag) and (nsubleadingLeptons==0) and (nselectedJets_nominal > 0) and (MET_filter > 0)", "thresholds_merged": {"2016": [0.3, 0.6, 0.8], "2017": [0.3, 0.55, 0.75], "2018": [0.3, 0.6, 0.8]}},
-    "e_single": 
-        {"varexp": "(bdt_score_nominal>0.2) and (IsoElectronTrigger_flag) and (nsubleadingLeptons==0) and (nselectedJets_nominal > 0) and (MET_filter > 0)", "thresholds_merged": {"2016": [0.3, 0.6, 0.8], "2017": [0.3, 0.55, 0.75], "2018": [0.3, 0.6, 0.8]}}
-}

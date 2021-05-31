@@ -13,9 +13,3 @@
 * Making HNL kinematic plots ```hnl_kinematics```
 * Performing lepton efficiency studies ```lepton_efficiency```
 * Plotting systematic uncertainty profiles ```uncertainty_profiles```
-
-## Some basic HNL kinematic plots
-* Have a look at hnl_kinematics directory
-
-## Lepton efficiency studies
-* Have a look at lepton_efficiency category

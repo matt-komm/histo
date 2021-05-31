@@ -176,12 +176,11 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
 # make histograms per year, process
 parser = argparse.ArgumentParser()
 parser.add_argument("--year",default="2016")
-parser.add_argument("--leptons", choices=["2"], default="2", action="store")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS_displaced")
 parser.add_argument("--region", default="D")
-parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/15Mar21")
-parser.add_argument("--output_path", default="limits/hists")
+parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/28May21")
+parser.add_argument("--output_path", default="hists")
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 
@@ -191,7 +190,7 @@ print(vars(args))
 year = args.year
 proc = args.proc
 category_name = args.category
-ntuple_path = os.path.join(f"{args.ntuple_path}_{args.leptons}l", year)
+ntuple_path = os.path.join(f"{args.ntuple_path}", year)
 region = args.region
 oneFile = args.oneFile
 isData = args.data
