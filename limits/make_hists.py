@@ -198,7 +198,7 @@ isData = args.data
 isMC = not isData
 output_path = args.output_path
 
-with open("config/samples.yml") as samples_file:
+with open("../config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
     subprocesses = samples_dict[proc]
 
@@ -223,8 +223,8 @@ systematics_shapes = ["nominal", "jesTotalUp", "jesTotalDown", "jerUp", "jerDown
 couplings = range(2, 68)
 couplings = [2, 7, 12, 47, 52]
 
-category_file = 'config/categories_2l.json'
-threshold_file = f'config/coordsBestThresholds_{year}.json'
+category_file = '../config/categories_2l.json'
+threshold_file = f'../config/coordsBestThresholds_{year}.json'
 
 with open(category_file, 'r') as fp:
     categories_2l = json.load(fp)

@@ -1,0 +1,12 @@
+[ 
+  [
+    "mu1_high_met_",
+    "(ntightMuons>0) and (nominal_met > 100) and (MET_filter > 0)",
+    "#mu+jets, p_{T}^{miss} > 100 GeV"
+  ],
+  [
+    "el1_high_met_",
+    "(ntightElectrons>0) and (nominal_met > 100) and (MET_filter > 0)",
+    "e+jets, p_{T}^{miss} > 100 GeV"
+  ]
+]

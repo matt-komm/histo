@@ -4,6 +4,7 @@
 *.err
 *.root
 *.pdf
+*.png
 hnlhisto.egg-info/
 sub*.sh
 plotting/plots
