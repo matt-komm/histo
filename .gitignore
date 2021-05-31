@@ -3,6 +3,7 @@
 *.out
 *.err
 *.root
+*.pdf
 hnlhisto.egg-info/
 sub*.sh
 plotting/plots

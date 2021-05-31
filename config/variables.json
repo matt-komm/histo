@@ -15,6 +15,13 @@
     1
   ],
   [
+    "nominal_mht/nominal_met",
+    "H^{T}_{miss}/p^{T}_{miss}",
+    25,
+    0,
+    2
+  ],
+  [
     "nominal_met",
     "p_{T}^{miss} [GeV]",
     25,

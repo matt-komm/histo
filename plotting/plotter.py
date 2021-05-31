@@ -20,6 +20,7 @@ parser.add_argument("--variable_file", action="store", dest="variable_file", def
 parser.add_argument("--samples_file", action="store", dest="samples_file", default="config/samples.yml")
 parser.add_argument("--ntuple_path", action="store", dest="ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/20Apr21_2l_notagger/")
 parser.add_argument("--output_dir", action="store", dest="output_dir", default="tagger_efficiency/plots_tagger_eff")
+parser.add_argument("--plot_corrections", action="store_true", dest="plotCorrections", default=False)
 parser.add_argument("--test", action="store_true", dest="one_file", default=False)
 
 #parser.add_argument("-d", "--data", action="store", dest="data_type")
@@ -69,7 +70,7 @@ text_dict = {
              "wjets": "W+jets",
              "dyjets": "Z/#gamma*+jets",
              "vgamma": "V#gamma*",
-             "topbkg": "t#bar{t}",
+             "topbkg": "t#bar{t}/single-t",
              "qcd": "Multijet",
              "muon": "muon",
              "electron": "electron",
@@ -112,7 +113,7 @@ for process_name in text_dict.keys():
     processes.append(process)
 
 variable_infos[0] = varname
-variable = Variable(*variable_infos)
+variable = Variable(*variable_infos, corrections=args.plotCorrections)
 for process in processes:
     print(process.name)
     if "HNL" in process.name:
@@ -124,5 +125,11 @@ for process in processes:
             isData = True
         else:
             isData = False
-        variable.Add(process.Histo1D(variable.args, varname.replace("-", "m").replace("(","_").replace(")","_").replace("/", "over")), process.title, isSignal=False, isData=isData)
+        hist = process.Histo1D(variable.args, varname.replace("-", "m").replace("(","_").replace(")","_").replace("/", "over"))
+        variable.Add(hist, process.title, isSignal=False, isData=isData)
+
+        if args.plotCorrections and not isData:
+            histUp = process.Histo1D(variable.args, varname.replace("-", "m").replace("(","_").replace(")","_").replace("/", "over"), weight="weightNominalCorrectedUp")
+            variable.Add(histUp, process.title, isSignal=False, isData=isData, correction="up")
+
 variable.Draw(category, "hist", draw_text, year=year, output_dir=args.output_dir)

@@ -10,10 +10,13 @@ class Variable:
     """
     This class is responsible for making the histogram and plotting it for a given variable
     """
-    def __init__(self, varexp, name, nbins, xmin, xmax, logx=False, logy=True):
+    def __init__(self, varexp, name, nbins, xmin, xmax, logx=False, logy=True, corrections=False):
         print(varexp, name, nbins, xmin, xmax, logx, logy)
         self.varexp = varexp
         self.stack = ROOT.THStack(varexp, varexp)
+        self.corrections = corrections
+        if corrections:
+            self.stack_up = ROOT.THStack(varexp, varexp)
         self.signals = []
         self.data = None
         self.name = name
@@ -30,7 +33,7 @@ class Variable:
         else:
             self.args = (varexp, varexp, nbins, xmin, xmax)
 
-    def Add(self, hist, title, isSignal=False, isData=False):
+    def Add(self, hist, title, isSignal=False, isData=False, correction="nominal"):
         hist.SetDirectory(0)
         if isSignal:
             hist.SetLineStyle(1+len(self.signals))
@@ -41,8 +44,14 @@ class Variable:
             self.data = hist
             self.leg.AddEntry(hist, title, "p")
         else:
-            self.stack.Add(hist)
-            self.leg.AddEntry(hist, title, "f")
+            if correction == "nominal":
+                self.stack.Add(hist)
+                self.leg.AddEntry(hist, title, "f")
+            elif correction == "up":
+                self.stack_up.Add(hist)
+            elif correction == "down":
+                self.stack_down.Add(hist)
+
     def Draw(self, suffix, opt, draw_text, year="2016", output_dir="test"):
         print ("plotting "+self.varexp)
         canvas = style.makeCanvas(name=self.varexp)
@@ -111,6 +120,11 @@ class Variable:
             lowerPad.SetLogx()
         axis.Draw("AXIS")
 
+
+        if self.corrections:
+            self.corr_up = self.stack_up.GetStack().Last()
+
+
         rootObj = []
         rootObj.append(axis)
 
@@ -118,17 +132,6 @@ class Variable:
         line.Draw("SAME")
         rootObj.append(line)
 
-        if self.data is not None:
-            style.makeText(0.13, 0.13, 0.2, 0.2, "Data/MC = {0:.3g}".format(self.data.Integral()/sumMC.Integral()))
-            for ibin in range(self.hist_ratio.GetNbinsX()):
-                e = self.data.GetBinError(ibin+1)
-                m = self.data.GetBinContent(ibin+1)
-                if m > 0.0:
-                    self.hist_ratio.SetBinError(ibin+1, e/m)
-                else:
-                    self.hist_ratio.SetBinError(ibin+1, 0)
-
-            self.hist_ratio.Draw("PE SAME")
 
         for ibin in range(self.sumMC.GetNbinsX()):
             c = self.sumMC.GetBinCenter(ibin+1)
@@ -148,6 +151,43 @@ class Variable:
                 box2.SetFillColor(ROOT.kGray)
                 rootObj.append(box2)
                 box2.Draw("SameL")
+        self.leg.AddEntry(box, "MC unc.", "f")
+
+
+        if self.corrections:
+            for ibin in range(self.sumMC.GetNbinsX()):
+                c = self.sumMC.GetBinCenter(ibin+1)
+                w = self.sumMC.GetBinWidth(ibin+1)
+                m = self.sumMC.GetBinContent(ibin+1)
+
+                if m > 0.0:
+                    h = (self.corr_up.GetBinContent(ibin+1)-m)/m
+                    box = ROOT.TBox(c-0.25*w, 1-h, c+0.25*w, 1+h)
+                    #box.SetFillStyle(3345)
+                    box.SetFillColor(ROOT.TColor.GetColor("#d4caf0"))
+                    box.SetLineColor(ROOT.TColor.GetColor("#7170bf"))
+                    rootObj.append(box)
+                    box.Draw("SameF")
+                    box2 = ROOT.TBox(c-0.25*w, 1-h, c+0.25*w, 1+h)
+                    box2.SetFillStyle(0)
+                    box2.SetFillColor(ROOT.TColor.GetColor("#d4caf0"))
+                    box2.SetLineColor(ROOT.TColor.GetColor("#7170bf"))
+                    rootObj.append(box2)
+                    box2.Draw("SameL")
+            self.leg.AddEntry(box, "track unc.", "f")
+
+
+        if self.data is not None:
+            style.makeText(0.13, 0.13, 0.2, 0.2, "Data/MC = {0:.3g}".format(self.data.Integral()/sumMC.Integral()))
+            for ibin in range(self.hist_ratio.GetNbinsX()):
+                e = self.data.GetBinError(ibin+1)
+                m = self.data.GetBinContent(ibin+1)
+                if m > 0.0:
+                    self.hist_ratio.SetBinError(ibin+1, e/m)
+                else:
+                    self.hist_ratio.SetBinError(ibin+1, 0)
+
+            self.hist_ratio.Draw("PE SAME")
 
         canvas.cd()
         self.leg.Draw("SAME")
@@ -162,7 +202,7 @@ class Variable:
 
         else:
             style.makeCMSText(0.17, 0.94, additionalText="Preliminary")
-            style.makeLumiText(0.5, 0.94, lumi[year], year, size=28)
+            style.makeLumiText(0.57, 0.94, lumi[year], year, size=28)
 
 
         style.makeText(0.15, 0.88, 0.5, 0.88, draw_text, size=25)

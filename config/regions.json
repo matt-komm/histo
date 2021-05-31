@@ -8,5 +8,15 @@
     "mu1e2_SS_SR_",
     "(Leptons_muonelectron>0) and (dilepton_charge>0) and (nleadingLeptons+nsubleadingLeptons == 2)",
     "SS #mue+jets"
+  ],
+  [
+    "dy_mu1mu2_OS_test_",
+    "(subleadingLeptons_pt[0]>60) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2)",
+    "p_{T} (l) > 60 GeV, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
+  ],
+  [
+    "dy_mu1mu2_OS_",
+    "(Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2)",
+    "m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
   ]
 ]
