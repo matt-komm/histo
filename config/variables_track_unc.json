@@ -1,0 +1,32 @@
+[
+  [
+    "hnlJets_svMatchedTracks_adapted_nominal_pt",
+    "track p_{T} [GeV]",
+    25,
+    1,
+    20
+  ],
+  [
+    "hnlJets_svMatchedTracks_adapted_nominal_dxy",
+    "track d_{xy} [cm]",
+    25,
+    1e-3,
+    3,
+    1
+  ],
+  [
+    "hnlJets_svMatchedTracks_nominal_nominal_pt",
+    "track p_{T} [GeV]",
+    25,
+    1,
+    20
+  ],
+  [
+    "hnlJets_svMatchedTracks_nominal_nominal_dxy",
+    "track d_{xy} [cm]",
+    25,
+    1e-3,
+    3,
+    1
+  ]
+]

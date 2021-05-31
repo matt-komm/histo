@@ -123,6 +123,7 @@ def makeColorTable(reverse=False):
 
     start=ROOT.TColor.CreateGradientColorTable(len(stops), stops, red, green, blue, 200)
     ROOT.gStyle.SetNumberContours(200)
+    return
 
 
 rootObj = []
@@ -142,11 +143,11 @@ def makeLegend(x1,y1,x2,y2):
     rootObj.append(legend)
     return legend
     
-def makeCMSText(x1,y1,additionalText=None,dx=0.088):
+def makeCMSText(x1,y1,additionalText=None,dx=0.088, size=30):
     pTextCMS = ROOT.TPaveText(x1,y1,x1,y1,"NDC")
     pTextCMS.AddText("CMS")
     pTextCMS.SetTextFont(63)
-    pTextCMS.SetTextSize(31)
+    pTextCMS.SetTextSize(size)
     pTextCMS.SetTextAlign(13)
     rootObj.append(pTextCMS)
     pTextCMS.Draw("Same")
@@ -155,37 +156,32 @@ def makeCMSText(x1,y1,additionalText=None,dx=0.088):
         pTextAdd = ROOT.TPaveText(x1+dx,y1,x1+dx,y1,"NDC")
         pTextAdd.AddText(additionalText)
         pTextAdd.SetTextFont(53)
-        pTextAdd.SetTextSize(31)
+        pTextAdd.SetTextSize(size)
         pTextAdd.SetTextAlign(13)
         rootObj.append(pTextAdd)
         pTextAdd.Draw("Same")
+    return
     
-def makeLumiText(x1, y1, lumi, year):
+def makeLumiText(x1, y1, lumi, year, size=30):
     pText = ROOT.TPaveText(x1,y1,x1,y1,"NDC")
-    pText.AddText(str(lumi)+" fb#lower[-0.8]{#scale[0.7]{-1}}")
+    pText.AddText(str(lumi)+" fb#lower[-0.8]{#scale[0.7]{-1}} (" + year + ")")
     pText.SetTextFont(63)
-    pText.SetTextSize(31)
-    pText.SetTextAlign(33)
+    pText.SetTextSize(size)
+    pText.SetTextAlign(13)
     rootObj.append(pText)
     pText.Draw("Same")
-    pYear = ROOT.TPaveText(x1+0.11,y1,x1+0.11,y1,"NDC")
-    pYear.AddText("(%s)" % (year))
-    pYear.SetTextFont(13)
-    pYear.SetTextSize(31)
-    pYear.SetTextAlign(33)
-    rootObj.append(pYear)
-    pYear.Draw("Same")
-
+    return
  
-def makeText(x1,y1,x2, y2, text ):
+def makeText(x1,y1,x2, y2, text,size=30):
     pText = ROOT.TPaveText(x1,y1,x2,y2,"NBNDC")
     pText.AddText(text)
     pText.SetTextFont(43)
-    pText.SetTextSize(30)
-    #pText.SetTextAlign(11)
+    pText.SetTextSize(size)
+    pText.SetTextAlign(13)
     pText.SetFillColorAlpha(ROOT.kWhite, 0.9)
     rootObj.append(pText)
     pText.Draw()
+    return
 
 ptSymbol = "p#kern[-0.8]{ }#lower[0.3]{#scale[0.7]{T}}"
 metSymbol = ptSymbol+"#kern[-2.3]{ }#lower[-0.8]{#scale[0.7]{miss}}"

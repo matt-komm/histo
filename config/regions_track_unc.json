@@ -1,0 +1,37 @@
+[ 
+  [
+    "mu1mu2_SR_",
+    "(Leptons_muonmuon) and (dilepton_mass>20.) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "#mu#mu+jets"
+  ],
+  [
+    "mu1el2_SR_",
+    "(Leptons_muonelectron) and (dilepton_mass>20.) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "#mue+jets"
+  ],
+  [
+    "el1mu2_SR_",
+    "(Leptons_electronmuon) and (dilepton_mass>20.) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "e#mu+jets"
+  ],
+  [
+    "mu1mu2_high_ht_",
+    "(Leptons_muonmuon) and (nominal_ht>150.) and (dilepton_mass>20.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "#mu#mu+jets, H_{T} > 150 GeV"
+  ],
+  [
+    "el1el2_high_ht_",
+    "(Leptons_electronelectron) and (nominal_ht>150.) and (dilepton_mass>20.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "ee+jets, H_{T} > 150 GeV"
+  ],
+  [
+    "mu1el2_high_ht_",
+    "(Leptons_muonelectron) and (nominal_ht>150.) and (dilepton_mass>20.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "#mue+jets, H_{T} > 150 GeV"
+  ],
+  [
+    "el1mu2_high_ht_",
+    "(Leptons_electronmuon) and (nominal_ht>150.) and (dilepton_mass>20.) and (nleadingLeptons+nsubleadingLeptons == 2) and (MET_filter > 0)",
+    "e#mu+jets, H_{T} > 150 GeV"
+  ]
+]
