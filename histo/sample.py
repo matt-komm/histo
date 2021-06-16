@@ -32,7 +32,7 @@ class Sample:
                 self.file_list.push_back(os.path.join(ntuple_path, path, f))
                 if oneFile:
                     counter +=1
-                    if counter > 5:
+                    if counter > 20:
                         break
             if self.isMC:
                 if "HNL" not in name:
@@ -46,7 +46,8 @@ class Sample:
         count = self.rdf.Count().GetValue()
         #if count > 0:
         if cut is not None:
-            self.rdf = self.rdf.Filter(cut)
+            self.rdf = self.rdf.Define("sample_cut", cut)
+            self.rdf = self.rdf.Filter("sample_cut")
         selected = self.rdf.Count().GetValue()
 
         print("RDF {} has entries {}/{}".format(name, selected, count))
