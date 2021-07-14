@@ -5,8 +5,8 @@ from histo import style
 color1 = ROOT.kOrange+7
 color2 = ROOT.kSpring+3
 
-benchmark_model = "HNL_majorana_all_ctau1p0e-01_massHNL8p0_Vall6p702e-03-2016"
-ntuple_path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/25May21/2016/" 
+benchmark_model = "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03-2016"
+ntuple_path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/29Jun21/2016/" 
 
 file_list = ROOT.std.vector('string')()
 
@@ -20,7 +20,9 @@ uncertainty_list = {"pileup": "puweight_nominal",
                     "jesTotal": "shape",
                     "unclEn": "shape",
                     "jer": "shape",
-                    "track_unc": "hnlJet_track_weight_adapted_nominal"
+                    "track_unc": "hnlJet_track_weight_adapted_nominal",
+                    "pdf": "pdf_nominal",
+                    "scale": "scale_shapeonly_nominal"
                     }
 
 uncertainty_text = {"pileup": "pileup",
@@ -29,12 +31,14 @@ uncertainty_text = {"pileup": "pileup",
                     "jesTotal": "jet energy scale",
                     "unclEn": "unclustered energy",
                     "jer": "jet energy resolution",
-                    "track_unc": "displaced track"
+                    "track_unc": "displaced track",
+                    "pdf": "PDF",
+                    "scale": "scale"
                     }
 
 for final_state in ["mu", "e"]:
     rdf = ROOT.RDataFrame("Friends", file_list)
-    rdf = rdf.Filter("LHEWeights_coupling_7>0").Filter("nominal_dR_l2j<0.4")
+    rdf = rdf.Filter("nominal_dR_l2j<0.4")
     if final_state == "mu":
         rdf = rdf.Filter("subleadingLeptons_isMuon[0]")
         rdf = rdf.Define("discriminant", "hnlJet_nominal_llpdnnx_ratio_LLP_QMU")
@@ -86,6 +90,7 @@ for final_state in ["mu", "e"]:
             hist_nominal = rdf.Histo1D(model, "discriminant", f"nominal_{key}")
             hist_up = rdf.Histo1D(model_up, "discriminant", f"up_{key}")
             hist_down = rdf.Histo1D(model_down, "discriminant", f"down_{key}")
+        print(uncertainty, hist_up.Integral(), hist_down.Integral(), hist_nominal.Integral())
         difference_percent_up = (hist_up.Integral()-hist_nominal.Integral())/hist_nominal.Integral()*100
         difference_percent_down = (hist_down.Integral()-hist_nominal.Integral())/hist_nominal.Integral()*100
 
@@ -118,9 +123,9 @@ for final_state in ["mu", "e"]:
         axis.SetMinimum(0.78)
         axis.SetMaximum(1.24)
         if final_state == "mu":
-            axis.GetXaxis().SetTitle("score q#mu")
+            axis.GetXaxis().SetTitle("P_{q#mu}")
         elif final_state == "e":
-            axis.GetXaxis().SetTitle("score qe")
+            axis.GetXaxis().SetTitle("P_{qe}")
 
         axis.GetYaxis().SetTitle("Ratio")
         axis.GetYaxis().SetTitleOffset(1.2)
@@ -142,8 +147,8 @@ for final_state in ["mu", "e"]:
         cv.cd()
         leg.Draw("SAME")
 
-        style.makeCMSText(0.17, 0.93, additionalText="Work in Progress")
-        style.makeText(0.15, 0.85, 0.5, 0.85, "m_{N} = 8 GeV, c#tau_{0}=0.1mm, V_{#mu}=V_{e}, V_{#tau}=0", size=25)
+        #style.makeCMSText(0.17, 0.93, additionalText="Work in Progress")
+        style.makeText(0.15, 0.88, 0.5, 0.88, "m_{N}=10 GeV, c#tau_{0}=1 mm, V_{#mu}=V_{e}=V_{#tau}", size=25)
 
         cv.SaveAs(f"plots/{final_state}_{key}.pdf")
         cv.SaveAs(f"plots/{final_state}_{key}.png")

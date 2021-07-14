@@ -32,7 +32,7 @@ class Sample:
                 self.file_list.push_back(os.path.join(ntuple_path, path, f))
                 if oneFile:
                     counter +=1
-                    if counter > 5:
+                    if counter > 20:
                         break
             if self.isMC:
                 if "HNL" not in name:
@@ -40,13 +40,14 @@ class Sample:
                 else:
                     self.sum_weightHNL = {}
                     self.sum_weight = 1.
-                    for coupling in range(2, 68):
+                    for coupling in range(1, 68):
                         self.sum_weightHNL[coupling] = yieldsHNL[path]["LHEWeights_coupling_{}".format(coupling)]
         self.rdf = ROOT.RDataFrame("Friends", self.file_list)
         count = self.rdf.Count().GetValue()
         #if count > 0:
         if cut is not None:
-            self.rdf = self.rdf.Filter(cut)
+            self.rdf = self.rdf.Define("sample_cut", cut)
+            self.rdf = self.rdf.Filter("sample_cut")
         selected = self.rdf.Count().GetValue()
 
         print("RDF {} has entries {}/{}".format(name, selected, count))
@@ -77,7 +78,7 @@ class Sample:
             self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
 
             if "HNL" in name:
-                for coupling in range(2, 68):
+                for coupling in range(1, 68):
                     if "pt20" in name:
                         self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"{gen_filter[name]['weights'][str(coupling)]['eff']}*weightNominal*LHEWeights_coupling_{coupling}/{self.sum_weightHNL[coupling]}")
                     else:

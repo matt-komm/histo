@@ -1,23 +1,14 @@
 
 categories=[
-    "mumu_OS_displaced", 
-    "mumu_SS_displaced",
-    "ee_OS_displaced",
-    "ee_SS_displaced",
-    "mue_OS_displaced",
-    "mue_SS_displaced",
-    "emu_OS_displaced",
-    "emu_SS_displaced",
-    "mumu_OS_prompt",
-    "mumu_SS_prompt",
-    "ee_OS_prompt",
-    "ee_SS_prompt",
-    "mue_OS_prompt",
-    "mue_SS_prompt",
-    "emu_OS_prompt",
-    "emu_SS_prompt",
+    "mumu_OS", 
+    "mumu_SS",
+    "ee_OS",
+    "ee_SS",
+    "mue_OS",
+    "mue_SS",
+    "emu_OS",
+    "emu_SS",
     ]
-
 
 ncats = len(categories)
 
@@ -49,7 +40,6 @@ nprocsData = len(procsData)
 njobs = nregions*nprocsbkg*ncats + nprocsHNL*ncats + int(nregions*ncats*nprocsData/2)
 print(f"The number of jobs is {njobs}.")
 
-
 for year in years:
     sub_string = """#!/bin/bash
 #$ -cwd
@@ -77,11 +67,9 @@ for year in years:
         for proc in procsData:
             for region in regions:
                 for category in categories:
-                    if proc == "muon":
-                        if category.startswith("mu"):
-                            f.write(f'"python -u make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} "\n')
-                    elif proc == "electron":
-                        if category.startswith("e"):
+                    if proc == "muon" and category.startswith("mu"):
+                        f.write(f'"python -u make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} "\n')
+                    elif proc == "electron" and category.startswith("e"):
                             f.write(f'"python -u make_hists.py --data --proc {proc} --category {category} --region {region} --year {year} "\n')
 
         f.write(")\n")

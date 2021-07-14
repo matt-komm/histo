@@ -1,6 +1,6 @@
 import ROOT
 import ctypes
-
+import numpy
 '''
 some style suggestions
 * canvas size: 800 x 670
@@ -102,6 +102,12 @@ def makeColorTable(reverse=False):
         [0.,newColorHLS(0.56, 0.65, 0.7)],
         [0.,newColorHLS(0.52, 1., 1.)],
     ]
+
+    colorList = [
+    [0.,newColorHLS(0.9, 0.5, 0.9)],
+    [0.,newColorHLS(0.9, 0.88, 1.0)],
+    [0.,newColorHLS(0.9, 0.95, 1.0)],
+    ]
     
     if reverse:
         colorList = reversed(colorList)
@@ -115,13 +121,12 @@ def makeColorTable(reverse=False):
         else:
             color[0] = ((color[1].GetLight()-lumiMin)/(lumiMax-lumiMin))
 
+    stops = numpy.array(list(map(lambda x:x[0],colorList)))
+    red   = numpy.array(list(map(lambda x:x[1].GetRed(),colorList)))
+    green = numpy.array(list(map(lambda x:x[1].GetGreen(),colorList)))
+    blue  = numpy.array(list(map(lambda x:x[1].GetBlue(),colorList)))
 
-    stops = numpy.array(map(lambda x:x[0],colorList))
-    red   = numpy.array(map(lambda x:x[1].GetRed(),colorList))
-    green = numpy.array(map(lambda x:x[1].GetGreen(),colorList))
-    blue  = numpy.array(map(lambda x:x[1].GetBlue(),colorList))
-
-    start=ROOT.TColor.CreateGradientColorTable(len(stops), stops, red, green, blue, 200)
+    start=ROOT.TColor.CreateGradientColorTable(stops.size, stops, red, green, blue, 200)
     ROOT.gStyle.SetNumberContours(200)
     return
 

@@ -1,5 +1,6 @@
 import ROOT
-import json
+import numpy as np
+import pandas as pd
 
 color_dict = {
     "wjets": ["#54bf59", "#327235"],
@@ -111,12 +112,12 @@ class Process:
         self.hists.append(hist)
         return self.hists[-1]
     
-    def AsNumpy(self, *args, cut:str=None):
+    def AsNumpy(self, *args):
         """ Return the stored dataframe as numpy array """
-        output_dict = {}
-        for _, rdf in enumerate(self.rdfs):
-            _rdf = rdf.Filter(cut)
-            _dict = _rdf.AsNumpy(columns=args)
-            output_dict = {**output_dict, **_dict}
-        return output_dict
+        output = []
+        for rdf in self.rdfs:
+            out = rdf.AsNumpy(columns=args)
+            out = pd.DataFrame(out, columns=args)
+            output.append(out)
 
+        return pd.concat(output)
