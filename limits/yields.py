@@ -66,19 +66,21 @@ def get_dilepton_category_string(name: str) -> str:
     return out
 
 def make_pretty(s: str) -> str:
+
     """ Make pretty the category text"""
-    s = s.replace("mumu", "$\mu\mu$")
-    s = s.replace("mue", "$\mu e$")
-    s = s.replace("emu", "$e\mu$")
-    s = s.replace("ee", "$ee$")
-    s = s.replace("_", ",")
-    s = s.replace("displaced", "displaced")
-    s = s.replace("prompt", "prompt")
+    s = s.replace("mumu_OS", "$\mu^{\pm}\mu^{\mp}$")
+    s = s.replace("mue_OS", "$\mu^{\pm}e^{\mp}$")
+    s = s.replace("emu_OS", "$e^{\pm}\mu^{\mp}$")
+    s = s.replace("ee_OS", "$e^{\pm}e^{\mp}$")
+    s = s.replace("mumu_SS", "$\mu^{\pm}\mu^{\pm}$")
+    s = s.replace("mue_SS", "$\mu^{\pm}e^{\pm}$")
+    s = s.replace("emu_SS", "$e^{\pm}\mu^{\pm}$")
+    s = s.replace("ee_SS", "$e^{\pm}e^{\pm}$")
     return s
 
 
 def get_hist(file_name: str, hist_name: str) -> ROOT.TH1D:
-    print(f"Reading {hist_name} from {file_name}")
+    #print(f"Reading {hist_name} from {file_name}")
     rootFile = ROOT.TFile(file_name)
     hist = rootFile.Get(hist_name)
     hist = hist.Clone()
@@ -235,63 +237,80 @@ def plot_yields(df: pd.DataFrame, topology: str="merged", years: list=["2016", "
         cv.SaveAs(f"yields/{topology}_{year}.pdf")
 
 
-category_file = 'config/categories_2l.json'
+category_file = '../config/categories_2l_inclusive.json'
 
 with open(category_file, 'r') as fp:
     category_dict = json.load(fp)
 
 
-for topology in ["merged", "resolved"]:
-    if topology == "merged":
-        idx = 1
-    else:
-        idx = 2
+category_names = []
+category_names_raw = []
+nbins = 6
 
-    category_names = []
-    category_names_raw = []
-    yields_string = {"2016": [], "2017": [], "2018": []}
-    yields = {"2016": [], "2017": [], "2018": []}
-    yield_errors = {"2016": [], "2017": [], "2018": []}
 
-    signal_yields_string = {"2016": [], "2017": [], "2018": []}
-    signal_yields = {"2016": [], "2017": [], "2018": []}
-    signal_yield_errors = {"2016": [], "2017": [], "2018": []}
-
+for year in ["2016", "2017", "2018"]:
+    print(year)
+    print()
+    s = """\\begin{tabular}{llllll}
+$\ell_{1}\ell_{2}$ & topology &  & \multicolumn{3}{c}{$d_{xy}^\\mathrm{sig}$ } \\\\
+\\cline{4-6}
+&          &  & $d_{xy}^\\mathrm{sig}<1$       & $1<d_{xy}^\\mathrm{sig}<10$       & $d_{xy}^\\mathrm{sig}>10$     \\\\
+\\hline"""
+    print(s)
     for category in category_dict.keys():
         category_names_raw.append(category)
         category_names.append(make_pretty(category))
-        for year in yields_string.keys():
-            hist_A = get_hist(f"limits/hists_merged/{year}.root", f"{category}_A/data")
-            hist_B = get_hist(f"limits/hists_merged/{year}.root", f"{category}_B/data")
-            hist_C = get_hist(f"limits/hists_merged/{year}.root", f"{category}_C/data")
-            hist_signal = get_hist(f"limits/hists_merged/HNL_majorana_all_ctau1p0e00_massHNL8p0_Vall2p119e-03_{year}.root", f"{category}_D/HNL_coupling_7")
+        hist_A = get_hist(f"hists_merged/{year}.root", f"{category}_A/data")
+        hist_B = get_hist(f"hists_merged/{year}.root", f"{category}_B/data")
+        hist_C = get_hist(f"hists_merged/{year}.root", f"{category}_C/data")
+        obs_strings_merged = []
+        pred_strings_merged = []
+        obs_strings_resolved = []
+        pred_strings_resolved = []
+
+        for idx in [0, 1, 2, 3, 4, 5]:
             a = hist_A.GetBinContent(idx)
             b = hist_B.GetBinContent(idx)
             c = hist_C.GetBinContent(idx)
             d, d_up, d_low = prediction(a, b, c)
             d_string =  f'${d:.1f}^{{+{d_up:.1f}}}_{{-{d_low:.1f}}}$'
-            yields[year].append(d)
-            yield_errors[year].append(0.5*d_up+0.5*d_low)
-            yields_string[year].append(d_string)
+            if idx in [0, 1, 2]:
+                pred_strings_merged.append(d_string)
+                obs_strings_merged.append(d_string)
+            elif idx in [3, 4, 5]:
+                pred_strings_resolved.append(d_string)
+                obs_strings_resolved.append(d_string)
 
-            hist_signal.Scale(0.1932398841208851)
+        print(f"{make_pretty(category)} & merged & pred. & {pred_strings_merged[0]} & {pred_strings_merged[1]} & {pred_strings_merged[2]} \\\\")
+        print(f"&  & obs. & {obs_strings_merged[0]} & {obs_strings_merged[1]} & {obs_strings_merged[2]} \\\\")
+        print(f"{make_pretty(category)} & resolved & pred. & {pred_strings_resolved[0]} & {pred_strings_resolved[1]} & {pred_strings_resolved[2]} \\\\")
+        print(f"&  & obs. & {obs_strings_resolved[0]} & {obs_strings_resolved[1]} & {obs_strings_resolved[2]} \\\\")
+    print("\end{tabular}")
+            
 
-            signal_yield = hist_signal.GetBinContent(idx)
-            signal_uncertainty = hist_signal.GetBinError(idx)
-            signal_string = f"${signal_yield:0.1f} \\pm {signal_uncertainty:0.1f}$"
 
-            signal_yields[year].append(signal_yield)
-            signal_yield_errors[year].append(signal_uncertainty)
-            signal_yields_string[year].append(signal_string)
+# mu1mu2 & 0.4           & obs  &         &         &        \\
+#        &               & pred &         &         &       
+        #hist_signal = get_hist(f"hists_merged/HNL_majorana_all_ctau1p0e00_massHNL8p0_Vall2p119e-03_{year}.root", f"{category}_D/HNL_coupling_7")
 
-    df_plot = pd.DataFrame(dict(name=category_names_raw, 
-    pred2016=yields["2016"], pred2017=yields["2017"], pred2018=yields["2018"],
-    errPred2016=yield_errors["2016"], errPred2017=yield_errors["2017"], errPred2018=yield_errors["2018"],
-    signal2016=signal_yields["2016"], signal2017=signal_yields["2017"], signal2018=signal_yields["2018"],
-    errSignal2016=signal_yield_errors["2016"], errSignal2017=signal_yield_errors["2017"], errSignal2018=signal_yield_errors["2018"],
-    )
-    )
-    print(df_plot)
-    plot_yields(df_plot, topology=topology)
-    df = pd.DataFrame(dict(name=category_names, pred2016=yields["2016"], pred2017=yields["2017"], pred2018=yields["2018"], signal2016=signal_yields["2016"], signal2017=signal_yields["2017"], signal2018=signal_yields["2018"]))
-    print(df.to_latex(index=False, escape=False, caption=f"Expected background and signal yields for {topology} categories. The signal model shown is Majorana HNL of $8\\GeV, c\\tau_0=1\\unit{{mm}}, V_\\mu=V_e$.", label=f"tab:yields_{topology}", column_format='c|c|c|c|c|c|c'))
+            #hist_signal.Scale(0.1932398841208851)
+
+            #signal_yield = hist_signal.GetBinContent(idx)
+            #signal_uncertainty = hist_signal.GetBinError(idx)
+            #signal_string = f"${signal_yield:0.1f} \\pm {signal_uncertainty:0.1f}$"
+
+            #signal_yields[year].append(signal_yield)
+            #signal_yield_errors[year].append(signal_uncertainty)
+            #signal_yields_string[year].append(signal_string)
+
+# df_plot = pd.DataFrame(dict(name=category_names_raw, 
+# pred2016=yields["2016"], pred2017=yields["2017"], pred2018=yields["2018"],
+# errPred2016=yield_errors["2016"], errPred2017=yield_errors["2017"], errPred2018=yield_errors["2018"],
+# signal2016=signal_yields["2016"], signal2017=signal_yields["2017"], signal2018=signal_yields["2018"],
+# errSignal2016=signal_yield_errors["2016"], errSignal2017=signal_yield_errors["2017"], errSignal2018=signal_yield_errors["2018"],
+# )
+# )
+# print(df_plot)
+# #plot_yields(df_plot, topology=topology)
+# df = pd.DataFrame(dict(name=category_names, pred2016=yields["2016"], pred2017=yields["2017"], pred2018=yields["2018"], signal2016=signal_yields["2016"], signal2017=signal_yields["2017"], signal2018=signal_yields["2018"]))
+# print(df.to_latex(index=False, escape=False, caption=f"Expected background and signal yields for {topology} categories. The signal model shown is Majorana HNL of $8\\GeV, c\\tau_0=1\\unit{{mm}}, V_\\mu=V_e$.", label=f"tab:yields_{topology}", column_format='c|c|c|c|c|c|c'))

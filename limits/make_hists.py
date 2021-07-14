@@ -78,9 +78,10 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
     if region not in ["A", "B", "C", "D"]:
         raise ValueError(f"Invalid region {region} selected")
 
-    if region == "B" or region == "C":
-        return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
-    elif region == "A" or region == "D":
+    if region == "A" or region == "C":
+        return  f'({syst}_m_llj<{m_lower}) '
+        #return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
+    elif region == "B" or region == "D":
         return  f'({syst}_m_llj<{m_upper} and {syst}_m_llj>{m_lower}) '
     else:
         return ""
@@ -88,7 +89,7 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
 def bdt_cut(bdt_threshold: float, syst:str="nominal") -> str:
      return f'(bdt_score_{syst} > {bdt_threshold})'
 
-def tagger_cut(tagger_threshold: float, lower_threshold: float=0.25, region:str="D", syst:str="nominal") -> str:
+def tagger_cut(tagger_threshold: float, lower_threshold: float=0.1, region:str="D", syst:str="nominal") -> str:
     """ Returns tagger score cut repending on region 
     Args:
     tagger_threshold : define signal region
@@ -191,10 +192,17 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
             syst_hack = syst.replace("nominal", "")
             for variation in variations:
                 if "HNL" in process.name:
-                    name = f"{process.name}_coupling_{coupling}_{syst_hack}{year}{variation}"
+                    if "nominal" in syst:
+                        name = f"{process.name}_coupling_{coupling}"
+                    else:
+                        name = f"{process.name}_coupling_{coupling}_{syst_hack}{year}{variation}"
+
                     weight = f"weightNominalHNL_{coupling}"
                 else:
-                    name = f"{process.name}_{syst_hack}{year}{variation}"
+                    if "nominal" in syst:
+                        name = f"{process.name}"
+                    else:
+                        name = f"{process.name}_{syst_hack}{year}{variation}"
                     weight = "weightNominal"
 
                 syst_var_name = f"{syst}{variation}"
@@ -205,7 +213,7 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
                 cut = cut.replace("nselectedJets_unclEnDown", "nselectedJets_nominal") #Hack!
                 category_variable = category_variable_nominal.replace("nominal", syst_var_name)
                 # read in hist from nanoAOD friends
-                hists[name+"_"+syst.replace("nominal", "")+year+variation] = make_hist(process, category_variable, thresholds, weight, cut, region, syst=syst_var_name)
+                hists[name] = make_hist(process, category_variable, thresholds, weight, cut, region, syst=syst_var_name)
 
     return hists
 
@@ -256,7 +264,7 @@ systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
 
 # couplings to consider
 #couplings = range(2, 68)
-couplings = [2, 7, 12, 47, 52]
+couplings = [1, 2, 7, 12, 47, 52]
 #couplings = [7]
 
 category_file = '../config/categories_2l_inclusive.json'
