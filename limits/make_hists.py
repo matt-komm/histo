@@ -349,11 +349,12 @@ root_file.cd(category_name+"_"+region)
 category_dict = dilepton_category_dict
 category_variable_nominal = "category_nominal_index"
 
-coupling = 1
+coupling = 0
 while coupling < 67:
     # different scenarios
     # Need to calculate yield per coupling
     if "HNL" in process.name:
+        coupling += 1
         if coupling not in couplings:
             continue
     else:
@@ -367,7 +368,6 @@ while coupling < 67:
         hists = make_hists(process, ["nominal"], None, category_cut, category_variable_nominal, thresholds, region, coupling=coupling)
         for name, hist in hists.items():
             write_hist(hist, category_dict, "data", isMC=False)
-    coupling += 1
 
 
 root_file.Close()

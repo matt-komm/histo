@@ -14,15 +14,15 @@ def ABCD_eq(a,b,c):
     """
     Basic formula
     """
-    return a*c/b
+    return b*c/a
 
 
 def ABCD_err(a,b,c):
     """ 
     Analytical error propagation (1st order Taylor expansion)
     """
-    return np.sqrt( (c/b)**2 * a + (a*c/b**2)**2 * b + (a/b)**2 * c)
-    #return ABCD_eq(a,b,c) * np.sqrt(1/a + 1/c + 1/b) # Equivalent
+    #return np.sqrt( (c/b)**2 * a + (a*c/b**2)**2 * b + (a/b)**2 * c)
+    return ABCD_eq(a,b,c) * np.sqrt(1/a + 1/c + 1/b) # Equivalent
 
 
 def test_abcd():
@@ -248,7 +248,7 @@ category_names_raw = []
 nbins = 6
 
 
-for year in ["2016", "2017", "2018"]:
+for year in ["2016"]:
     print(year)
     print()
     s = """\\begin{tabular}{llllll}
@@ -268,22 +268,22 @@ $\ell_{1}\ell_{2}$ & topology &  & \multicolumn{3}{c}{$d_{xy}^\\mathrm{sig}$ } \
         obs_strings_resolved = []
         pred_strings_resolved = []
 
-        for idx in [0, 1, 2, 3, 4, 5]:
+        for idx in [1, 2, 3, 4, 5, 6]:
             a = hist_A.GetBinContent(idx)
             b = hist_B.GetBinContent(idx)
             c = hist_C.GetBinContent(idx)
             d, d_up, d_low = prediction(a, b, c)
             d_string =  f'${d:.1f}^{{+{d_up:.1f}}}_{{-{d_low:.1f}}}$'
-            if idx in [0, 1, 2]:
+            if idx in [1, 2, 3]:
                 pred_strings_merged.append(d_string)
                 obs_strings_merged.append(d_string)
-            elif idx in [3, 4, 5]:
+            elif idx in [4, 5, 6]:
                 pred_strings_resolved.append(d_string)
                 obs_strings_resolved.append(d_string)
 
         print(f"{make_pretty(category)} & merged & pred. & {pred_strings_merged[0]} & {pred_strings_merged[1]} & {pred_strings_merged[2]} \\\\")
         print(f"&  & obs. & {obs_strings_merged[0]} & {obs_strings_merged[1]} & {obs_strings_merged[2]} \\\\")
-        print(f"{make_pretty(category)} & resolved & pred. & {pred_strings_resolved[0]} & {pred_strings_resolved[1]} & {pred_strings_resolved[2]} \\\\")
+        print(f" & resolved & pred. & {pred_strings_resolved[0]} & {pred_strings_resolved[1]} & {pred_strings_resolved[2]} \\\\")
         print(f"&  & obs. & {obs_strings_resolved[0]} & {obs_strings_resolved[1]} & {obs_strings_resolved[2]} \\\\")
     print("\end{tabular}")
             
