@@ -1,42 +1,42 @@
 [ 
   [
-    "mu1mu2_OS_SR_merged_bdt_",
-    "(IsoMuTrigger_flag) and (Leptons_muonmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j<0.4)",
-    "\\mu^{\\pm}\\mu^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4, BDT>0.4"
+    "mu1mu2_OS_SR_merged_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoMuTrigger_flag) and (Leptons_muonmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j<0.4)",
+    "\\mu^{\\pm}\\mu^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4"
   ],
   [
-    "el1el2_OS_SR_merged_bdt_",
-    "(IsoElectronTrigger_flag) and (Leptons_electronelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j<0.4)",
-    "e^{\\pm}e^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4, BDT>0.4" 
+    "el1el2_OS_SR_merged_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoElectronTrigger_flag) and (Leptons_electronelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j<0.4)",
+    "e^{\\pm}e^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4" 
   ],
   [
-    "mu1el2_SS_SR_merged_bdt_",
-    "(IsoMuTrigger_flag) and (Leptons_muonelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j<0.4)",
-    "\\mu^{\\pm}e^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4, BDT>0.4" 
+    "mu1el2_SS_SR_merged_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoMuTrigger_flag) and (Leptons_muonelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j<0.4)",
+    "\\mu^{\\pm}e^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4" 
   ],
   [
-    "el1mu2_SS_SR_merged_bdt_",
-    "(IsoElectronTrigger_flag) and (Leptons_electronmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j<0.4)",
-    "e^{\\pm}\\mu^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4, BDT>0.4" 
+    "el1mu2_SS_SR_merged_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoElectronTrigger_flag) and (Leptons_electronmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j<0.4)",
+    "e^{\\pm}\\mu^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})<0.4" 
   ],
   [
-    "mu1mu2_OS_SR_resolved_bdt_",
-    "(IsoMuTrigger_flag) and (Leptons_muonmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j>0.4)",
-    "\\mu^{\\pm}\\mu^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4, BDT>0.4" 
+    "mu1mu2_OS_SR_resolved_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoMuTrigger_flag) and (Leptons_muonmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j>0.4) and (nominal_dR_l2j<1.3)",
+    "\\mu^{\\pm}\\mu^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4" 
   ],
   [
-    "el1el2_OS_SR_resolved_bdt_",
-    "(IsoElectronTrigger_flag) and (Leptons_electronelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j>0.4)",
-    "e^{\\pm}e^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4, BDT>0.4" 
+    "el1el2_OS_SR_resolved_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoElectronTrigger_flag) and (Leptons_electronelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j>0.4) and (nominal_dR_l2j<1.3)",
+    "e^{\\pm}e^{\\mp},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4" 
   ],
   [
-    "mu1el2_SS_SR_resolved_bdt_",
-    "(IsoMuTrigger_flag) and (Leptons_muonelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j>0.4)",
-    "\\mu^{\\pm}e^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4, BDT>0.4" 
+    "mu1el2_SS_SR_resolved_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoMuTrigger_flag) and (Leptons_muonelectron) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j>0.4) and (nominal_dR_l2j<1.3)",
+    "\\mu^{\\pm}e^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4" 
   ],
   [
-    "el1mu2_SS_SR_resolved_bdt_",
-    "(IsoElectronTrigger_flag) and (Leptons_electronmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (bdt_score_nominal>0.4) and (nominal_dR_l2j<1.3) and (nominal_dR_l2j>0.4)",
-    "e^{\\pm}\\mu^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4, BDT>0.4" 
+    "el1mu2_SS_SR_resolved_",
+    "(nominal_m_llj<90) and (nominal_m_llj>70) and (IsoElectronTrigger_flag) and (Leptons_electronmuon) and (dilepton_charge<0) and (dilepton_mass<80) and (dilepton_mass>20) and (nleadingLeptons+nsubleadingLeptons == 2) and (nselectedJets_nominal<5) and (nselectedJets_nominal>0) and (MET_filter > 0) and (nominal_met<100) and (nominal_dR_l2j>0.4) and (nominal_dR_l2j<1.3)",
+    "e^{\\pm}\\mu^{\\pm},\\geq1 jets, \\DeltaR(l_{2},j^{*})>0.4" 
   ]
 ]
