@@ -8,7 +8,7 @@ import csv
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--year",default=2016, choices=[2016,2017,2018])
+parser.add_argument("--year",type=int,default=2016, choices=[2016,2017,2018])
 parser.add_argument("--plot", default="mllj_SR")
 parser.add_argument("-o","--output", dest='output', default="hists")
 parser.add_argument("--syst", default="nominal")
@@ -46,9 +46,9 @@ def nfwdjetsVar(syst="nominal"):
 
 def metVar(syst="nominal"):
     if syst in ['jerUp', 'jerDown', 'jesTotalUp', 'jesTotalDown', 'unclEnUp', 'unclEnDown']:
-        return "met_"+syst
+        return syst+"_met"
     else:
-        return "met_nominal"
+        return "nominal_met"
 
 def bdtVar(syst="nominal"):
     if syst in ['jerUp', 'jerDown', 'jesTotalUp', 'jesTotalDown', 'unclEnUp', 'unclEnDown']:
@@ -93,21 +93,21 @@ def mcWeight(sample, syst="nominal"):
         weight += "*puweight_nominal"
         
     
-    weight += "*(leadingLeptons_isElectron[0]"
+    weight += "*(IsoElectronTrigger_flag*leadingLeptons_isElectron[0]"
     '''
     if syst=="eleEffUp":
-        weight +="leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_up*tightElectrons_weight_reco_up*tightElectrons_weight_id_up)"
+        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_up*tightElectrons_weight_reco_up*tightElectrons_weight_id_up)"
     elif syst=="eleEffDown":
-        weight +="leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_down*tightElectrons_weight_reco_down*tightElectrons_weight_id_down)"
+        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_down*tightElectrons_weight_reco_down*tightElectrons_weight_id_down)"
     else:
-        weight +="leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_nominal*tightElectrons_weight_reco_nominal*tightElectrons_weight_id_nominal)"
+        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_nominal*tightElectrons_weight_reco_nominal*tightElectrons_weight_id_nominal)"
     '''
     if syst=="muEffUp":
-        weight +="+leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_up*tightMuons_weight_id_up*tightMuons_weight_iso_up)"
+        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_up*tightMuons_weight_id_up*tightMuons_weight_iso_up)"
     elif syst=="muEffDown":
-        weight +="+leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_down*tightMuons_weight_id_down*tightMuons_weight_iso_down)"
+        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_down*tightMuons_weight_id_down*tightMuons_weight_iso_down)"
     else:
-        weight +="+leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_id_nominal*tightMuons_weight_iso_nominal)"
+        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_id_nominal*tightMuons_weight_iso_nominal)"
     weight+=")"
         
     return weight
@@ -141,21 +141,25 @@ def normWeightSignal(sample,coupling=1,scale=1):
 def makeHist(path,treeName,var,weight,binning,syst="nominal"):
     f = ROOT.TFile(path)
     tree = f.Get(treeName)
-    print (tree)
+    #print (tree)
     if not tree:
         print ("WARNING: file '%s' does not contain a valid tree"%path)
         return None
+    
     catVar =  "1*(IsoMuTrigger_flag*Leptons_muonmuon*(dilepton_charge<0))"
     catVar += "+2*(IsoElectronTrigger_flag*Leptons_electronelectron*(dilepton_charge<0))"
     catVar += "+3*(IsoMuTrigger_flag*Leptons_muonelectron*(dilepton_charge<0))"
     catVar += "+4*(IsoElectronTrigger_flag*Leptons_electronmuon*(dilepton_charge<0))"
-    catVar =  "+5*(IsoMuTrigger_flag*Leptons_muonmuon*(dilepton_charge>0))"
+    
+    catVar += "+5*(IsoMuTrigger_flag*Leptons_muonmuon*(dilepton_charge>0))"
     catVar += "+6*(IsoElectronTrigger_flag*Leptons_electronelectron*(dilepton_charge>0))"
     catVar += "+7*(IsoMuTrigger_flag*Leptons_muonelectron*(dilepton_charge>0))"
     catVar += "+8*(IsoElectronTrigger_flag*Leptons_electronmuon*(dilepton_charge>0))"
+    
 
     catBinning = np.linspace(-0.5,8.5,10)
     hist = ROOT.TH2F("hist_"+str(random.random()),"",len(binning)-1,binning,len(catBinning)-1,catBinning)
+    hist.Sumw2()
     tree.Project(hist.GetName(),catVar+":"+var,weight)
     hist.SetDirectory(0)
     f.Close()
@@ -169,7 +173,7 @@ def makeHistFromFolder(folder,treeName,var,weight,binning):
     print ("binning: ",binning)
 
     histSum = None
-    for f in files:
+    for i,f in enumerate(files):
         hist = makeHist(os.path.join(folder,f),treeName,var,weight,binning)
         if hist==None:
             continue
@@ -177,29 +181,90 @@ def makeHistFromFolder(folder,treeName,var,weight,binning):
             histSum = hist
         else:
             histSum.Add(hist)
-        break
+        #break
     print ("Events/Integral: ",histSum.GetEntries(),"/",histSum.Integral())
     print ()
-    return hist
+    return histSum
 
 plotCfgs ={
-    "mllj_SR":{
-        "var": mlljVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,150,31),
+    "tagger_CR_boosted":{
+        "var": taggerScore(args.syst),
+        "cut": "({dR}<0.4)*({mll}>80.)*({njets}>0)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,21),
         "signals": {
+            #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+            #    "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            #}
+        },
+        "blind":False
+    },
+    
+    "tagger_CR_resolved":{
+        "var": taggerScore(args.syst),
+        "cut": "({dR}>0.4)*({mll}>80.)*({njets}>0)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,21),
+        "signals": {
+            #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+            #    "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            #}
+        },
+        "blind":False
+    },
+    
+    "tagger_SR_boosted":{
+        "var": taggerScore(args.syst),
+        "cut": "({dR}<0.4)*({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,21),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
         },
-        "blind":True
+        "blind":False
     },
-
-    "tagger_CR":{
+    
+    "tagger_SR_resolved":{
         "var": taggerScore(args.syst),
-        "cut": "({mll}>80.)*({njets}>0)*({nfwdjets}<1)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "cut": "({dR}>0.4)*({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
         "binning": np.linspace(0,1,21),
         "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            }
+        },
+        "blind":False
+    },
+    
+    
+    "bdt_SR":{
+        "var": bdtVar(args.syst),
+        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,21),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            }
+        },
+        "blind":False
+    },
+    
+    "mllj_SR":{
+        "var": mlljVar(args.syst),
+        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,300,61),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
@@ -214,10 +279,11 @@ samples = yaml.load(open("/vols/cms/mkomm/HNL/histo/config/samples.yml"))
 
 histDict = {}
 
-if not plotCfg['blind']:
+if not plotCfg['blind'] and args.syst=="nominal":
     for sampleName in ["muon","electron"]:
+        histSum = None
         for run in samples[sampleName][args.year].keys():
-            histSum = None
+            
             for folder in samples[sampleName][args.year][run]:
                 path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/26Aug21/"+str(args.year)+"/"+folder
                 weight = dataWeight(sampleName)+"*"+plotCfg['cut']
@@ -226,7 +292,7 @@ if not plotCfg['blind']:
                     histSum = hist
                 else:
                     histSum.Add(hist)
-    histDict[sampleName] = histSum
+        histDict[sampleName] = histSum
 
 for sampleName in ['qcd','topbkg','wjets','dyjets','vgamma']:
     histSum = None
@@ -256,7 +322,7 @@ print ("write output: %s"%outputFileName)
 outputFile = ROOT.TFile(outputFileName,"RECREATE")
 for name,hist in histDict.items():
     hist.SetName(name)
-    print ("  hist: %s"%name)
+    print ("  hist: %s"%name, "Events/Integral: ",hist.GetEntries(),"/",hist.Integral())
     hist.SetDirectory(outputFile)
 outputFile.Write()
 outputFile.Close()
