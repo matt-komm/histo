@@ -37,8 +37,9 @@ class Plot():
         plot,
         title,
         combine = lambda h: h.ProjectionX(h.GetName()+"tot"),
-        extraTitle="",
+        extraTitles=[],
         logy=False,
+        yspace=1.2,
         unit="",
         binRange = [0,1],
         outputSuffix = "",
@@ -48,7 +49,9 @@ class Plot():
         self.plot = plot
         self.title = title
         self.combine = combine
+        self.extraTitles = extraTitles
         self.logy = logy
+        self.yspace = yspace
         self.unit = unit
         self.binRange = binRange
         self.outputSuffix = outputSuffix
@@ -205,11 +208,11 @@ class Plot():
             binwidth = mcHistSumNominal.GetBinWidth(1)
             binexp = math.floor(math.log10(binwidth))
             if binexp>3 or binexp<-3:
-                yaxisTitle = "Events / %4.3f#upoint 10#scale[0.7]{#lower[-0.7]{%i}} %s"%(binwidth/(10**binexp),binexp,unit)
+                yaxisTitle = "Events / %4.3f#upoint 10#scale[0.7]{#lower[-0.7]{%i}} %s"%(binwidth/(10**binexp),binexp,self.unit)
             elif binexp>1:
-                yaxisTitle = "Events / %3f %s"%(binwidth,unit)
+                yaxisTitle = "Events / %3f %s"%(binwidth,self.unit)
             else:
-                yaxisTitle = "Events / %4.2f %s"%(binwidth,unit)
+                yaxisTitle = "Events / %4.2f %s"%(binwidth,self.unit)
         else:
             xaxisTitle = self.title
             yaxisTitle = "Events / bins"
@@ -220,13 +223,13 @@ class Plot():
             axis=ROOT.TH2F(
                 "axis"+str(random.randint(0,99999)),";;"+yaxisTitle,
                 50,self.binRange[0],self.binRange[1],
-                50,0.07,10**((1.63+0.2*len(self.signals))*math.log10(max([ymax,1.0])))
+                50,0.07,10**(self.yspace*math.log10(max([ymax,1.0])))
             )
         else:
             axis=ROOT.TH2F(
                 "axis"+str(random.randint(0,99999)),";;"+yaxisTitle,
                 50,self.binRange[0],self.binRange[1],
-                50,0.0,(1.43+0.22*len(self.signals))*max([ymax,1.0])
+                50,0.0,self.yspace*ymax
             )
 
         axis.GetXaxis().SetLabelSize(0)
@@ -235,6 +238,9 @@ class Plot():
         axis.GetYaxis().SetTickLength(0.015/(1-cv.GetPad(2).GetTopMargin()-cv.GetPad(2).GetBottomMargin()))
         #axis.GetYaxis().SetNoExponent(True)
         axis.Draw("AXIS")
+        
+        if self.logy:
+            cv.GetPad(2).SetLogy(1)
 
         mcStackNominal.Draw("HISTSame")
 
@@ -269,7 +275,70 @@ class Plot():
             histSignal.Draw("HISTSame")
                 
         ROOT.gPad.RedrawAxis()
-                
+        
+        pCMS=ROOT.TPaveText(cvxmin+0.025,cvymax-0.025,cvxmin+0.025,cvymax-0.025,"NDC")
+        pCMS.SetFillColor(ROOT.kWhite)
+        pCMS.SetBorderSize(0)
+        pCMS.SetTextFont(63)
+        pCMS.SetTextSize(28)
+        pCMS.SetTextAlign(13)
+        pCMS.AddText("CMS")
+        pCMS.Draw("Same")
+        '''
+        pPreliminary=ROOT.TPaveText(cvxmin+0.025+0.09,cvymax-0.025,cvxmin+0.025+0.09,cvymax-0.025,"NDC")
+        pPreliminary.SetFillColor(ROOT.kWhite)
+        pPreliminary.SetBorderSize(0)
+        pPreliminary.SetTextFont(53)
+        pPreliminary.SetTextSize(28)
+        pPreliminary.SetTextAlign(13)
+        pPreliminary.AddText("Preliminary")
+        pPreliminary.Draw("Same")
+        '''
+        pLumi=ROOT.TPaveText(cvxmax,0.94,cvxmax,0.94,"NDC")
+        pLumi.SetFillColor(ROOT.kWhite)
+        pLumi.SetBorderSize(0)
+        pLumi.SetTextFont(43)
+        pLumi.SetTextSize(32)
+        pLumi.SetTextAlign(31)
+        pLumi.AddText("137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
+        pLumi.Draw("Same")
+        
+        legend1 = ROOT.TLegend(cvxmax-0.45,cvymax-0.025,cvxmax-0.23,cvymax-0.02-0.055*3,"","NDC")
+        legend1.SetBorderSize(0)
+        legend1.SetFillStyle(0)
+        legend1.SetTextFont(43)
+        legend1.SetTextSize(28)
+        
+        legend2 = ROOT.TLegend(cvxmax-0.23,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.055*4,"","NDC")
+        legend2.SetBorderSize(0)
+        legend2.SetFillStyle(0)
+        legend2.SetTextFont(43)
+        legend2.SetTextSize(28)
+        
+        legend1.AddEntry("","Data","P")
+        for sample in self.procs[:2]:
+            legend1.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+        for sample in self.procs[2:]:
+            legend2.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+            
+            
+        legend2.AddEntry("","Unc.","F")
+        
+        
+        legend1.Draw()
+        legend2.Draw()
+        
+        for i,text in enumerate(self.extraTitles):
+            pText = ROOT.TPaveText(cvxmin+0.025,cvymax-0.08-0.055*i,cvxmin+0.025,cvymax-0.08-0.055*i,"NDC")
+            rootObj.append(pText)
+            pText.SetBorderSize(0)
+            pText.SetFillStyle(0)
+            pText.SetTextFont(43)
+            pText.SetTextSize(28)
+            pText.SetTextAlign(13)
+            pText.AddText(text)
+            pText.Draw()
+            
         cv.cd(1)
         axisRes=ROOT.TH2F(
             "axisRes"+str(random.randint(0,99999)),";"+xaxisTitle+";Data/Pred.",
@@ -336,14 +405,27 @@ class Plot():
         cv.Print(self.plot+self.outputSuffix+".pdf")
 
 
-bdt = Plot("bdt_SR","BDT discriminant",binRange=[0,1])
-bdt.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e5, "", style=[3,2,ROOT.kRed+1])
+bdt = Plot("bdt_SR","BDT discriminant",binRange=[0,1],extraTitles=["SR"],yspace=1.4)
+bdt.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 5e4, "", style=[3,2,ROOT.kRed+1])
 bdt()
         
+mllj = Plot("mllj_SR","m(llj#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,200], unit="GeV", extraTitles=["SR"],yspace=1.4)
+mllj.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e4, "", style=[3,2,ROOT.kRed+1])
+mllj()
 
+tagger_SR_boosted = Plot("tagger_SR_boosted","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["SR, boosted"],yspace=1.4)
+tagger_SR_boosted.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e2, "", style=[3,2,ROOT.kRed+1])
+tagger_SR_boosted()
 
+tagger_SR_resolved = Plot("tagger_SR_resolved","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["SR, resolved"],yspace=1.4)
+tagger_SR_resolved.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e2, "", style=[3,2,ROOT.kRed+1])
+tagger_SR_resolved()
 
+tagger_CR_boosted = Plot("tagger_CR_boosted","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.4)
+tagger_CR_boosted()
 
+tagger_CR_resolved = Plot("tagger_CR_resolved","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.4)
+tagger_CR_resolved()
 
 '''
 
