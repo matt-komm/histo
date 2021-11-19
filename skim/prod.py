@@ -16,7 +16,7 @@ parser.add_argument("--test", action="store_true", dest="one_file", default=Fals
 args = parser.parse_args()
 category_name = args.category
 
-categories_file = os.path.expandvars("$HISTO_BASE_ENV/config/categories_2l_inclusive.json")
+categories_file = os.path.expandvars("$HISTO_BASE_PATH/config/categories_2l_inclusive.json")
 print(categories_file)
 ntuple_path = f"/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/26Aug21"
 output_dir = os.path.expandvars(f"{args.output_dir}")
@@ -50,13 +50,56 @@ text_dict = {
     "electron": "electron"
 }
 
+# only for MC samples
+variable_dict_mc = {
+    "mu": "hnlJet_nominal_isPrompt_MU",
+    "gamma": "hnlJet_nominal_isPrompt_PHOTON",
+    "tau": "hnlJet_nominal_isPrompt_TAU",
+    "e": "hnlJet_nominal_isPrompt_E",
+    "uds": "hnlJet_nominal_isUDS",
+    "g": "hnlJet_nominal_isG",
+    "b": "hnlJet_nominal_isB",
+    "c": "hnlJet_nominal_isC",
+    "pileup": "hnlJet_nominal_isPU",
+    "weight": 'weightNominal',
+}
+
+# only for signal samples
+variable_dict_hnl = {}
+
+for coupling in [1, 2, 7, 12, 47, 52]:
+    variable_dict_hnl[f"weight{coupling}"] = f'weightNominalHNL_{coupling}'
+
+# for all samples (mc bkg/mc sig/data)
+variable_dict_all = {
+    "tagger": "(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)*hnlJet_nominal_llpdnnx_ratio_LLP_Q+\
+    (nominal_dR_l2j<0.4)*hnlJet_nominal_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
+        +(nominal_dR_l2j<0.4)*hnlJet_nominal_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]",
+    "bdt": "bdt_score_nominal",
+    "mass": "nominal_m_llj",
+    "met": "nominal_met",
+    "mtw": "nominal_mtw",
+
+    "nphoton": "nvetoPhotons",
+    "isotropy": "nominal_eventShape_isotropy",
+    "circularity": "nominal_eventShape_circularity",
+    "aplanarity": "nominal_eventShape_aplanarity",
+    "sphericity": "nominal_eventShape_sphericity",
+
+    "boosted": "nominal_dR_l2j<0.4",
+    "resolved": "nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3",
+
+    "l2_dxy": "subleadingLeptons_dxy[0]",
+    "l2_dxysig": "subleadingLeptons_dxysig[0]",
+
+    "l2_pt": "subleadingLeptons_pt[0]",
+    "l2_eta": "subleadingLeptons_eta[0]",
+    "l2_iso": "subleadingLeptons_relIso[0]",
+}
+
 backgrounds = []
 signals = []
 
-prediction_dict = {}
-observed_dict = {}
-prediction_error_dict = {}
-observed_error_dict = {}
 process_names = []
 
 ntuple_path = os.path.join(ntuple_path, year)
@@ -83,79 +126,23 @@ for process_name, process_dict in samples_dict.items():
             sample = Sample(sample_name, ntuple_path, sample_list, isMC=isMC, year=year, oneFile=one_file, cut=cut)
             process.Add(sample)
 
-
-    tagger_score = "(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3)*hnlJet_nominal_llpdnnx_ratio_LLP_Q+\
-    (nominal_dR_l2j<0.4)*hnlJet_nominal_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
-        +(nominal_dR_l2j<0.4)*hnlJet_nominal_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
-
-    mass_variable = "nominal_m_llj"
+    vars_to_save = list(variable_dict_all.keys())
+    for var, varexp in variable_dict_all.items():
+        process.Define(var, varexp)
 
     if isMC:
-        process.Define("mu", "hnlJet_nominal_isPrompt_MU")
-        process.Define("gamma", "hnlJet_nominal_isPrompt_PHOTON")
-        process.Define("tau", "hnlJet_nominal_isPrompt_TAU")
-        process.Define("e", "hnlJet_nominal_isPrompt_E")
-        process.Define("uds", "hnlJet_nominal_isUDS")
-        process.Define("g", "hnlJet_nominal_isG")
-        process.Define("b", "hnlJet_nominal_isB")
-        process.Define("c", "hnlJet_nominal_isC")
-        process.Define("pileup", "hnlJet_nominal_isPU")
-
-    process.Define("ntracks", "hnlJet_nominal_ncpf")
-    process.Define("tagger_score", tagger_score)
-    process.Define("bdt_score_nominal", "bdt_score_nominal")
-    process.Define("mass", mass_variable)
-    process.Define("met", "nominal_met")
-    process.Define("mtw", "nominal_mtw")
-
-    process.Define("nphoton", "nvetoPhotons")
-    process.Define("isotropy", "nominal_eventShape_isotropy")
-    process.Define("circularity", "nominal_eventShape_circularity")
-    process.Define("aplanarity", "nominal_eventShape_aplanarity")
-    process.Define("sphericity", "nominal_eventShape_sphericity")
-
-    process.Define("weight", 'weightNominal')
-    if "HNL" in process.name:
-        for coupling in [1, 2, 7, 12, 47, 52]:
-            process.Define(f"weight{coupling}", f'weightNominalHNL_{coupling}')
-
-    process.Define("boosted", "nominal_dR_l2j<0.4")
-    process.Define("resolved", "nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3")
-
-    process.Define("dxy", "subleadingLeptons_dxy[0]")
-    process.Define("dxysig", "subleadingLeptons_dxysig[0]")
-
-    process.Define("l2_pt", "subleadingLeptons_pt[0]")
-    process.Define("l2_eta", "subleadingLeptons_eta[0]")
-    process.Define("l2_iso", "subleadingLeptons_relIso[0]")
-
-
-    vars_to_save = ["mass", "tagger_score", "boosted", "resolved", "bdt_score_nominal", "dxy", "dxysig", "weight", "dilepton_mass", "dilepton_dPhimin", "ntracks", "nphoton", "hnlJet_nominal_pt", "hnlJet_nominal_eta", "l2_pt", "l2_eta", "l2_iso", "isotropy", "circularity", "aplanarity", "sphericity", "met", "mtw"]
-    jet_flavours = ["mu", "gamma", "tau", "e", "uds", "g", "b", "c", "pileup"]
-    if isMC:
-        vars_to_save.extend(jet_flavours)
+        for var, varexp in variable_dict_mc.items():
+            process.Define(var, varexp)
+        vars_to_save.extend(variable_dict_mc.keys())
 
     if "HNL" in process_name:
-        vars_to_save.extend(["weight1", "weight2", "weight7", "weight12", "weight47", "weight52"])
+        vars_to_save.extend(variable_dict_hnl.keys())
+        for var, varexp in variable_dict_hnl.items():
+            process.Define(var, varexp)
+
     data = process.AsNumpy(*vars_to_save)
-    #data['merged'] = data['merged'].astype(bool)
-    #data['resolved'] = data['resolved'].astype(bool)
-    #data['tagger_score'] = data['tagger_score'].astype(float)
-    bkg_yield = np.sum(data['weight'])
-    print(f"yield {np.sum(data['weight'])}")
-    print(os.path.join(output_dir, year, category_name))
     if not os.path.exists(os.path.join(output_dir, year, category_name)):
         os.mkdir(os.path.join(output_dir, year, category_name))
 
     file_path = os.path.join(output_dir, year, category_name, process_name+".pkl")
     data.to_pickle(file_path)
-
-    # if isMC:
-    #     flavour_sum = 0
-    #     for jet_flavour in jet_flavours:
-
-    #         flavour_yield = np.sum(data.query(f"{jet_flavour}==1")['weight'])
-
-    #         print(f"fraction of {jet_flavour}: {flavour_yield/bkg_yield}")
-    #         flavour_sum += flavour_yield/bkg_yield
-    #     print(f"Total sum of all flavours: {flavour_sum}")
