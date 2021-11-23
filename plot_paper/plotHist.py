@@ -1,10 +1,14 @@
 import ROOT
 import math
 import random
+import os
+import sys
 import numpy as np
 from histo import style
 
 ROOT.gROOT.SetBatch(True)
+ROOT.gStyle.SetErrorX(0)
+ROOT.gStyle.SetPaperSize(7.0*1.35,6.7*1.35)
 
 colors = []
     
@@ -31,19 +35,33 @@ for name,mcStyle in mcStyles.items():
         fillColor.GetBlue()*0.6,
     )
 
+#bins: 0=underflow, 1=empty, 
+# 2=mumu OS, 3=ee OS, 4=mue OS, 5=emu OS
+# 6=mumu SS, 7=ee SS, 8=mue SS, 9=emu SS
+
+def combineAll(h):
+    return h.ProjectionX(h.GetName()+"tot")
+
+def combineOS(h):
+    return h.ProjectionX(h.GetName()+"tot",2,5)
+
+def combineSS(h):
+    return h.ProjectionX(h.GetName()+"tot",6,9)
 
 class Plot():
     def __init__(self,
         plot,
         title,
-        combine = lambda h: h.ProjectionX(h.GetName()+"tot"),
+        combine = combineAll,
         extraTitles=[],
         logy=False,
         yspace=1.2,
         unit="",
         binRange = [0,1],
         outputSuffix = "",
+        header="(ee,#kern[-0.5]{ }e#mu,#kern[-0.5]{ }#mue,#kern[-0.5]{ }#mu#mu)#kern[-0.2]{ }+#kern[-0.2]{ }jets",
         procs = ['topbkg','wjets','dyjets','vgamma','qcd'],
+        showData=True,
         path='/vols/cms/mkomm/HNL/histo/plot_paper/hists/hist'
     ):
         self.plot = plot
@@ -55,8 +73,11 @@ class Plot():
         self.unit = unit
         self.binRange = binRange
         self.outputSuffix = outputSuffix
+        self.header = header
         self.procs = procs
+        self.showData = showData
         self.path = path
+        
         self.signals = []
 
     def addSignal(self, name, scale, legend, style=[2,2,ROOT.kRed+1]):
@@ -144,6 +165,30 @@ class Plot():
             mcHistSumNominal.SetBinError(ibin+1,math.sqrt(mcHistSumNominal.GetBinError(ibin+1)**2+totalUnc2[ibin])) #add mcstat err
                 
         return mcStackNominal, mcHistDictNominal, mcHistSumNominal
+        
+    def getData(self):
+        dataHistSum = None
+        for year in [2016,2017,2018]:
+            filepath = self.path+"_"+str(year)+"_"+self.plot+"_nominal.root"
+            f = ROOT.TFile(filepath)
+            if f==None:
+                raise Exception("Cannot open file '%s'"%filepath)
+                
+            for sample in ['electron','muon']:
+                hist = f.Get(sample)
+                hist = self.combine(hist)
+                hist.SetDirectory(0)
+                hist.SetMarkerStyle(20)
+                hist.SetMarkerSize(1.5)
+                hist.SetLineColor(ROOT.kBlack)
+                hist.SetMarkerColor(ROOT.kBlack)
+                if dataHistSum==None:
+                    dataHistSum = hist.Clone(self.plot+str(random.random())+"sum")
+                    dataHistSum.SetDirectory(0)
+                else:
+                    dataHistSum.Add(hist)
+            f.Close()
+        return dataHistSum
 
     def __call__(self):
         
@@ -155,8 +200,8 @@ class Plot():
         cv.GetPad(2).SetFillStyle(4000)
 
         cvxmin=0.13
-        cvxmax=0.97
-        cvymin=0.145
+        cvxmax=0.96
+        cvymin=0.13
         cvymax=0.92
         resHeight=0.35
 
@@ -203,16 +248,12 @@ class Plot():
         mcStackNominal, mcHistDictNominal, mcHistSumNominal = self.getMC()
         
         if self.unit!="":
-            xaxisTitle = self.title+" ("+self.unit+")"
+            xaxisTitle = self.title+"\,\\mbox{("+self.unit+")}"
             
             binwidth = mcHistSumNominal.GetBinWidth(1)
-            binexp = math.floor(math.log10(binwidth))
-            if binexp>3 or binexp<-3:
-                yaxisTitle = "Events / %4.3f#upoint 10#scale[0.7]{#lower[-0.7]{%i}} %s"%(binwidth/(10**binexp),binexp,self.unit)
-            elif binexp>1:
-                yaxisTitle = "Events / %3f %s"%(binwidth,self.unit)
-            else:
-                yaxisTitle = "Events / %4.2f %s"%(binwidth,self.unit)
+
+            yaxisTitle = "Events / %.0f %s"%(binwidth,self.unit)
+
         else:
             xaxisTitle = self.title
             yaxisTitle = "Events / bins"
@@ -251,7 +292,8 @@ class Plot():
             w = mcHistSumNominal.GetBinWidth(ibin+1)
             m = mcHistSumNominal.GetBinContent(ibin+1)
             err = mcHistSumNominal.GetBinError(ibin+1)
-
+            if c>self.binRange[1] or c<self.binRange[0]:
+                continue
             if m>0.0:
                 box = ROOT.TBox(c-0.5*w,m-err,c+0.5*w,m+err)
                 box.SetFillStyle(3345)
@@ -269,18 +311,53 @@ class Plot():
                 rootObj.append(box2)
                 box2.Draw("SameL")
                 '''
+        dataHist = ROOT.TH1F()
+        dataHist.SetMarkerStyle(20)
+        if self.showData:
+            dataHist = self.getData()
+            dataHist.Draw("HISTPESame")
+
+        isignalEntry=0
+        if len(self.signals)>0:
+            
+            legendSignal = ROOT.TLegend(cvxmin+0.025,cvymax-0.07-0.048*(len(self.extraTitles)),cvxmin+0.3,cvymax-0.07-0.048*(len(self.extraTitles)+sum(map(lambda x: len(x['legend']),self.signals))),"","NDC")
+            legendSignal.SetBorderSize(0)
+            legendSignal.SetFillStyle(0)
+            legendSignal.SetTextFont(43)
+            legendSignal.SetTextSize(25)
                 
-        for signal in self.signals:
-            histSignal = self.getMCSignal(signal)
-            histSignal.Draw("HISTSame")
+            for signal in self.signals:
+                histSignal = self.getMCSignal(signal)
+                rootObj.append(histSignal)
+                for ientry,legendEntry in enumerate(signal['legend']):
+                    if ientry==0:
+                        legendSignal.AddEntry(histSignal,legendEntry,"L")
+                    else:
+                        legendSignal.AddEntry("","","")
+                        pText = ROOT.TPaveText(cvxmin+0.035,cvymax-0.075-0.048*(len(self.extraTitles)+isignalEntry),cvxmin+0.035,cvymax-0.075-0.048*(len(self.extraTitles)+isignalEntry),"NDC")
+                        rootObj.append(pText)
+                        pText.SetBorderSize(0)
+                        pText.SetFillStyle(0)
+                        pText.SetTextFont(43)
+                        pText.SetTextSize(23)
+                        pText.SetTextAlign(13)
+                        pText.AddText(legendEntry)
+                        pText.Draw()
+                    isignalEntry+=1
+                histSignal.Draw("HISTSame")
+
                 
         ROOT.gPad.RedrawAxis()
+
+        if len(self.signals)>0:
+            legendSignal.Draw()
+            
         
         pCMS=ROOT.TPaveText(cvxmin+0.025,cvymax-0.025,cvxmin+0.025,cvymax-0.025,"NDC")
         pCMS.SetFillColor(ROOT.kWhite)
         pCMS.SetBorderSize(0)
         pCMS.SetTextFont(63)
-        pCMS.SetTextSize(28)
+        pCMS.SetTextSize(27)
         pCMS.SetTextAlign(13)
         pCMS.AddText("CMS")
         pCMS.Draw("Same")
@@ -289,7 +366,7 @@ class Plot():
         pPreliminary.SetFillColor(ROOT.kWhite)
         pPreliminary.SetBorderSize(0)
         pPreliminary.SetTextFont(53)
-        pPreliminary.SetTextSize(28)
+        pPreliminary.SetTextSize(27)
         pPreliminary.SetTextAlign(13)
         pPreliminary.AddText("Preliminary")
         pPreliminary.Draw("Same")
@@ -298,61 +375,86 @@ class Plot():
         pLumi.SetFillColor(ROOT.kWhite)
         pLumi.SetBorderSize(0)
         pLumi.SetTextFont(43)
-        pLumi.SetTextSize(32)
+        pLumi.SetTextSize(30)
         pLumi.SetTextAlign(31)
-        pLumi.AddText("137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
+        if self.header!="":
+            pLumi.AddText(self.header+", 137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
+        else:
+            pLumi.AddText("137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
         pLumi.Draw("Same")
         
-        legend1 = ROOT.TLegend(cvxmax-0.45,cvymax-0.025,cvxmax-0.23,cvymax-0.02-0.055*3,"","NDC")
+        legend1 = ROOT.TLegend(cvxmax-0.39,cvymax-0.02,cvxmax-0.21,cvymax-0.02-0.048*3,"","NDC")
         legend1.SetBorderSize(0)
         legend1.SetFillStyle(0)
         legend1.SetTextFont(43)
-        legend1.SetTextSize(28)
+        legend1.SetTextSize(25)
         
-        legend2 = ROOT.TLegend(cvxmax-0.23,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.055*4,"","NDC")
+        legend2 = ROOT.TLegend(cvxmax-0.21,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.048*4,"","NDC")
         legend2.SetBorderSize(0)
         legend2.SetFillStyle(0)
         legend2.SetTextFont(43)
-        legend2.SetTextSize(28)
+        legend2.SetTextSize(25)
         
-        legend1.AddEntry("","Data","P")
+        legend1.AddEntry(dataHist,"Data","P")
         for sample in self.procs[:2]:
             legend1.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
         for sample in self.procs[2:]:
             legend2.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
             
             
-        legend2.AddEntry("","Unc.","F")
+        legend2.AddEntry(box,"Unc.","F")
         
         
         legend1.Draw()
         legend2.Draw()
+
+
+
         
         for i,text in enumerate(self.extraTitles):
-            pText = ROOT.TPaveText(cvxmin+0.025,cvymax-0.08-0.055*i,cvxmin+0.025,cvymax-0.08-0.055*i,"NDC")
+            pText = ROOT.TPaveText(cvxmin+0.025,cvymax-0.08-0.048*i,cvxmin+0.025,cvymax-0.08-0.048*i,"NDC")
             rootObj.append(pText)
             pText.SetBorderSize(0)
             pText.SetFillStyle(0)
-            pText.SetTextFont(43)
-            pText.SetTextSize(28)
+            pText.SetTextFont(63)
+            pText.SetTextSize(25)
             pText.SetTextAlign(13)
             pText.AddText(text)
             pText.Draw()
             
         cv.cd(1)
+        
         axisRes=ROOT.TH2F(
-            "axisRes"+str(random.randint(0,99999)),";"+xaxisTitle+";Data/Pred.",
+            "axisRes"+str(random.randint(0,99999)),";;Data/Pred.",
             50,self.binRange[0],self.binRange[-1],50,0.1,1.9)#0.55,1.45)#0.1,1.9)
         axisRes.GetYaxis().SetNdivisions(406)
         axisRes.GetXaxis().SetTickLength(0.020/(1-cv.GetPad(1).GetLeftMargin()-cv.GetPad(1).GetRightMargin()))
         axisRes.GetYaxis().SetTickLength(0.015/(1-cv.GetPad(1).GetTopMargin()-cv.GetPad(1).GetBottomMargin()))
 
         axisRes.Draw("AXIS")
+        
+        xaxisTitlePave = ROOT.TMathText()
+        xaxisTitlePave.SetNDC()
+        xaxisTitlePave.SetTextFont(43)
+        xaxisTitlePave.SetTextAlign(31);
+        xaxisTitlePave.SetTextSize(32);
+        xaxisTitlePave.DrawMathText(cvxmax,0.03,xaxisTitle)
+        
+        
+        if self.showData:
+            dataRes = dataHist.Clone(dataHist.GetName()+str(random.random())+"res")
 
         for ibin in range(mcHistSumNominal.GetNbinsX()):
             c = mcHistSumNominal.GetBinCenter(ibin+1)
             w = mcHistSumNominal.GetBinWidth(ibin+1)
             m = mcHistSumNominal.GetBinContent(ibin+1)
+            if c>self.binRange[1] or c<self.binRange[0]:
+                continue
+                
+            if self.showData:
+                if m>1e-3:
+                    dataRes.SetBinContent(ibin+1,dataHist.GetBinContent(ibin+1)/m)
+                    dataRes.SetBinError(ibin+1,dataHist.GetBinError(ibin+1)/m)
 
             if m>0.0:
                 h = min(mcHistSumNominal.GetBinError(ibin+1)/m,0.899)
@@ -370,21 +472,11 @@ class Plot():
                 box2.SetLineWidth(2)
                 rootObj.append(box2)
                 box2.Draw("SameL")
-        '''
-        sumHistRes=sumHistData.Clone(sumHistData.GetName()+str(random.randint(0,99999)))
-        rootObj.append(sumHistRes)
-        for ibin in range(sumHistRes.GetNbinsX()):
-            m = sumHistMC.GetBinContent(ibin+1)
-            d = sumHistRes.GetBinContent(ibin+1)
-            e = sumHistRes.GetBinError(ibin+1)
-            if m>0.0:
-                sumHistRes.SetBinContent(ibin+1,d/m)
-                sumHistRes.SetBinError(ibin+1,e/m)
-            else:
-                sumHistRes.SetBinContent(ibin+1,0.0)
-                sumHistRes.SetBinError(ibin+1,0)
-        sumHistRes.Draw("PESame")
-        '''
+                
+        if self.showData:
+            dataRes.Draw("HISTPESame")
+                
+        
         axisLine = ROOT.TF1("axisLine"+str(random.randint(0,99999)),"1",self.binRange[0],self.binRange[1])
         axisLine.SetLineColor(ROOT.kBlack)
         axisLine.SetLineWidth(1)
@@ -400,90 +492,64 @@ class Plot():
         hidePave.Draw("Same")
 
                 
-                
-        cv.Update()      
-        cv.Print(self.plot+self.outputSuffix+".pdf")
-
-
-bdt = Plot("bdt_SR","BDT discriminant",binRange=[0,1],extraTitles=["SR"],yspace=1.4)
-bdt.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 5e4, "", style=[3,2,ROOT.kRed+1])
-bdt()
         
-mllj = Plot("mllj_SR","m(llj#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,200], unit="GeV", extraTitles=["SR"],yspace=1.4)
-mllj.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e4, "", style=[3,2,ROOT.kRed+1])
-mllj()
+        cv.Update()      
+        cv.Print(self.plot+self.outputSuffix+".eps")
+        
+        os.system("gs -sDEVICE=pdfwrite -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
+            7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
+            self.plot+self.outputSuffix+".pdf",
+            self.plot+self.outputSuffix+".eps"
+        ))
 
-tagger_SR_boosted = Plot("tagger_SR_boosted","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["SR, boosted"],yspace=1.4)
-tagger_SR_boosted.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e2, "", style=[3,2,ROOT.kRed+1])
-tagger_SR_boosted()
 
-tagger_SR_resolved = Plot("tagger_SR_resolved","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["SR, resolved"],yspace=1.4)
-tagger_SR_resolved.addSignal("HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all", 1e2, "", style=[3,2,ROOT.kRed+1])
-tagger_SR_resolved()
+bdtOS = Plot("bdt_SR","\\mbox{BDT score}",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
+bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+bdtOS()
 
-tagger_CR_boosted = Plot("tagger_CR_boosted","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.4)
+bdtSS = Plot("bdt_SR","\\mbox{BDT score}",combine=combineSS,binRange=[0,1],extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+bdtSS()
+
+mlljOS = Plot("mllj_SR","m_{\\ell\\ell\\mbox{j}^{\\star}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
+mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+mlljOS()
+
+mlljSS = Plot("mllj_SR","m_{\\ell\\ell\\mbox{j}^{\\star}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+mlljSS()
+
+
+pqj = "\\mbox{P}_{\mbox{q}}(\\mbox{j}^{\\star})"
+plj = "\\mbox{P}_{\\ell}(\\mbox{j}^{\\star})"
+pj = "\\mbox{P}_{\mbox{q},\\ell}(\\mbox{j}^{\\star})"
+
+
+tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, boosted"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_boosted_OS()
+
+tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, resolved"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_resolved_OS()
+
+tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, boosted"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_boosted_SS()
+
+tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, resolved"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_resolved_SS()
+
+tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.5)
 tagger_CR_boosted()
 
-tagger_CR_resolved = Plot("tagger_CR_resolved","P(j#lower[-0.3]{#scale[0.7]{*}})",binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.4)
+tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.5)
 tagger_CR_resolved()
-
+'''
+mll_fwd = Plot("mll_fwd",pj,combine=combineOS,binRange=[10,40],logy=False,yspace=0.2)
+mll_fwd()
 '''
 
 
 
-
-
-f = ROOT.TFile("hists/hist_2016_bdt_SR_nominal.root")
-
-stack = ROOT.THStack()
-colors = [ROOT.kOrange,ROOT.kGreen,ROOT.kAzure,ROOT.kMagenta,ROOT.kGray]
-for i,sample in enumerate(['topbkg','wjets','dyjets','vgamma','qcd']):
-    hist = f.Get(sample)
-    print (sample,hist.Integral())
-    hist = hist.ProjectionX(hist.GetName()+"tot")
-    hist.SetDirectory(0)
-    hist.SetFillColor(colors[i])
-    #hist.Rebin(2)
-    stack.Add(hist,"HISTF")
-  
-dataSum = None
-for i,sample in enumerate(["muon","electron"]):
-    hist = f.Get(sample)
-    print (sample,hist.Integral())
-    hist = hist.ProjectionX(hist.GetName()+"tot")
-    hist.SetDirectory(0)
-    if dataSum==None:
-        dataSum=hist  
-    else:
-        dataSum.Add(hist)
-       
-        
-
-signalHist = f.Get('HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03_all')
-print ('signal',signalHist.Integral())
-signalHist = signalHist.ProjectionX(signalHist.GetName()+"tot")
-signalHist.SetDirectory(0)
-signalHist.Scale(4e4)
-#signalHist.Scale(100)
-signalHist.SetLineStyle(2)
-signalHist.SetFillStyle(0)
-signalHist.SetLineWidth(2)
-signalHist.SetLineColor(ROOT.kRed+1)
-    
-dataSum.SetMarkerStyle(20)
-dataSum.SetMarkerSize(1.2)
-#dataSum.Rebin(2)
-
-#axis = ROOT.TH2F("axis",";;",50,20,200,50,0.7,1.3*dataSum.GetMaximum())
-#axis = ROOT.TH2F("axis",";;",50,40,100,50,0.7,10**(1.2*math.log10(dataSum.GetMaximum())))
-
-axis = ROOT.TH2F("axis",";;",50,0,1,50,0.7,1.3*dataSum.GetMaximum())
-#axis = ROOT.TH2F("axis",";;",50,0,1,50,0.7,10**(1.2*math.log10(dataSum.GetMaximum())))
-axis.Draw("AXIS") 
-stack.Draw("HISTSame")
-signalHist.Draw("HISTSame")
-dataSum.Draw("PESAME")
-#cv.SetLogy(1)
-ROOT.gPad.RedrawAxis()
-cv.Print("test.pdf")
-'''

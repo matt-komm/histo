@@ -183,6 +183,8 @@ def makeHistFromFolder(folder,treeName,var,weight,binning):
             histSum.Add(hist)
         #break
     print ("Events/Integral: ",histSum.GetEntries(),"/",histSum.Integral())
+    #if (histSum.Integral()/histSum.GetEntries()>1e4): #reject large MC weights
+    #    histSum.Scale(0)
     print ()
     return histSum
 
@@ -221,6 +223,12 @@ plotCfgs ={
             },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
         },
         "blind":False
@@ -235,6 +243,12 @@ plotCfgs ={
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
         },
@@ -252,6 +266,12 @@ plotCfgs ={
             },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
         },
         "blind":False
@@ -266,6 +286,53 @@ plotCfgs ={
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             },
             "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            }
+        },
+        "blind":False
+    },
+    
+    "mll_central":{
+        "var": mllVar(args.syst),
+        "cut": "({mll}>10.)*({mll}<50.)*({njets}>0)*({njets}<3)*({nfwdjets}==0)*({tagger}>0.6)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),tagger=taggerScore(args.syst)) ,
+        "binning": np.linspace(10,50,81),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            }
+        },
+        "blind":False
+    },
+    "mll_fwd":{
+        "var": mllVar(args.syst),
+        "cut": "({mll}>10.)*({mll}<50.)*({njets}>0)*({njets}<3)*({nfwdjets}==1)*({tagger}>0.6)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),tagger=taggerScore(args.syst)) ,
+        "binning": np.linspace(10,50,81),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
             }
         },
