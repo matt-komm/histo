@@ -10,7 +10,8 @@ for year in [2016,2017,2018]:
         #"tagger_CR_boosted","tagger_CR_resolved",
         #"tagger_SR_boosted","tagger_SR_resolved",
         #"bdt_SR",
-        "mllj_SR"
+        #"mllj_SR",
+        "mll_central","mll_fwd"
     ]:
         opts = [
             "--plot "+plotType,
