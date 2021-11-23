@@ -61,7 +61,7 @@ class Plot():
         outputSuffix = "",
         header="(ee,#kern[-0.5]{ }e#mu,#kern[-0.5]{ }#mue,#kern[-0.5]{ }#mu#mu)#kern[-0.2]{ }+#kern[-0.2]{ }jets",
         procs = ['topbkg','wjets','dyjets','vgamma','qcd'],
-        showData=True,
+        showData=False,
         path='/vols/cms/mkomm/HNL/histo/plot_paper/hists/hist'
     ):
         self.plot = plot
@@ -248,7 +248,7 @@ class Plot():
         mcStackNominal, mcHistDictNominal, mcHistSumNominal = self.getMC()
         
         if self.unit!="":
-            xaxisTitle = self.title+"\,\\mbox{("+self.unit+")}"
+            xaxisTitle = self.title+" ("+self.unit+")"
             
             binwidth = mcHistSumNominal.GetBinWidth(1)
 
@@ -425,21 +425,21 @@ class Plot():
         cv.cd(1)
         
         axisRes=ROOT.TH2F(
-            "axisRes"+str(random.randint(0,99999)),";;Data/Pred.",
+            "axisRes"+str(random.randint(0,99999)),";"+xaxisTitle+";Data/Pred.",
             50,self.binRange[0],self.binRange[-1],50,0.1,1.9)#0.55,1.45)#0.1,1.9)
         axisRes.GetYaxis().SetNdivisions(406)
         axisRes.GetXaxis().SetTickLength(0.020/(1-cv.GetPad(1).GetLeftMargin()-cv.GetPad(1).GetRightMargin()))
         axisRes.GetYaxis().SetTickLength(0.015/(1-cv.GetPad(1).GetTopMargin()-cv.GetPad(1).GetBottomMargin()))
 
         axisRes.Draw("AXIS")
-        
+        '''
         xaxisTitlePave = ROOT.TMathText()
         xaxisTitlePave.SetNDC()
         xaxisTitlePave.SetTextFont(43)
         xaxisTitlePave.SetTextAlign(31);
         xaxisTitlePave.SetTextSize(32);
-        xaxisTitlePave.DrawMathText(cvxmax,0.03,xaxisTitle)
-        
+        xaxisTitlePave.DrawMathText(cvxmax,0.03,)
+        '''
         
         if self.showData:
             dataRes = dataHist.Clone(dataHist.GetName()+str(random.random())+"res")
@@ -494,57 +494,57 @@ class Plot():
                 
         
         cv.Update()      
-        cv.Print(self.plot+self.outputSuffix+".eps")
-        
+        cv.Print(self.plot+self.outputSuffix+".pdf")
+        '''
         os.system("gs -sDEVICE=pdfwrite -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
             7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
             self.plot+self.outputSuffix+".pdf",
             self.plot+self.outputSuffix+".eps"
         ))
+        '''
 
-
-bdtOS = Plot("bdt_SR","\\mbox{BDT score}",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
-bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+bdtOS = Plot("bdt_SR","BDT score",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
+bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtOS()
 
-bdtSS = Plot("bdt_SR","\\mbox{BDT score}",combine=combineSS,binRange=[0,1],extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
-bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+bdtSS = Plot("bdt_SR","BDT score",combine=combineSS,binRange=[0,1],extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtSS()
 
-mlljOS = Plot("mllj_SR","m_{\\ell\\ell\\mbox{j}^{\\star}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
-mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+mlljOS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{llj#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
+mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljOS()
 
-mlljSS = Plot("mllj_SR","m_{\\ell\\ell\\mbox{j}^{\\star}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
-mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+mlljSS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{llj#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
 
 
-pqj = "\\mbox{P}_{\mbox{q}}(\\mbox{j}^{\\star})"
-plj = "\\mbox{P}_{\\ell}(\\mbox{j}^{\\star})"
-pj = "\\mbox{P}_{\mbox{q},\\ell}(\\mbox{j}^{\\star})"
+pqj = "P#lower[0.3]{#scale[0.7]{q}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+plj = "P#lower[0.3]{#scale[0.7]{l}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+pj = "P#lower[0.3]{#scale[0.7]{q,l}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
 
 
 tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, boosted"],yspace=1.8,outputSuffix="_OS")
-tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
 
 tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, resolved"],yspace=1.8,outputSuffix="_OS")
-tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_OS()
 
 tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, boosted"],yspace=1.8,outputSuffix="_SS")
-tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_SS()
 
 tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, resolved"],yspace=1.8,outputSuffix="_SS")
-tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.2]{ }10#kern[-0.2]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.2]{ }1#kern[-0.2]{ }mm"], style=[3,2,ROOT.kRed+1])
+tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_SS()
 
-tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.5)
+tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.5,showData=True)
 tagger_CR_boosted()
 
-tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.5)
+tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.5,showData=True)
 tagger_CR_resolved()
 '''
 mll_fwd = Plot("mll_fwd",pj,combine=combineOS,binRange=[10,40],logy=False,yspace=0.2)
