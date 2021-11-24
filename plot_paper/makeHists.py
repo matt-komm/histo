@@ -109,6 +109,13 @@ def mcWeight(sample, syst="nominal"):
     else:
         weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_id_nominal*tightMuons_weight_iso_nominal)"
     weight+=")"
+
+    if syst=="trackUp":
+        weight+="*hnlJet_track_weight_adapted_up"
+    elif syst=="trackDown":
+        weight+="*hnlJet_track_weight_adapted_down"
+    else:
+        weight+="*hnlJet_track_weight_adapted_nominal"
         
     return weight
 

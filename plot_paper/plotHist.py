@@ -151,7 +151,7 @@ class Plot():
         mcStackNominal, mcHistDictNominal, mcHistSumNominal = self.getMCStackSumDict()
         
         totalUnc2 = np.zeros(mcHistSumNominal.GetNbinsX())
-        for syst in ['jesTotal','jer','unclEn','pu','muEff']:
+        for syst in ['jesTotal','jer','unclEn','pu','muEff','track']:
             _, _, mcHistSumSystUp = self.getMCStackSumDict(syst+"Up")
             _, _, mcHistSumSystDown = self.getMCStackSumDict(syst+"Down")
             for ibin in range(mcHistSumNominal.GetNbinsX()):
@@ -511,11 +511,11 @@ bdtSS = Plot("bdt_SR","BDT score",combine=combineSS,binRange=[0,1],extraTitles=[
 bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtSS()
 
-mlljOS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}#kern[-0.7]{ }j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
+mlljOS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
 mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljOS()
 
-mlljSS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}#kern[-0.7]{ }j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+mlljSS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
 mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
 
