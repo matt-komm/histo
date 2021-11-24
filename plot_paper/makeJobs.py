@@ -7,11 +7,11 @@ exportVars['OUTPATH'] = outputPath
 jobArrayCfg = []
 for year in [2016,2017,2018]:
     for plotType in [
-        #"tagger_CR_boosted","tagger_CR_resolved",
-        #"tagger_SR_boosted","tagger_SR_resolved",
-        #"bdt_SR",
-        #"mllj_SR",
-        "mll_central","mll_fwd"
+        "tagger_CR_boosted","tagger_CR_resolved",
+        "tagger_SR_boosted","tagger_SR_resolved",
+        "bdt_SR",
+        "mllj_SR",
+        #"mll_central","mll_fwd"
     ]:
         opts = [
             "--plot "+plotType,
@@ -23,7 +23,7 @@ for year in [2016,2017,2018]:
         jobArrayCfg.append(opts)
 
         for syst in [
-            'jesTotal','jer','unclEn','pu','muEff'
+            'jesTotal','jer','unclEn','pu','muEff','track'
         ]:
             for systVar in ['Up','Down']:
                 opts = [
