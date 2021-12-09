@@ -18,7 +18,7 @@ category_name = args.category
 
 categories_file = os.path.expandvars("$HISTO_BASE_PATH/config/categories_2l_inclusive.json")
 print(categories_file)
-ntuple_path = f"/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/26Aug21"
+ntuple_path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/26Aug21"
 output_dir = os.path.expandvars(f"{args.output_dir}")
 one_file = args.one_file
 year = args.year
