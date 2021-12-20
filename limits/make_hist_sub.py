@@ -37,7 +37,7 @@ nprocsbkg = len(procsbkg)
 nprocsHNL = len(procsHNL)
 nprocsData = len(procsData)
 
-njobs = nregions*nprocsbkg*ncats + nprocsHNL*ncats + int(nregions*ncats*nprocsData/2)
+njobs = nregions*nprocsbkg*ncats + nregions*nprocsHNL*ncats + int(nregions*ncats*nprocsData/2)
 print(f"The number of jobs is {njobs}.")
 
 for year in years:
@@ -61,8 +61,9 @@ for year in years:
                     f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region {region} --year {year} "\n')
         
         for proc in procsHNL:
-            for category in categories:
-                f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region D --year {year} "\n')
+            for region in regions : 
+                for category in categories:
+                    f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region {region} --year {year} "\n')
 
         for proc in procsData:
             for region in regions:

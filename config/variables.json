@@ -113,5 +113,60 @@
     25,
     0,
     1
+  ],
+  [
+    "subleadingLeptons_dxyErr[0]",
+    "d_{xy}^{err} (l_{2}) [cm]",
+    25,
+    1e-4,
+    1,
+    1
+
+  ],
+  [
+   "nominal_dPhi_met_l1",
+   "d\\phi(P_{T}^{miss}, l_{1})",
+   25,
+   0,
+   3.2
+  ],
+  [
+    "nominal_dPt_llj",
+    "dP_{T}(l_{1}l_{2}j*)",
+     25,
+     0,
+     200
+  ],
+  [
+    "hnlJet_nominal_ncpf",
+    "ncpf j*",
+    25,
+    0,
+    25
+ 
+  ], 
+  [
+   "subleadingLeptons_dzErr[0]",
+   "d_{z}^{error}[cm]",
+   25, 
+   1e-4,
+   1,
+   1
+  ],
+  [
+   "subleadingLeptons_dz[0]",
+   "d_{z}[cm]",
+   25, 
+   1e-2, 
+   1, 
+   1
+  ],
+  [
+   "subleadingLeptons_dzsig[0]",
+   "d_{z}^{sig}",
+   1e-4 , 
+   1, 
+   1  
   ]
+
 ]
