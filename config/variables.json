@@ -124,8 +124,8 @@
 
   ],
   [
-   "nominal_dPhi_met_l1",
-   "d\\phi(P_{T}^{miss}, l_{1})",
+   "nominal_dPhi_l1j",
+   "d\\phi( l_{1} , j*)",
    25,
    0,
    3.2

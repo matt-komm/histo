@@ -117,7 +117,7 @@ def tagger_compound_variable(syst:str="nominal", single_lepton=False) -> str:
     #     return f"hnlJet_{syst}_llpdnnx_ratio_LLP_Q"
     # else:
     
-    return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
+    return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
         ({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
         +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
         
@@ -136,7 +136,7 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
     
         
         lower_threshold_merged = 0.2
-        lower_threshold_resolved = 0.
+        lower_threshold_resolved = 0.1
         
         
         #print(f"Tagger thresholds, merged: {threshold_merged}, resolved: {threshold_resolved}")
@@ -324,20 +324,20 @@ if isMC:
             
             if category_name in [ "emu_OS" , "emu_SS" , "mumu_OS", "mumu_SS"] :
             
-              process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0] < 3. and  subleadingLeptons_dxyErr[0] < 0.0025 and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
-                                                    + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10.  and  subleadingLeptons_dxyErr[0] < 0.0025 )\
+              process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0] < 3. and  subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005  and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 2.5  ) \
+                                                    + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10.  and  subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005 )\
                                                     + 3.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10. ) \
-                                                    + 4.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.0025 and subleadingLeptons_relIso[0] < 1.) \
-                                                    + 5.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.0025 and subleadingLeptons_relIso[0] < 1. ) \
-                                                    + 6.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3  and subleadingLeptons_dxysig[0]>10. and subleadingLeptons_relIso[0] <1.) ")
+                                                    + 4.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1. and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                    + 5.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1. and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                    + 6.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.  and subleadingLeptons_dxysig[0]>10. ) ")
             else :
            
-              process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
-                                                    + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and  subleadingLeptons_dxyErr[0] < 0.005)\
+              process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_dzErr[0] < 0.005 and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
+                                                    + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_dzErr[0] < 0.005 )\
                                                     + 3.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10. ) \
-                                                    + 4.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_relIso[0] < 1.  and subleadingLeptons_relIso[0] < 1.)  \
-                                                    + 5.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_relIso[0]  < 1. ) \
-                                                    + 6.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>10. and subleadingLeptons_relIso[0] < 1.)")
+                                                    + 4.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1. and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_dzErr[0] < 0.005 )  \
+                                                    + 5.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1. and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and  subleadingLeptons_dxyErr[0] < 0.005  and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                    + 6.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1. and subleadingLeptons_dxysig[0]>10. )")
 
             process.Define(f"tagger_score_{syst+variation}", tagger_compound_variable(syst+variation, single_lepton=False))
              
@@ -345,20 +345,20 @@ if isMC:
 else:
 
     if category_name in [ "emu_OS" , "emu_SS" , "mumu_OS" , "mumu_SS"] :
-       process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.0025  and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
-                                                + 2.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.0025 )\
+       process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.003  and subleadingLeptons_dzErr[0] < 0.005  and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
+                                                + 2.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005 )\
                                                 + 3.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10. ) \
-                                                + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.0025 and subleadingLeptons_relIso[0] < 1.) \
-                                                + 5.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.0025 and subleadingLeptons_relIso[0] < 1. ) \
-                                                + 6.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>10. and subleadingLeptons_relIso[0] < 1.)")
+                                                + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1. and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.003 and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                + 5.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1. and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.003  and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                + 6.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1. and subleadingLeptons_dxysig[0]>10.)")
                                                 
     else :
-      process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 2.5 ) \
-                                                + 2.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.005 )\
+      process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 2.5 and subleadingLeptons_dzErr[0] < 0.005) \
+                                                + 2.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and subleadingLeptons_dxyErr[0] < 0.005  and subleadingLeptons_dzErr[0] < 0.005)\
                                                 + 3.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10. ) \
-                                                + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_relIso[0] < 1.) \
-                                                + 5.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10.  and subleadingLeptons_dxyErr[0] < 0.005  and subleadingLeptons_relIso[0] < 1.) \
-                                                + 6.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3  and subleadingLeptons_dxysig[0]>10. and subleadingLeptons_relIso[0] < 1.)")
+                                                + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1. and subleadingLeptons_dxysig[0]<3. and  subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_dzErr[0] < 0.005 ) \
+                                                + 5.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1. and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10.  and subleadingLeptons_dxyErr[0] < 0.005 and subleadingLeptons_dzErr[0] < 0.005) \
+                                                + 6.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.  and subleadingLeptons_dxysig[0]>10.)")
     
     process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal", single_lepton=False))
 

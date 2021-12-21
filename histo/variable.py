@@ -206,6 +206,6 @@ class Variable:
 
 
         style.makeText(0.15, 0.88, 0.5, 0.88, draw_text, size=25)
-        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".pdf"))
+        #canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".pdf"))
         canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".png"))
-        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".root"))
+        #canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".root"))
