@@ -378,7 +378,7 @@ class Plot():
         pLumi.SetTextSize(30)
         pLumi.SetTextAlign(31)
         if self.header!="":
-            pLumi.AddText(self.header+", 137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
+            pLumi.AddText(self.header+", 138#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
         else:
             pLumi.AddText("137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
         pLumi.Draw("Same")
@@ -503,6 +503,15 @@ class Plot():
         ))
         '''
 
+pqj = "P#lower[0.3]{#scale[0.7]{q}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+plj = "P#lower[0.3]{#scale[0.7]{#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+pj = "P#lower[0.3]{#scale[0.7]{q,#kern[-0.7]{ }#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+
+mlljcutsOS = Plot("mllj_SRcuts","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS, BDT#kern[-0.25]{ }>#kern[-0.25]{ }0.4, "+pj+"#kern[-0.25]{ }>#kern[-0.25]{ }0.5"],yspace=1.8,outputSuffix="_OS")
+mlljcutsOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
+mlljcutsOS()
+
+
 bdtOS = Plot("bdt_SR","BDT score",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
 bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtOS()
@@ -520,9 +529,7 @@ mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1
 mlljSS()
 
 
-pqj = "P#lower[0.3]{#scale[0.7]{q}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
-plj = "P#lower[0.3]{#scale[0.7]{#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
-pj = "P#lower[0.3]{#scale[0.7]{q,#kern[-0.7]{ }#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
+
 
 
 tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, boosted"],yspace=1.8,outputSuffix="_OS")
@@ -546,6 +553,7 @@ tagger_CR_boosted()
 
 tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.5,showData=True)
 tagger_CR_resolved()
+
 '''
 mll_fwd = Plot("mll_fwd",pj,combine=combineOS,binRange=[10,40],logy=False,yspace=0.2)
 mll_fwd()
