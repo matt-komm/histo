@@ -305,6 +305,27 @@ plotCfgs ={
         "blind":False
     },
     
+    "mllj_SRcuts":{
+        "var": mlljVar(args.syst),
+        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)*({bdt}>0.4)*({tagger}>0.7)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),bdt=bdtVar(args.syst),tagger=taggerScore(args.syst)) ,
+        "binning": np.linspace(0,200,41),
+        "signals": {
+            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            },
+            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+            }
+        },
+        "blind":False
+    },
+    
     "mll_central":{
         "var": mllVar(args.syst),
         "cut": "({mll}>10.)*({mll}<50.)*({njets}>0)*({njets}<3)*({nfwdjets}==0)*({tagger}>0.6)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),tagger=taggerScore(args.syst)) ,
