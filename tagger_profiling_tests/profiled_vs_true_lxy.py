@@ -2,6 +2,8 @@ import ROOT
 import os 
 import numpy as np
 from histo import style
+ROOT.gStyle.SetPalette(ROOT.kDarkRainBow)
+
 
 file_list = ROOT.std.vector('string')()
 path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/28May21/2016"
@@ -29,6 +31,7 @@ for jet_class in ["Q", "QMU", "QE"]:
 
     hist.Scale(1./hist.Integral())
     hist.Draw("COLZ")
+    hist.SetMinimum(-1e-5)
     l = ROOT.TLine(-2, -2, 2, 2)
     l.SetLineStyle(3)
     l.SetLineWidth(2)

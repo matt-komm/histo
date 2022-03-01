@@ -1,22 +1,32 @@
 [ 
   [
-    "dy_mu1mu2_OS_merged_hem_",
-    "(selectedJets_nominal_eta[0]<-1.5) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (category_simplified_nominal_index==2)",
-    "merged, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
+    "dy_mu1mu2_OS_hem_jet_",
+    "(hnlJet_nominal_eta < - 1.3) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal<5)",
+    "#eta (j^{*}) < -1.3, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
   ],
   [
-    "dy_el1el2_OS_merged_hem_",
-    "(selectedJets_nominal_eta[0]<-1.5) and (Leptons_electronelectron>0) and (dilepton_charge<0) and (dilepton_mass>80) and (nleadingLeptons+nsubleadingLeptons == 2) and (category_simplified_nominal_index==2)",
-    "merged, m(ll) > 80 GeV, e^{#pm}e^{#mp}+jets"
+    "dy_el1el2_OS_hem_jet_",
+    "(hnlJet_nominal_eta< -1.3) and (Leptons_electronelectron>0) and (dilepton_charge<0) and (dilepton_mass>80) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal<5)",
+    "#eta (j^{*}) < -1.3, m(ll) > 80 GeV, e^{#pm}e^{#mp}+jets"
   ],
   [
-    "dy_mu1mu2_OS_resolved_hem_",
-    "(selectedJets_nominal_eta[0]<-1.5) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (category_simplified_nominal_index==1)",
-    "resolved, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
+    "dy_mu1mu2_OS_hem_l1_",
+    "(leadingLeptons_eta[0] < - 1.3) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal<5)",
+    "#eta (l_{1}) < -1.3, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
   ],
   [
-    "dy_el1el2_OS_resolved_hem_",
-    "(selectedJets_nominal_eta[0]<-1.5) and (Leptons_electronelectron>0) and (dilepton_charge<0) and (dilepton_mass>80) and (nleadingLeptons+nsubleadingLeptons == 2) and (category_simplified_nominal_index==1)",
-    "resolved, m(ll) > 80 GeV, e^{#pm}e^{#mp}+jets"
+    "dy_el1el2_OS_hem_l1_",
+    "(leadingLeptons_eta[0]< -1.3) and (Leptons_electronelectron>0) and (dilepton_charge<0) and (dilepton_mass>80) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal<5)",
+    "#eta (l_{1}) < -1.3, m(ll) > 80 GeV, e^{#pm}e^{#mp}+jets"
+  ],
+  [
+    "dy_mu1mu2_OS_hem_l2_",
+    "(subleadingLeptons_eta[0] < - 1.3) and (Leptons_muonmuon>0) and (dilepton_charge<0) and (dilepton_mass>80.) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal==5)",
+    "#eta (l_{2}) < -1.3, m(ll) > 80 GeV, #mu^{#pm}#mu^{#mp}+jets"
+  ],
+  [
+    "dy_el1el2_OS_hem_l2_",
+    "(subleadingLeptons_eta[0]< -1.3) and (Leptons_electronelectron>0) and (dilepton_charge<0) and (dilepton_mass>80) and (nleadingLeptons+nsubleadingLeptons == 2) and (nominal_met<100) and (nselectedJets_nominal==5)",
+    "#eta (l_{2}) < -1.3, m(ll) > 80 GeV, e^{#pm}e^{#mp}+jets"
   ]
 ]

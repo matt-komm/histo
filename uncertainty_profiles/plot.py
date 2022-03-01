@@ -6,7 +6,7 @@ color1 = ROOT.kOrange+7
 color2 = ROOT.kSpring+3
 
 benchmark_model = "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03-2016"
-ntuple_path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/29Jun21/2016/" 
+ntuple_path = "/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/29Jun21_experimental_tagger/2016/" 
 
 file_list = ROOT.std.vector('string')()
 

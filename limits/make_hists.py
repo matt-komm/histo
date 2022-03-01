@@ -5,6 +5,32 @@ import json
 import argparse
 from histo import Process, Sample
 
+# couplings to consider
+#couplings = range(1, 68)
+couplings = [1, 2, 7, 12, 47, 52]
+
+def remove_neg_entries(hist: ROOT.TH1D):
+    """ Removes negative and/or small entries from a histogram """
+
+    alpha = 1. - 0.6827
+    upErr = ROOT.Math.gamma_quantile_c(alpha/2,1,1)
+    avgWeight = hist.Integral()/hist.GetEntries() if hist.GetEntries()>0 else -1
+    #print "weight",avgWeight
+    for ibin in range(hist.GetNbinsX()):
+        c = hist.GetBinContent(ibin+1)
+        if c<10**-4:
+            hist.SetBinContent(ibin+1,10**-3)
+            #note: in case of 0 entries the uncertainty is also small
+            #(this is not the case with negative events)
+            if hist.GetBinError(ibin+1)<10**-4 and avgWeight>0:
+                #set uncertainties for empy bins
+                #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
+                hist.SetBinError(ibin+1,upErr*avgWeight)
+            else:
+                hist.SetBinError(ibin+1,10**-4)
+        #print "bin%2i, %.1f+-%.1f (+-%.1f%%)"%(ibin,c,hist.GetBinError(ibin+1),100.*hist.GetBinError(ibin+1)/c if c>0 else -1)
+
+
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
     Make a new histogram for categorised events passing the cuts and write it to file
@@ -36,29 +62,7 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
     hist_limits.Write()
 
 
-def remove_neg_entries(hist: ROOT.TH1D):
-    """ Removes negative and/or small entries from a histogram """
-
-    alpha = 1. - 0.6827
-    upErr = ROOT.Math.gamma_quantile_c(alpha/2,1,1)
-    avgWeight = hist.Integral()/hist.GetEntries() if hist.GetEntries()>0 else -1
-    #print "weight",avgWeight
-    for ibin in range(hist.GetNbinsX()):
-        c = hist.GetBinContent(ibin+1)
-        if c<10**-4:
-            hist.SetBinContent(ibin+1,10**-3)
-            #note: in case of 0 entries the uncertainty is also small
-            #(this is not the case with negative events)
-            if hist.GetBinError(ibin+1)<10**-4 and avgWeight>0:
-                #set uncertainties for empy bins
-                #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PoissonErrorBars
-                hist.SetBinError(ibin+1,upErr*avgWeight)
-            else:
-                hist.SetBinError(ibin+1,10**-4)
-        #print "bin%2i, %.1f+-%.1f (+-%.1f%%)"%(ibin,c,hist.GetBinError(ibin+1),100.*hist.GetBinError(ibin+1)/c if c>0 else -1)
-
-
-def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton=False) -> str:
+def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal") -> str:
     """ 
     Returns mass window cut repending on region
 
@@ -66,7 +70,6 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
     delta_m : mW+-delta_m used to define signal region band
     region: A, B, C, D
     syst: systematic variation
-    single_lepton: deprecated
 
     Returns:
     mass cut str 
@@ -79,17 +82,30 @@ def mass_cut(delta_m:float=5., region:str="D", syst:str="nominal", single_lepton
         raise ValueError(f"Invalid region {region} selected")
 
     if region == "A" or region == "C":
-        return  f'({syst}_m_llj<{m_lower}) '
-        #return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
+        return  f'({syst}_m_llj>{m_upper} or {syst}_m_llj<{m_lower}) '
     elif region == "B" or region == "D":
         return  f'({syst}_m_llj<{m_upper} and {syst}_m_llj>{m_lower}) '
     else:
         return ""
 
-def bdt_cut(bdt_threshold: float, syst:str="nominal") -> str:
-     return f'(bdt_score_{syst} > {bdt_threshold})'
+def bdt_cut(bdt_threshold: float, region:str="D", syst:str="nominal") -> str:
+    """ 
+    Returns bdt cut repending on region
 
-def tagger_cut(tagger_threshold: float, lower_threshold: float=0.1, region:str="D", syst:str="nominal") -> str:
+    Args:
+    bdt_threshold : used to define signal region band
+    region: A, B, C, D
+    syst: systematic variation
+
+    Returns:
+    mass cut string
+    """
+    if region == "A" or region == "C":
+        return f'(bdt_score_{syst} < {bdt_threshold})'
+    elif region == "B" or region == "D":
+        return f'(bdt_score_{syst} > {bdt_threshold})'
+
+def tagger_cut(tagger_threshold: float, lower_threshold: float=0.25, region:str="D", syst:str="nominal") -> str:
     """ Returns tagger score cut repending on region 
     Args:
     tagger_threshold : define signal region
@@ -98,8 +114,9 @@ def tagger_cut(tagger_threshold: float, lower_threshold: float=0.1, region:str="
     syst: systematic variation
 
     Returns:
-    tagger cut str 
+    tagger cut string
     """
+
     if region not in ["A", "B", "C", "D"]:
         raise ValueError(f"Invalid region {region} selected")
 
@@ -112,11 +129,8 @@ def tagger_cut(tagger_threshold: float, lower_threshold: float=0.1, region:str="
         return f'(tagger_score_{syst} > {tagger_threshold})'
 
 
-def tagger_compound_variable(syst:str="nominal", single_lepton=False) -> str:
+def tagger_compound_variable(syst:str="nominal") -> str:
     """ Compound tagger variable to facilitate categorisation """
-    # if single_lepton:
-    #     return f"hnlJet_{syst}_llpdnnx_ratio_LLP_Q"
-    # else:
     return f"({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)*hnlJet_{syst}_llpdnnx_ratio_LLP_Q+\
         ({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QMU*subleadingLeptons_isMuon[0]+\
         +({syst}_dR_l2j<0.4)*hnlJet_{syst}_llpdnnx_ratio_LLP_QE*subleadingLeptons_isElectron[0]"
@@ -135,37 +149,40 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
 
         #print(f"Tagger thresholds, merged: {threshold_merged}, resolved: {threshold_resolved}")
         #print(f"DeltaM, merged: {deltam_merged}, resolved: {deltam_resolved}")
-        mass_cut_merged_prompt = mass_cut(delta_m=thresholds_merged_prompt[1], region=region, syst=syst)
-        mass_cut_merged_medium = mass_cut(delta_m=thresholds_merged_medium[1], region=region, syst=syst)
-        mass_cut_merged_displaced = mass_cut(delta_m=thresholds_merged_displaced[1], region=region, syst=syst)
+        # mass_cut_merged_prompt = mass_cut(delta_m=thresholds_merged_prompt[1], region=region, syst=syst)
+        # mass_cut_merged_medium = mass_cut(delta_m=thresholds_merged_medium[1], region=region, syst=syst)
+        # mass_cut_merged_displaced = mass_cut(delta_m=thresholds_merged_displaced[1], region=region, syst=syst)
 
-        mass_cut_resolved_prompt = mass_cut(delta_m=thresholds_resolved_prompt[1], region=region, syst=syst)
-        mass_cut_resolved_medium = mass_cut(delta_m=thresholds_resolved_medium[1], region=region, syst=syst)
-        mass_cut_resolved_displaced = mass_cut(delta_m=thresholds_resolved_displaced[1], region=region, syst=syst)
+        # mass_cut_resolved_prompt = mass_cut(delta_m=thresholds_resolved_prompt[1], region=region, syst=syst)
+        # mass_cut_resolved_medium = mass_cut(delta_m=thresholds_resolved_medium[1], region=region, syst=syst)
+        # mass_cut_resolved_displaced = mass_cut(delta_m=thresholds_resolved_displaced[1], region=region, syst=syst)
 
-        tagger_cut_merged_prompt = tagger_cut(thresholds_merged_prompt[0], region=region, syst=syst)
-        tagger_cut_merged_medium = tagger_cut(thresholds_merged_medium[0], region=region, syst=syst)
-        tagger_cut_merged_displaced = tagger_cut(thresholds_merged_displaced[0], region=region, syst=syst)
+        lower_threshold_merged = 0.3
+        lower_threshold_resolved = 0.2
 
-        tagger_cut_resolved_prompt = tagger_cut(thresholds_resolved_prompt[0], region=region, syst=syst)
-        tagger_cut_resolved_medium = tagger_cut(thresholds_resolved_medium[0], region=region, syst=syst)
-        tagger_cut_resolved_displaced = tagger_cut(thresholds_resolved_displaced[0], region=region, syst=syst)
+        tagger_cut_merged_prompt = tagger_cut(thresholds_merged_prompt[0], region=region, syst=syst, lower_threshold=lower_threshold_merged)
+        tagger_cut_merged_medium = tagger_cut(thresholds_merged_medium[0], region=region, syst=syst,lower_threshold=lower_threshold_merged)
+        tagger_cut_merged_displaced = tagger_cut(thresholds_merged_displaced[0], region=region, syst=syst,lower_threshold=lower_threshold_merged)
 
-        bdt_cut_merged_prompt = bdt_cut(thresholds_merged_prompt[2], syst=syst)
-        bdt_cut_merged_medium = bdt_cut(thresholds_merged_medium[2], syst=syst)
-        bdt_cut_merged_displaced = bdt_cut(thresholds_merged_displaced[2], syst=syst)
+        tagger_cut_resolved_prompt = tagger_cut(thresholds_resolved_prompt[0], region=region, syst=syst,lower_threshold=lower_threshold_resolved)
+        tagger_cut_resolved_medium = tagger_cut(thresholds_resolved_medium[0], region=region, syst=syst,lower_threshold=lower_threshold_resolved)
+        tagger_cut_resolved_displaced = tagger_cut(thresholds_resolved_displaced[0], region=region, syst=syst,lower_threshold=lower_threshold_resolved)
 
-        bdt_cut_resolved_prompt = bdt_cut(thresholds_resolved_prompt[2], syst=syst)
-        bdt_cut_resolved_medium = bdt_cut(thresholds_resolved_medium[2], syst=syst)
-        bdt_cut_resolved_displaced = bdt_cut(thresholds_resolved_displaced[2], syst=syst)
+        bdt_cut_merged_prompt = bdt_cut(thresholds_merged_prompt[1], region=region, syst=syst)
+        bdt_cut_merged_medium = bdt_cut(thresholds_merged_medium[1], region=region, syst=syst)
+        bdt_cut_merged_displaced = bdt_cut(thresholds_merged_displaced[1], region=region, syst=syst)
+
+        bdt_cut_resolved_prompt = bdt_cut(thresholds_resolved_prompt[1], region=region, syst=syst)
+        bdt_cut_resolved_medium = bdt_cut(thresholds_resolved_medium[1], region=region,  syst=syst)
+        bdt_cut_resolved_displaced = bdt_cut(thresholds_resolved_displaced[1], region=region, syst=syst)
 
         cut += f" and ("
-        cut += f"({category_variable}==1 and {mass_cut_merged_prompt} and {tagger_cut_merged_prompt} and {bdt_cut_merged_prompt}) or "
-        cut += f"({category_variable}==2 and {mass_cut_merged_medium} and {tagger_cut_merged_medium} and {bdt_cut_merged_medium}) or "
-        cut += f"({category_variable}==3 and {mass_cut_merged_displaced} and {tagger_cut_merged_displaced} and {bdt_cut_merged_displaced}) or "
-        cut += f"({category_variable}==4 and {mass_cut_resolved_prompt} and {tagger_cut_resolved_prompt} and {bdt_cut_resolved_prompt}) or "
-        cut += f"({category_variable}==5 and {mass_cut_resolved_medium} and {tagger_cut_resolved_medium} and {bdt_cut_resolved_medium}) or "
-        cut += f"({category_variable}==6 and {mass_cut_resolved_displaced} and {tagger_cut_resolved_displaced} and {bdt_cut_resolved_displaced})"
+        cut += f"({category_variable}==1 and {tagger_cut_merged_prompt} and {bdt_cut_merged_prompt}) or "
+        cut += f"({category_variable}==2 and {tagger_cut_merged_medium} and {bdt_cut_merged_medium}) or "
+        cut += f"({category_variable}==3 and {tagger_cut_merged_displaced} and {bdt_cut_merged_displaced}) or "
+        cut += f"({category_variable}==4 and {tagger_cut_resolved_prompt} and {bdt_cut_resolved_prompt}) or "
+        cut += f"({category_variable}==5 and {tagger_cut_resolved_medium} and {bdt_cut_resolved_medium}) or "
+        cut += f"({category_variable}==6 and {tagger_cut_resolved_displaced} and {bdt_cut_resolved_displaced})"
         cut += f")"
 
         print(syst, category_variable, cut, weight)
@@ -223,7 +240,7 @@ parser.add_argument("--year",default="2016")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
-parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/28May21")
+parser.add_argument("--ntuple_path", default="/vols/cms/vc1117/LLP/nanoAOD_friends/HNL/26Aug21")
 parser.add_argument("--output_path", default="hists")
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
@@ -241,7 +258,7 @@ isData = args.data
 isMC = not isData
 output_path = args.output_path
 
-with open("../config/samples.yml") as samples_file:
+with open(os.path.expandvars("$HISTO_BASE_PATH/config/samples.yml")) as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
     subprocesses = samples_dict[proc]
 
@@ -258,17 +275,15 @@ systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
 systematics_rates["looseElectrons_weight_reco"] = "loose_electron_reco"
 systematics_rates["puweight"] = "pu"
 systematics_rates["hnlJet_track_weight_adapted"] = "displaced_track"
+#systematics_rates["pdf"] = "pdf"
+#systematics_rates["scale_shapeonly"] = "scale"
 
 systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
 ####################################
 
-# couplings to consider
-#couplings = range(2, 68)
-couplings = [1, 2, 7, 12, 47, 52]
-#couplings = [7]
 
-category_file = '../config/categories_2l_inclusive.json'
-threshold_file = f'../config/coordsBestThresholdsIncBdt_{year}.json'
+category_file = os.path.expandvars('$HISTO_BASE_PATH/config/categories_2l_inclusive.json')
+threshold_file = os.path.expandvars(f'$HISTO_BASE_PATH/config/coordsBestThresholds_{year}.json')
 
 with open(category_file, 'r') as fp:
     categories_2l = json.load(fp)
@@ -281,7 +296,6 @@ thresholds = {}
 thresholds["prompt"] = threshold_dict[category_name+"_prompt"]
 thresholds["medium"]= threshold_dict[category_name+"_medium"]
 thresholds["displaced"]= threshold_dict[category_name+"_displaced"]
-
 
 dilepton_category_dict = {}
 dilepton_category_dict[1] = "ql, dxysig<1"
@@ -317,8 +331,6 @@ if isMC:
             if "nominal" in syst:
                 variation = ""
             # Define resolved and merged categories & tagger score variable & mass cuts
-            #process.Define(f"category_{syst}_index", f"1.*({syst}_dR_l2j<0.4) \
-                                                    #+ 2.*({syst}_dR_l2j>0.4 and {syst}_dR_l2j<1.3)")
             process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<1.) \
                                                     + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>1. and subleadingLeptons_dxysig[0]<10.)\
                                                     + 3.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10.) \
@@ -326,7 +338,7 @@ if isMC:
                                                     + 5.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>1. and subleadingLeptons_dxysig[0]<10.) \
                                                     + 6.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>10.)")
 
-            process.Define(f"tagger_score_{syst+variation}", tagger_compound_variable(syst+variation, single_lepton=False))
+            process.Define(f"tagger_score_{syst+variation}", tagger_compound_variable(syst+variation))
 
 else:
     process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<1.) \
@@ -335,7 +347,7 @@ else:
                                                 + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<1.) \
                                                 + 5.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>1. and subleadingLeptons_dxysig[0]<10.) \
                                                 + 6.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]>10.)")
-    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal", single_lepton=False))
+    process.Define(f"tagger_score_nominal", tagger_compound_variable(syst="nominal"))
 
 
 # create root file with nominal value histogram and various systematic variations
@@ -351,7 +363,7 @@ category_variable_nominal = "category_nominal_index"
 
 coupling = 0
 while coupling < 67:
-    # different scenarios
+    # different mixing scenarios
     # Need to calculate yield per coupling
     if "HNL" in process.name:
         coupling += 1
@@ -368,6 +380,5 @@ while coupling < 67:
         hists = make_hists(process, ["nominal"], None, category_cut, category_variable_nominal, thresholds, region, coupling=coupling)
         for name, hist in hists.items():
             write_hist(hist, category_dict, "data", isMC=False)
-
 
 root_file.Close()
