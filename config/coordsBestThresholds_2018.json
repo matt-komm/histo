@@ -1,1 +1,32 @@
-{"ee_OS_prompt": {"resolved": [0.6, 0.6], "merged": [0.6, 0.5]}, "ee_OS_medium": {"resolved": [0.5, 0.6], "merged": [0.6, 0.6]}, "ee_OS_displaced": {"resolved": [0.4, 0.6], "merged": [0.5, 0.6]}, "emu_SS_prompt": {"resolved": [0.4, 0.9], "merged": [0.7, 0.8]}, "emu_SS_medium": {"resolved": [0.4, 0.9], "merged": [0.7, 0.8]}, "emu_SS_displaced": {"resolved": [0.4, 0.9], "merged": [0.7, 0.8]}, "ee_SS_prompt": {"merged": [0.6, 0.8], "resolved": [0.6, 0.8]}, "ee_SS_medium": {"merged": [0.5, 0.8], "resolved": [0.5, 0.8]}, "ee_SS_displaced": {"merged": [0.5, 0.9], "resolved": [0.4, 0.7]}, "emu_OS_prompt": {"merged": [0.6, 0.7], "resolved": [0.6, 0.7]}, "emu_OS_medium": {"merged": [0.6, 0.7], "resolved": [0.5, 0.7]}, "emu_OS_displaced": {"merged": [0.6, 0.7], "resolved": [0.5, 0.6]}, "mue_OS_prompt": {"resolved": [0.6, 0.5], "merged": [0.7, 0.7]}, "mue_OS_medium": {"resolved": [0.5, 0.7], "merged": [0.8, 0.7]}, "mue_OS_displaced": {"resolved": [0.5, 0.7], "merged": [0.7, 0.7]}, "mue_SS_prompt": {"resolved": [0.6, 0.8], "merged": [0.7, 0.8]}, "mue_SS_medium": {"resolved": [0.5, 0.8], "merged": [0.4, 0.8]}, "mue_SS_displaced": {"resolved": [0.5, 0.8], "merged": [0.4, 0.8]}, "mumu_OS_prompt": {"resolved": [0.5, 0.5], "merged": [0.6, 0.5]}, "mumu_OS_medium": {"resolved": [0.5, 0.5], "merged": [0.6, 0.5]}, "mumu_OS_displaced": {"resolved": [0.5, 0.5], "merged": [0.6, 0.5]}, "mumu_SS_prompt": {"resolved": [0.6, 0.8], "merged": [0.7, 0.8]}, "mumu_SS_medium": {"resolved": [0.5, 0.8], "merged": [0.6, 0.8]}, "mumu_SS_displaced": {"resolved": [0.6, 0.8], "merged": [0.6, 0.8]}}
+{
+    "ee_OS_prompt": {"merged": [0.4], "resolved": [0.2]},
+    "ee_OS_medium": {"merged": [0.55], "resolved": [0.2] } ,
+    "ee_OS_displaced": {"merged": [0.72], "resolved": [0.5]},
+    
+    "ee_SS_prompt": {"merged": [0.58], "resolved": [0.2]},
+    "ee_SS_medium": {"merged": [0.62], "resolved": [0.2]},
+    "ee_SS_displaced": {"merged": [0.75], "resolved": [0.55]},
+    
+    "emu_OS_prompt": {"merged": [0.5], "resolved": [0.2]},
+    "emu_OS_medium": {"merged": [0.58], "resolved": [0.2]},
+    "emu_OS_displaced": {"merged": [0.7], "resolved": [0.55]},
+    
+    "emu_SS_prompt": {"merged": [0.25] , "resolved": [0.2]},
+    "emu_SS_medium": {"merged": [0.65], "resolved": [0.2]},
+    "emu_SS_displaced": {"merged": [0.75], "resolved": [0.58]},
+    
+    "mue_OS_prompt": {"merged": [0.5], "resolved": [0.2]},
+    "mue_OS_medium": {"merged": [0.55], "resolved": [0.2]},
+    "mue_OS_displaced": {"merged": [0.7], "resolved": [0.55]},
+    
+    "mue_SS_prompt": {"merged": [0.6], "resolved": [0.2]},
+    "mue_SS_medium": {"merged": [0.65], "resolved": [0.2]},
+    "mue_SS_displaced": {"merged": [0.75], "resolved": [0.58]},
+    
+    "mumu_OS_prompt": { "merged": [0.4], "resolved": [0.2]},
+    "mumu_OS_medium": {"merged": [0.75], "resolved": [0.2]},
+    "mumu_OS_displaced": {"merged": [0.5], "resolved": [0.65]},
+    
+    "mumu_SS_prompt": {"merged": [0.55], "resolved": [0.2]},
+    "mumu_SS_medium": {"merged": [0.7] , "resolved": [0.2]},
+    "mumu_SS_displaced": {"merged": [0.75], "resolved": [0.75]}}

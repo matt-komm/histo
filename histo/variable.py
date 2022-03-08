@@ -61,7 +61,7 @@ class Variable:
         lowerPad = ROOT.TPad("lowerPad", "lowerPad", 0, 0, 1, 0.33)
         upperPad.SetBottomMargin(0.00001)
         upperPad.SetBorderMode(0)
-        upperPad.SetTopMargin(0.11)
+        upperPad.SetTopMargin(0.05)
         upperPad.SetRightMargin(0.2)
         upperPad.SetLeftMargin(0.13)
         lowerPad.SetTopMargin(0.00001)
@@ -78,7 +78,7 @@ class Variable:
         self.stack.Draw(opt)
         self.stack.GetYaxis().SetTitle("Entries/bin")
         self.stack.GetYaxis().SetTitleOffset(1.2)
-        self.stack.SetMinimum(10)
+        self.stack.SetMinimum(1)
 
         for signal in self.signals:
             signal.SetFillStyle(0)
@@ -86,13 +86,16 @@ class Variable:
 
         if self.logy:
             if len(self.signals) > 0:
-                self.stack.SetMaximum(self.stack.GetMaximum()*70)
+                self.stack.SetMaximum(self.stack.GetMaximum()*300)     
             else:
-                self.stack.SetMaximum(self.stack.GetMaximum()*10)
-            self.stack.SetMinimum(10)
+                self.stack.SetMaximum(self.stack.GetMaximum()*30)
+            self.stack.SetMinimum(0.1)
             upperPad.SetLogy()
         else:
-            self.stack.SetMaximum(self.stack.GetMaximum()*1.5)
+            if len(self.signals) > 0:
+                self.stack.SetMaximum(self.stack.GetMaximum()*2)
+            else:
+                self.stack.SetMaximum(self.stack.GetMaximum()*1.5)
 
         if self.logx:
             upperPad.SetLogx()
@@ -189,19 +192,20 @@ class Variable:
         canvas.cd()
         self.leg.Draw("SAME")
         if len(self.signals) > 0:
-            self.leg_signal = style.makeLegend(0.13, 0.78, 0.67, 0.89)
+            self.leg_signal = style.makeLegend(0.15, 0.76, 0.7, 0.85)
             self.leg_signal.SetTextSize(25)
             for signal in self.signals:
                 self.leg_signal.AddEntry(signal, signal.GetTitle(), "l")
             self.leg_signal.Draw("SAME")
-            style.makeLumiText(0.58, 0.91, lumi[year], year, size=25)
+            style.makeCMSText(0.17, 0.94, additionalText="Simulation Preliminary", dx=0.07, size=26)
+            style.makeLumiText(0.58, 0.94, lumi[year], year, size=26)
 
         else:
-            style.makeLumiText(0.57, 0.91, lumi[year], year, size=25)
+            style.makeCMSText(0.17, 0.94, additionalText="Preliminary")
+            style.makeLumiText(0.57, 0.94, lumi[year], year, size=28)
 
-        style.makeText(0.13, 0.99, 0.5, 0.99, draw_text, size=25)
-        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+"_thesis.pdf"))
 
-        style.makeCMSText(0.15, 0.91, additionalText="Preliminary")
-        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".root"))
-        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".pdf"))
+        style.makeText(0.15, 0.88, 0.5, 0.88, draw_text, size=25)
+        #canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".pdf"))
+        canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".png"))
+        #canvas.SaveAs(os.path.join(output_dir, suffix+self.varexp.replace("/","_")+"_"+year+".root"))
