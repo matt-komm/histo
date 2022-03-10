@@ -48,7 +48,7 @@ ROOT.gStyle.SetHatchesLineWidth(2)
 
 ROOT.gStyle.SetTitleColor(1, "XYZ")
 ROOT.gStyle.SetTitleFont(43, "XYZ")
-ROOT.gStyle.SetTitleSize(33, "XYZ")
+ROOT.gStyle.SetTitleSize(32, "XYZ")
 ROOT.gStyle.SetTitleXOffset(1.135)
 ROOT.gStyle.SetTitleOffset(1.32, "YZ")
 

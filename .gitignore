@@ -1,3 +1,4 @@
+.*
 *.pyc
 *.swp
 *.out
@@ -9,3 +10,6 @@ hnlhisto.egg-info/
 sub*.sh
 plotting/plots
 yields
+.vscode
+Miniconda*
+env
