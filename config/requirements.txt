@@ -1,0 +1,7 @@
+mplhep
+scikit-learn
+scipy
+seaborn
+setuptools
+uproot
+pyyaml

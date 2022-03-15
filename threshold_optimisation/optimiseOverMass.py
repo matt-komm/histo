@@ -5,9 +5,7 @@ import pandas as pd
 import ctypes
 import numpy as np
 import matplotlib.pyplot as plt
-from cortools import mutual_information, pearson_corr
 from matplotlib.colors import LogNorm
-from uncertainties import ufloat
 import seaborn as sns
 from collections import defaultdict
 from collections import OrderedDict as odict

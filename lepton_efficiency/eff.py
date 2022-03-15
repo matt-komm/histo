@@ -8,7 +8,7 @@ color1 = ROOT.kOrange+7
 color2 = ROOT.kSpring+3
 
 file_list = ROOT.std.vector('string')()
-path = "/vols/cms/vc1117/LLP/nanoAOD_friends/leptonEff/22Jun21"
+path = "/vols/cms/vc1117/LLP/nanoAOD_friends/leptonEff/11Sep21"
 for directory in os.listdir(path):
     for f in os.listdir(os.path.join(path, directory)):
         file_list.push_back(os.path.join(path, directory, f))
@@ -29,6 +29,7 @@ rdf = rdf.Define("jet_id", "jet_match*jet_tightId")
 
 bin_ranges = np.logspace(-1., 3, num=30)
 bins = ("", "", 29, bin_ranges)
+'''
 
 mu_numerator = rdf.Histo1D(bins, "muon_dxy", "muon_match")
 mu_denominator = rdf.Histo1D(bins, "muon_dxy", "muon_jetmatch")
@@ -155,6 +156,7 @@ el_eff.GetPaintedGraph().GetXaxis().SetNdivisions(510)
 el_eff.SetTitle(";L^{gen}_{xy} [cm];Efficiency")
 
 cv.SaveAs("el_dxy.pdf")
+'''
 
 #### PT #####
 
@@ -168,9 +170,12 @@ rdf = rdf.Define("electron_jetmatch", "(electron_pt>3.)&&abs(electron_eta)<2.4&&
 rdf = rdf.Define("electron_match", "electron_jetmatch*electron_is_matched&&abs(electron_reco_eta)<2.4")
 rdf = rdf.Define("electron_id", "electron_match*electron_customID")
 
-rdf = rdf.Define("jet_jetmatch", "(jet_pt>15.)&&abs(jet_eta)<2.4&&(jet_dxy<1)")
+rdf = rdf.Define("jet_jetmatch", "(jet_pt>15.)&&abs(jet_eta)<2.4")
 rdf = rdf.Define("jet_match", "jet_jetmatch*jet_is_matched&&abs(jet_reco_eta)<2.4")
 rdf = rdf.Define("jet_id", "jet_match*jet_tightId")
+
+rdf = rdf.Define("cpf_weighted", "jet_match*jet_cpf_sum")
+rdf = rdf.Define("npf_weighted", "jet_match*jet_npf_sum")
 
 bin_ranges_mu = np.linspace(3., 13., num=20)
 bins_mu = ("", "", 19, bin_ranges_mu)
@@ -180,6 +185,8 @@ bins_e = ("", "", 19, bin_ranges_e)
 
 bin_ranges_jet = np.linspace(15., 60., num=20)
 bins_jet = ("", "", 19, bin_ranges_jet)
+
+bins_energy = ("", "", 19, np.linspace(0., 1., num=20))
 
 mu_numerator = rdf.Histo1D(bins_mu, "muon_pt", "muon_match")
 mu_denominator = rdf.Histo1D(bins_mu, "muon_pt", "muon_jetmatch")
@@ -196,7 +203,49 @@ jet_denominator = rdf.Histo1D(bins_jet, "jet_pt", "jet_jetmatch")
 jet_id_numerator = rdf.Histo1D(bins_jet, "jet_pt", "jet_id")
 jet_id_denominator = rdf.Histo1D(bins_jet, "jet_pt", "jet_match")
 
+jet_cpf = rdf.Histo1D(bins, "jet_dxy", "cpf_weighted")
+jet_npf = rdf.Histo1D(bins, "jet_dxy", "npf_weighted")
+jet_denominator = rdf.Histo1D(bins, "jet_dxy", "jet_match")
 
+jet_cpf.Divide(jet_denominator.Clone())
+jet_npf.Divide(jet_denominator.Clone())
+
+jet_cpf = jet_cpf.Clone("cpf")
+jet_npf = jet_npf.Clone("npf")
+
+
+cv = style.makeCanvas()
+cv.SetBottomMargin(0.15)
+cv.SetLeftMargin(0.13)
+cv.Draw("")
+jet_cpf.Draw("")
+jet_npf.Draw("SAME")
+jet_cpf.SetLineColor(color1)
+jet_cpf.SetMarkerColor(color1)
+jet_npf.SetLineColor(color2)
+jet_npf.SetMarkerColor(color2)
+
+leg = style.makeLegend(0.2, 0.2, 0.35, 0.3)
+leg.SetTextSize(24)
+leg.AddEntry(jet_cpf, "charged particle", "pl")
+leg.AddEntry(jet_npf, "neutral particle", "pl")
+leg.Draw("SAME")
+
+cv.Update()
+cv.SetLogx()
+#style.makeCMSText(0.15, 0.86, additionalText="Simulation Internal")
+style.makeText(0.2, 0.75, 0.2, 0.75, "p_{T} > 15 GeV, |#eta| < 2.4 (gen&reco)", size=24)
+style.makeText(0.2, 0.8, 0.2, 0.8, "#sqrt{s}=13 TeV, N#rightarrow#mujj", size=24)
+
+jet_cpf.GetYaxis().SetRangeUser(0, 1.)
+jet_cpf.GetXaxis().SetRangeUser(0., 300.)
+jet_cpf.GetXaxis().SetNdivisions(510)
+
+jet_cpf.SetTitle(";L^{gen}_{xy} [cm];Average energy fraction")
+
+cv.SaveAs("jet_energy_fraction.pdf")
+
+'''
 mu_eff = ROOT.TEfficiency(mu_numerator.Clone(), mu_denominator.Clone())
 el_eff = ROOT.TEfficiency(el_numerator.Clone(), el_denominator.Clone())
 jet_eff = ROOT.TEfficiency(jet_numerator.Clone(), jet_denominator.Clone())
@@ -335,3 +384,7 @@ el_eff.GetPaintedGraph().GetXaxis().SetNdivisions(510)
 el_eff.SetTitle(";p^{gen}_{T} [GeV];Efficiency")
 
 cv.SaveAs("el_pt.pdf")
+
+
+
+'''
