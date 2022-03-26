@@ -184,6 +184,8 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
         hist_nano = process.Histo1D((category_variable, category_variable, 6, 0.5, 6.5), category_variable, cut=cut, weight=weight)
         hist_nano = hist_nano.Clone()
         return hist_nano
+        
+        
     if systematics_rates is not None:
     # variations with constant shape but changing weight
         for syst, abrv in systematics_rates.items():
@@ -268,7 +270,9 @@ systematics_rates["tightElectrons_weight_id"] = "tight_electron_id"
 systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
 systematics_rates["looseElectrons_weight_reco"] = "loose_electron_reco"
 systematics_rates["puweight"] = "pu"
-systematics_rates["hnlJet_track_weight_adapted"] = "displaced_track"
+systematics_rates["(nominal_dR_l2j<0.4)*1.+(nominal_dR_l2j>0.4)*hnlJet_track_weight_adapted"] = "tagger_q"
+systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])*hnlJet_track_weight_adapted"] = "tagger_qmu"
+systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])*hnlJet_track_weight_adapted"] = "tagger_qe"
 systematics_rates["pdf"] = "pdf"
 systematics_rates["scale_shapeonly"] = "scale"
 
@@ -324,9 +328,9 @@ if isMC:
         for variation in ["Up", "Down"]:
             if "HNL" in process.name:
                 for coupling in couplings:
-                    process.Define("weightHNL_{}_{}{}".format(coupling, abrv, variation), "weightNominalHNL_{}/{}*{}".format(coupling, syst+"_nominal", syst+"_"+variation.lower()))
+                    process.Define("weightHNL_{}_{}{}".format(coupling, abrv, variation), "weightNominalHNL_{}/({})*({})".format(coupling, syst+"_nominal", syst+"_"+variation.lower()))
             else:
-                process.Define("weight_{}{}".format(abrv, variation), "weightNominal/{}*{}".format(syst+"_nominal", syst+"_"+variation.lower()))
+                process.Define("weight_{}{}".format(abrv, variation), "weightNominal/({})*({})".format(syst+"_nominal", syst+"_"+variation.lower()))
     for syst in systematics_shapes:
         for variation in ["Up", "Down"]:
             if "nominal" in syst:
