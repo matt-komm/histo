@@ -237,7 +237,7 @@ parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
 parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/13Dec20")
-parser.add_argument("--output_path", default="/home/hep/hsfar/private/limits/histo/limits/hists")
+parser.add_argument("--output_path", default="/vols/cms/mkomm/HNL/histo/limits/hists")
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 
