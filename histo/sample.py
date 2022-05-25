@@ -23,6 +23,11 @@ class Sample:
             with open("/vols/cms/LLP/filterTable.json") as json_file:
                 gen_filter = json.load(json_file)
                 
+            with open("/vols/cms/LLP/gridpackLookupTable.json") as lookup_table_file:
+                lookup_table = json.load(lookup_table_file)
+            with open("/vols/cms/LLP/xsec.json") as xsec_file:
+                xsecs = json.load(xsec_file)
+                
         if os.path.exists("/nfs/dust/cms/user/mkomm/HNL"):
             with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyields.json")) as json_file:
                 yields = json.load(json_file)
@@ -30,6 +35,12 @@ class Sample:
                 yieldsHNL = json.load(json_file)        
             with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterTable.json") as json_file:
                 gen_filter = json.load(json_file)
+                
+            with open("/nfs/dust/cms/user/mkomm/HNL/LLP/gridpackLookupTable.json") as lookup_table_file:
+                lookup_table = json.load(lookup_table_file)
+            with open("/nfs/dust/cms/user/mkomm/HNL/LLP/xsec.json") as xsec_file:
+                xsecs = json.load(xsec_file)  
+                            
         self.name = name
         self.file_list = ROOT.std.vector('string')()
         self.sum_weight = 0
@@ -65,8 +76,7 @@ class Sample:
             if "HNL" in name:
                 print(name)
                 if not limits:
-                    with open("/nfs/dust/cms/user/mkomm/HNL/LLP/gridpackLookupTable.json") as lookup_table_file:
-                        lookup_table = json.load(lookup_table_file)
+
                     if "pt20" in name:
                         lu_infos = lookup_table[name.replace('pt20', 'all')]['weights'][str(int(coupling))]
                     else:
@@ -75,8 +85,6 @@ class Sample:
                 else:
                     xsec = 1.
             else:
-                with open("/nfs/dust/cms/user/mkomm/HNL/LLP/xsec.json") as xsec_file:
-                    xsecs = json.load(xsec_file)
                 xsec = find_xsec(path, xsecs)
 
             #*\
