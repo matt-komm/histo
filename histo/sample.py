@@ -15,12 +15,21 @@ class Sample:
     Calculate event weights based on cross section and yields 
     """
     def __init__(self, name, ntuple_path, paths, isMC=True, year="2016", cut=None, limits=False, oneFile=False):
-        with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyields.json")) as json_file:
-            yields = json.load(json_file)
-        with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyieldsHNL.json")) as json_file:
-            yieldsHNL = json.load(json_file)        
-        with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterTable.json") as json_file:
-            gen_filter = json.load(json_file)
+        if os.path.exists("/vols/cms/LLP"):
+            with open(os.path.join("/vols/cms/LLP/yields_201117", year, "eventyields.json")) as json_file:
+                yields = json.load(json_file)
+            with open(os.path.join("/vols/cms/LLP/yields_201117", year, "eventyieldsHNL.json")) as json_file:
+                yieldsHNL = json.load(json_file)        
+            with open("/vols/cms/LLP/filterTable.json") as json_file:
+                gen_filter = json.load(json_file)
+                
+        if os.path.exists("/nfs/dust/cms/user/mkomm/HNL"):
+            with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyields.json")) as json_file:
+                yields = json.load(json_file)
+            with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyieldsHNL.json")) as json_file:
+                yieldsHNL = json.load(json_file)        
+            with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterTable.json") as json_file:
+                gen_filter = json.load(json_file)
         self.name = name
         self.file_list = ROOT.std.vector('string')()
         self.sum_weight = 0

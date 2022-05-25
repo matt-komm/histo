@@ -8,13 +8,19 @@ for ((i=1;i<=n_lines;i++)); do
     proc=$(awk "NR == $i" ../config/procs.txt)
     echo $i, $proc
     for year in "${years[@]}"; do
-    echo $year
-        #rm hists_merged/${proc}_${year}.root
-        hadd hists_merged/${proc}_${year}.root hists/${proc}*_${year}_chunk*.root
+        echo $year
+        files=(hists/${proc}*_${year}.root)
+        if [ -e "${files[0]}" ]; then
+            #rm hists_merged/${proc}_${year}.root
+            hadd -f hists_merged/${proc}_${year}.root hists/${proc}*_${year}.root
+        else
+            echo "skip"
+        fi
     done
 done
 
-#for year in "${years[@]}"; do
-#    #rm hists_merged/${year}.root
-#    #hadd hists_merged/${year}.root hists_merged2/muon_${year}.root hists_merged2/electron_${year}.root hists_merged2/dyjets_${year}.root hists_merged2/topbkg_${year}.root hists_merged2/qcd_${year}.root hists_merged2/wjets_${year}.root hists_merged2/vgamma_${year}.root
-#done
+for year in "${years[@]}"; do
+    #rm hists_merged2/${year}.root
+    hadd -f hists_merged/${year}.root hists_merged/*_${year}.root
+done
+

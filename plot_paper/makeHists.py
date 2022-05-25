@@ -92,23 +92,23 @@ def mcWeight(sample, syst="nominal"):
     else:
         weight += "*puweight_nominal"
         
-    
-    weight += "*(IsoElectronTrigger_flag*leadingLeptons_isElectron[0]"
-    '''
-    if syst=="eleEffUp":
-        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_up*tightElectrons_weight_reco_up*tightElectrons_weight_id_up)"
-    elif syst=="eleEffDown":
-        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_down*tightElectrons_weight_reco_down*tightElectrons_weight_id_down)"
-    else:
-        weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_nominal*tightElectrons_weight_reco_nominal*tightElectrons_weight_id_nominal)"
-    '''
-    if syst=="muEffUp":
-        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_up*tightMuons_weight_id_up*tightMuons_weight_iso_up)"
-    elif syst=="muEffDown":
-        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_down*tightMuons_weight_id_down*tightMuons_weight_iso_down)"
-    else:
-        weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_id_nominal*tightMuons_weight_iso_nominal)"
-    weight+=")"
+    if sample.find("noniso")==-1:
+        weight += "*(IsoElectronTrigger_flag*leadingLeptons_isElectron[0]"
+        '''
+        if syst=="eleEffUp":
+            weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_up*tightElectrons_weight_reco_up*tightElectrons_weight_id_up)"
+        elif syst=="eleEffDown":
+            weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_down*tightElectrons_weight_reco_down*tightElectrons_weight_id_down)"
+        else:
+            weight +="IsoElectronTrigger_flag*leadingLeptons_isElectron[0]*(IsoElectronTrigger_weight_trigger_nominal*tightElectrons_weight_reco_nominal*tightElectrons_weight_id_nominal)"
+        '''
+        if syst=="muEffUp":
+            weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_up*tightMuons_weight_id_up*tightMuons_weight_iso_up)"
+        elif syst=="muEffDown":
+            weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_down*tightMuons_weight_id_down*tightMuons_weight_iso_down)"
+        else:
+            weight +="+IsoMuTrigger_flag*leadingLeptons_isMuon[0]*(IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_id_nominal*tightMuons_weight_iso_nominal)"
+        weight+=")"
 
     if syst=="trackUp":
         weight+="*hnlJet_track_weight_adapted_up"
@@ -165,7 +165,7 @@ def makeHist(path,treeName,var,weight,binning,syst="nominal"):
     
 
     catBinning = np.linspace(-0.5,8.5,10)
-    hist = ROOT.TH2F("hist_"+str(random.random()),"",len(binning)-1,binning,len(catBinning)-1,catBinning)
+    hist = ROOT.TH2F("hist_"+str(random.random())+str(abs(hash(var))),"",len(binning)-1,binning,len(catBinning)-1,catBinning)
     hist.Sumw2()
     tree.Project(hist.GetName(),catVar+":"+var,weight)
     hist.SetDirectory(0)
@@ -174,6 +174,7 @@ def makeHist(path,treeName,var,weight,binning,syst="nominal"):
 
 def makeHistFromFolder(folder,treeName,var,weight,binning):
     files = list(filter(lambda x: x.endswith(".root"),os.listdir(folder)))
+    print ()
     print ("folder: ",folder,"nfiles=%i"%len(files))
     print ("var: ",var)
     print ("weight: ",weight)
@@ -192,14 +193,14 @@ def makeHistFromFolder(folder,treeName,var,weight,binning):
     print ("Events/Integral: ",histSum.GetEntries(),"/",histSum.Integral())
     #if (histSum.Integral()/histSum.GetEntries()>1e4): #reject large MC weights
     #    histSum.Scale(0)
-    print ()
+
     return histSum
 
 plotCfgs ={
     "tagger_CR_boosted":{
         "var": taggerScore(args.syst),
         "cut": "({dR}<0.4)*({mll}>80.)*({njets}>0)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,1,21),
+        "binning": np.linspace(0,1,101),
         "signals": {
             #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
             #    "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -211,7 +212,7 @@ plotCfgs ={
     "tagger_CR_resolved":{
         "var": taggerScore(args.syst),
         "cut": "({dR}>0.4)*({mll}>80.)*({njets}>0)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,1,21),
+        "binning": np.linspace(0,1,101),
         "signals": {
             #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
             #    "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -222,8 +223,8 @@ plotCfgs ={
     
     "tagger_SR_boosted":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}<0.4)*({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,1,21),
+        "cut": "({dR}<0.4)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,101),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -243,8 +244,8 @@ plotCfgs ={
     
     "tagger_SR_resolved":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}>0.4)*({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,1,21),
+        "cut": "({dR}>0.4)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1,101),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -263,31 +264,31 @@ plotCfgs ={
     },
     
     
-    "bdt_SR":{
-        "var": bdtVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,1,21),
-        "signals": {
-            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            }
-        },
-        "blind":False
-    },
+    #"bdt_SR":{
+    #    "var": bdtVar(args.syst),
+    #    "cut": "({mll}>20.)*({mll}<80.)*({met}<60.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)*({dR}<1.3)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+    #    "binning": np.linspace(0,1,21),
+    #    "signals": {
+    #        "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
+    #            "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+    #        },
+    #        "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
+    #            "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+    #        },
+    #        "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
+    #            "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+    #        },
+    #        "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
+    #            "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
+    #        }
+    #    },
+    #    "blind":False
+    #},
     
     "mllj_SR":{
         "var": mlljVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
-        "binning": np.linspace(0,300,61),
+        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,300,301),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -305,10 +306,10 @@ plotCfgs ={
         "blind":False
     },
     
-    "mllj_SRcuts":{
-        "var": mlljVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({met}<100.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)*({bdt}>0.4)*({tagger}>0.7)".format(mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),bdt=bdtVar(args.syst),tagger=taggerScore(args.syst)) ,
-        "binning": np.linspace(0,200,41),
+    "dR_SR":{
+        "var": dRVar(args.syst),
+        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({nfwdjets}<1)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst)) ,
+        "binning": np.linspace(0,1.3,131),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
                 "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
@@ -325,47 +326,7 @@ plotCfgs ={
         },
         "blind":False
     },
-    
-    "mll_central":{
-        "var": mllVar(args.syst),
-        "cut": "({mll}>10.)*({mll}<50.)*({njets}>0)*({njets}<3)*({nfwdjets}==0)*({tagger}>0.6)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),tagger=taggerScore(args.syst)) ,
-        "binning": np.linspace(10,50,81),
-        "signals": {
-            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            }
-        },
-        "blind":False
-    },
-    "mll_fwd":{
-        "var": mllVar(args.syst),
-        "cut": "({mll}>10.)*({mll}<50.)*({njets}>0)*({njets}<3)*({nfwdjets}==1)*({tagger}>0.6)".format(mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),tagger=taggerScore(args.syst)) ,
-        "binning": np.linspace(10,50,81),
-        "signals": {
-            "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            },
-            "HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03": {
-                "e":2, "mu": 12, "emu": 7, "tau": 67, "all": 1
-            }
-        },
-        "blind":False
-    },
+
 }
 
 plotCfg = plotCfgs[args.plot]
@@ -401,6 +362,24 @@ for sampleName in ['qcd','topbkg','wjets','dyjets','vgamma']:
             else:
                 histSum.Add(hist)
     histDict[sampleName] = histSum
+
+
+for sampleName in ['qcd']:
+    histSum = None
+    for proc in samples[sampleName][args.year].keys():
+        for folder in samples[sampleName][args.year][proc]:
+            path = "/vols/cms/mkomm/HNL/NANOX_220520_nonisoqcd_"+str(args.year)+"/"+folder
+            weight = normWeight(folder)+"*"+mcWeight('nonisoqcd',args.syst)+"*"+plotCfg['cut']
+            hist = makeHistFromFolder(path,"Friends",plotCfg['var'],weight,plotCfg['binning'])
+            if hist.GetEntries()>hist.Integral()*0.0001:
+                if histSum == None:
+                    histSum = hist
+                else:
+                    histSum.Add(hist)
+            else:
+                print (" ==> too low events; skipped")
+    #histSum.Scale(histDict['qcd'].Integral()/histSum.Integral())
+    histDict['nonisoqcd'] = histSum
 
 for sampleName in plotCfg['signals']:
     folder = sampleName+"-"+str(args.year)

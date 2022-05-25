@@ -241,8 +241,13 @@ parser.add_argument("--year",default="2016")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
-parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
-parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
+
+#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
+#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
+
+parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/13Dec20")
+parser.add_argument("--output_path", default="/vols/cms/mkomm/HNL/histo/limits/hists")
+
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 parser.add_argument("--couplings", default=[], action='append', type=int, dest="couplings")
@@ -279,9 +284,11 @@ systematics_rates["tightMuons_weight_id"] = "tight_muon_id"
 systematics_rates["tightElectrons_weight_id"] = "tight_electron_id"
 systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
 systematics_rates["puweight"] = "pu"
+
 systematics_rates["(nominal_dR_l2j<0.4)*1.+(nominal_dR_l2j>0.4)*hnlJet_track_weight"] = "tagger_q"
 systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])*hnlJet_track_weight"] = "tagger_qmu"
 systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])*hnlJet_track_weight"] = "tagger_qe"
+
 systematics_rates["pdf"] = "pdf"
 systematics_rates["scale_shapeonly"] = "scale"
 systematics_rates["looseMuons_weight_id"] = "loose_muon_id"

@@ -7,11 +7,12 @@ exportVars['OUTPATH'] = outputPath
 jobArrayCfg = []
 for year in [2016,2017,2018]:
     for plotType in [
-        #"tagger_CR_boosted","tagger_CR_resolved",
-        #"tagger_SR_boosted","tagger_SR_resolved",
+        "tagger_CR_boosted","tagger_CR_resolved",
+        "tagger_SR_boosted","tagger_SR_resolved",
         #"bdt_SR",
-        #"mllj_SR",
-        "mllj_SRcuts"
+        "mllj_SR",
+        "dR_SR",
+        #"mllj_SRcuts"
         #"mll_central","mll_fwd"
     ]:
         opts = [
