@@ -5,6 +5,8 @@ import json
 import argparse
 from histo import Process, Sample
 
+ROOT.gErrorIgnoreLevel = ROOT.kError
+
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
     Make a new histogram for categorised events passing the cuts and write it to file
@@ -18,6 +20,7 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
 
     index_new = 0
     hist_limits = ROOT.TH1D("hist", "hist", len(category_dict), 0, len(category_dict))
+    hist_limits.SetDirectory(0)
     print(f"Writing hist {name}")
     for index, category in category_dict.items():
         index_new += 1
@@ -179,10 +182,11 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
         cut += f"({category_variable}==6 and {mass_cut_resolved_displaced} and {tagger_cut_resolved_displaced} )"
         cut += f")"
 
-        print(syst, category_variable, cut, weight)
+        #print(syst, category_variable, cut, weight)
 
         hist_nano = process.Histo1D((category_variable, category_variable, 6, 0.5, 6.5), category_variable, cut=cut, weight=weight)
         hist_nano = hist_nano.Clone()
+        hist_nano.SetDirectory(0)
         return hist_nano
         
         
@@ -196,6 +200,7 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
                 else:
                     name = f"{process.name}_{abrv}{year}{variation}"
                     weight = f"weight_{abrv}{variation}"
+
                 hists[name] = make_hist(process, category_variable_nominal, thresholds, weight, cut_nominal, region, syst="nominal")
 
     if systematics_shapes is not None:
@@ -236,16 +241,24 @@ parser.add_argument("--year",default="2016")
 parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
+
+#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
+#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
+
 parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/13Dec20")
-parser.add_argument("--output_path", default="/home/hep/hsfar/private/limits/histo/limits/hists")
+parser.add_argument("--output_path", default="/vols/cms/mkomm/HNL/histo/limits/hists")
+
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
+parser.add_argument("--couplings", default=[], action='append', type=int, dest="couplings")
+parser.add_argument("--suffix", dest="suffix", default='')
 
 args = parser.parse_args()
 print(vars(args))
 
 year = args.year
 proc = args.proc
+
 category_name = args.category
 ntuple_path = os.path.join(f"{args.ntuple_path}", year)
 region = args.region
@@ -253,6 +266,7 @@ oneFile = args.oneFile
 isData = args.data
 isMC = not isData
 output_path = args.output_path
+suffix = args.suffix
 
 with open("../config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
@@ -263,27 +277,37 @@ with open("../config/samples.yml") as samples_file:
 
 # Systematic uncertainties
 systematics_rates = {}
+
 systematics_rates["IsoMuTrigger_weight_trigger"] = "trigger"
 systematics_rates["tightMuons_weight_iso"] = "tight_muon_iso"
 systematics_rates["tightMuons_weight_id"] = "tight_muon_id"
 systematics_rates["tightElectrons_weight_id"] = "tight_electron_id"
 systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
-systematics_rates["looseElectrons_weight_reco"] = "loose_electron_reco"
 systematics_rates["puweight"] = "pu"
-systematics_rates["(nominal_dR_l2j<0.4)*1.+(nominal_dR_l2j>0.4)*hnlJet_track_weight_adapted"] = "tagger_q"
-systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])*hnlJet_track_weight_adapted"] = "tagger_qmu"
-systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])*hnlJet_track_weight_adapted"] = "tagger_qe"
+
+systematics_rates["(nominal_dR_l2j<0.4)*1.+(nominal_dR_l2j>0.4)*hnlJet_track_weight"] = "tagger_q"
+systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])*hnlJet_track_weight"] = "tagger_qmu"
+systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLeptons_isMuon[0])+((nominal_dR_l2j<0.4)*subleadingLeptons_isElectron[0])*hnlJet_track_weight"] = "tagger_qe"
+
 systematics_rates["pdf"] = "pdf"
 systematics_rates["scale_shapeonly"] = "scale"
+systematics_rates["looseMuons_weight_id"] = "loose_muon_id"
+systematics_rates["looseElectrons_weight_id"] = "loose_electron_id"
+systematics_rates["lepton2_track"] = "resolvedLepton_track_reco"
 
 systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
 ####################################
+if len(args.couplings)==0:
+    # couplings to consider
+    #couplings = range(1, 68)
+    #couplings = [ 1]#, 2, 7, 12, 47, 52]
+    couplings = [2,7,12]
+    #couplings = [12]
+    print ("Using default couplings: "+str(couplings))
+else:
+    couplings = list(set(args.couplings)) #remove duplications
+    print ("Using couplings from options: "+str(couplings))
 
-# couplings to consider
-#couplings = range(2, 68)
-couplings = [ 1, 2, 7, 12, 47, 52]
-#couplings = [2,7,12]
-#couplings = [12]
 
 category_file = '../config/categories_2l_inclusive.json'
 threshold_file = f'../config/coordsBestThresholds_{year}.json'
@@ -369,34 +393,50 @@ else:
 
 # create root file with nominal value histogram and various systematic variations
 # to be used with Combine Harvester
-root_file = ROOT.TFile.Open(os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}.root"), "RECREATE")
-print("The category name and cut are:", category_name, category_cut)
-root_file.cd()
-root_file.mkdir(category_name+"_"+region)
-root_file.cd(category_name+"_"+region)
+
 
 category_dict = dilepton_category_dict
 category_variable_nominal = "category_nominal_index"
 
+histsList = []
+
 coupling = 0
 while coupling < 67:
+    
     # different scenarios
     # Need to calculate yield per coupling
     if "HNL" in process.name:
         coupling += 1
         if coupling not in couplings:
             continue
+        print (f"Processing coupling {coupling}")
     else:
         coupling = 68
-
+    
     if isMC:
         hists = make_hists(process, systematics_shapes, systematics_rates, category_cut, category_variable_nominal, thresholds, region,  coupling=coupling)
         for name, hist in hists.items():
-            write_hist(hist, category_dict, name, isMC=True)
+            hist.SetDirectory(0)
+            histsList.append({"hist":hist, "name": name, "isMC": True})
+            #write_hist(hist, category_dict, name, isMC=True)
     else:
         hists = make_hists(process, ["nominal"], None, category_cut, category_variable_nominal, thresholds, region,  coupling=coupling)
         for name, hist in hists.items():
-            write_hist(hist, category_dict, "data", isMC=False)
+            hist.SetDirectory(0)
+            histsList.append({"hist":hist, "name": "data", "isMC": False})
+            #write_hist(hist, category_dict, "data", isMC=False)
 
+root_file = ROOT.TFile.Open(os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root"), "RECREATE")
+print("The category name and cut are:", category_name, category_cut)
+root_file.cd()
+root_file.mkdir(category_name+"_"+region)
+root_file.cd(category_name+"_"+region)
 
+for histDict in histsList:
+    #histDict['hist'].SetDirectory(root_file)
+    write_hist(histDict['hist'], category_dict, histDict['name'], isMC=histDict['isMC'])
 root_file.Close()
+
+
+
+
