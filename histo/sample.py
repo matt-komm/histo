@@ -15,11 +15,11 @@ class Sample:
     Calculate event weights based on cross section and yields 
     """
     def __init__(self, name, ntuple_path, paths, isMC=True, year="2016", cut=None, limits=False, oneFile=False):
-        with open(os.path.join("/vols/cms/LLP/yields_201117", year, "eventyields.json")) as json_file:
+        with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyields.json")) as json_file:
             yields = json.load(json_file)
-        with open(os.path.join("/vols/cms/LLP/yields_201117", year, "eventyieldsHNL.json")) as json_file:
+        with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_201117", year, "eventyieldsHNL.json")) as json_file:
             yieldsHNL = json.load(json_file)        
-        with open("/vols/cms/LLP/filterTable.json") as json_file:
+        with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterTable.json") as json_file:
             gen_filter = json.load(json_file)
         self.name = name
         self.file_list = ROOT.std.vector('string')()
@@ -56,7 +56,7 @@ class Sample:
             if "HNL" in name:
                 print(name)
                 if not limits:
-                    with open("/vols/cms/LLP/gridpackLookupTable.json") as lookup_table_file:
+                    with open("/nfs/dust/cms/user/mkomm/HNL/LLP/gridpackLookupTable.json") as lookup_table_file:
                         lookup_table = json.load(lookup_table_file)
                     if "pt20" in name:
                         lu_infos = lookup_table[name.replace('pt20', 'all')]['weights'][str(int(coupling))]
@@ -66,7 +66,7 @@ class Sample:
                 else:
                     xsec = 1.
             else:
-                with open("/vols/cms/LLP/xsec.json") as xsec_file:
+                with open("/nfs/dust/cms/user/mkomm/HNL/LLP/xsec.json") as xsec_file:
                     xsecs = json.load(xsec_file)
                 xsec = find_xsec(path, xsecs)
 
@@ -75,7 +75,7 @@ class Sample:
                 tightMuons_weight_id_nominal*tightElectrons_weight_id_nominal*puweight_nominal*genweight*\
                 tightElectrons_weight_reco_nominal*looseElectrons_weight_reco_nominal\
                 *{lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
-            self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
+            self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_nominal")
 
             if "HNL" in name:
                 for coupling in range(1, 68):

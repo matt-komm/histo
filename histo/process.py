@@ -67,10 +67,12 @@ class Process:
             if i == 0:
                 hist = _rdf.Histo1D(args, varexp, weight)
                 hist = hist.Clone()
+                hist.SetDirectory(0)
                 hist.Sumw2()
             else:
                 tmp_hist = _rdf.Histo1D(args, varexp, weight)
                 tmp_hist = tmp_hist.Clone()
+                tmp_hist.SetDirectory(0)
                 tmp_hist.Sumw2()
                 hist.Add(tmp_hist)
 
