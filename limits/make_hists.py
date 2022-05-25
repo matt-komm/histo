@@ -347,6 +347,12 @@ else:
         process.Add(sample)
 
 # Event weights: MC only
+
+if year=="2016":
+    fractionThresPromptBoosted = 3.
+else:
+    fractionThresPromptBoosted = 2.
+
 if isMC:
     for syst, abrv in systematics_rates.items():
         for variation in ["Up", "Down"]:
@@ -365,7 +371,7 @@ if isMC:
             
             
 
-            process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0] < 3. and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 2.  and subleadingLeptons_dxyErr[0]< 0.05 ) \
+            process.Define(f"category_{syst+variation}_index", f"1.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0] < 3. and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < {fractionThresPromptBoosted}  and subleadingLeptons_dxyErr[0]< 0.05 ) \
                                                     + 2.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 4.)\
                                                     + 3.*({syst+variation}_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10. and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 4.) \
                                                     + 4.*({syst+variation}_dR_l2j>0.4 and {syst+variation}_dR_l2j<1.3 and subleadingLeptons_dxysig[0]< 3. and hnlJet_{syst+variation}_ptorig/subleadingLeptons_pt[0] < 4.) \
@@ -379,7 +385,7 @@ if isMC:
 else:
 
    
-    process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3.  and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 2.  and subleadingLeptons_dxyErr[0]< 0.05  ) \
+    process.Define(f"category_nominal_index", f"1.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]<3.  and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < {fractionThresPromptBoosted}  and subleadingLeptons_dxyErr[0]< 0.05  ) \
                                                 + 2.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>3. and subleadingLeptons_dxysig[0]<10. and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 4. )\
                                                 + 3.*(nominal_dR_l2j<0.4 and subleadingLeptons_dxysig[0]>10.  and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 4.) \
                                                 + 4.*(nominal_dR_l2j>0.4 and nominal_dR_l2j<1.3 and subleadingLeptons_dxysig[0]<3. and hnlJet_nominal_ptorig/subleadingLeptons_pt[0] < 4. ) \
