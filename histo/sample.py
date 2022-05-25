@@ -48,9 +48,9 @@ class Sample:
         if cut is not None:
             self.rdf = self.rdf.Define("sample_cut", cut)
             self.rdf = self.rdf.Filter("sample_cut")
-        selected = self.rdf.Count().GetValue()
+        #selected = self.rdf.Count().GetValue()
 
-        print("RDF {} has entries {}/{}".format(name, selected, count))
+        #print("RDF {} has entries {}/{}".format(name, selected, count))
 
         if self.isMC:
             if "HNL" in name:
