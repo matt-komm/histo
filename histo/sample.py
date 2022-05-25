@@ -90,9 +90,8 @@ class Sample:
             #*\
             self.rdf = self.rdf.Define("weightNominal", f"IsoMuTrigger_weight_trigger_nominal*tightMuons_weight_iso_nominal*\
                 tightMuons_weight_id_nominal*tightElectrons_weight_id_nominal*puweight_nominal*genweight*\
-                tightElectrons_weight_reco_nominal*looseElectrons_weight_reco_nominal\
+                tightElectrons_weight_reco_nominal*hnlJet_track_weight_nominal*lepton2_track_nominal\
                 *{lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
-            #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_nominal")
             #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
 
             if "HNL" in name:
