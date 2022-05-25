@@ -24,7 +24,8 @@ mcStyles = {
     'wjets': {'legend': "W+jets", 'fill': newColorRGB(0.33,0.75,0.35)},
     'dyjets':{'legend': "Z/#gamma*+jets", 'fill': newColorRGB(0.3,0.75,0.95)},
     'vgamma': {'legend': "V#gamma*+jets", 'fill': newColorRGB(0.73,0.25,0.96)},
-    'qcd': {'legend': "Multijet", 'fill': newColorRGB(0.85,0.85,0.85)}
+    'qcd': {'legend': "Multijet", 'fill': newColorRGB(0.85,0.85,0.85)},
+    'nonisoqcd': {'legend': "Multijet", 'fill': newColorRGB(0.85,0.85,0.85)}
 }
 
 for name,mcStyle in mcStyles.items():
@@ -47,6 +48,36 @@ def combineOS(h):
 
 def combineSS(h):
     return h.ProjectionX(h.GetName()+"tot",6,9)
+    
+    
+def smooth(h,factor=0.2,n=1):
+    hsmooth = h.Clone(h.GetName()+"smooth")
+    for it in range(n):
+        for ibin in range(2,h.GetNbinsX()-2):
+            c1 = h.GetBinContent(ibin)
+            e1 = h.GetBinError(ibin)
+            
+            c2 = h.GetBinContent(ibin+1)
+            e2 = h.GetBinError(ibin+1)
+            
+            c3 = h.GetBinContent(ibin+2)
+            e3 = h.GetBinError(ibin+2)
+            
+            c = factor*c1+factor*c3+(1.-2*factor)*c2
+            
+            e = 0.
+            if c1>1e-3:
+                e += factor*e1/c1*c
+            if c3>1e-3:
+                e += factor*e3/c3*c
+            if c2>1e-3:
+                e += (1.-2*factor)*e2/c2*c
+            
+            hsmooth.SetBinContent(ibin+1,c)
+            hsmooth.SetBinError(ibin+1,e)
+            h.SetBinContent(ibin+1,c)
+            h.SetBinError(ibin+1,e)
+    return h
 
 class Plot():
     def __init__(self,
@@ -55,13 +86,16 @@ class Plot():
         combine = combineAll,
         extraTitles=[],
         logy=False,
+        yRange= None,
         yspace=1.2,
         unit="",
         binRange = [0,1],
+        rebin = 1,
+        oneLegend=True,
         outputSuffix = "",
         header="(ee,#kern[-0.5]{ }e#mu,#kern[-0.5]{ }#mue,#kern[-0.5]{ }#mu#mu)#kern[-0.2]{ }+#kern[-0.2]{ }jets",
-        procs = ['topbkg','wjets','dyjets','vgamma','qcd'],
-        showData=False,
+        procs = ['topbkg','wjets','dyjets','vgamma','nonisoqcd'],
+        showData=True,
         path='/vols/cms/mkomm/HNL/histo/plot_paper/hists/hist'
     ):
         self.plot = plot
@@ -70,8 +104,11 @@ class Plot():
         self.extraTitles = extraTitles
         self.logy = logy
         self.yspace = yspace
+        self.yRange = yRange
         self.unit = unit
         self.binRange = binRange
+        self.rebin = rebin
+        self.oneLegend = oneLegend
         self.outputSuffix = outputSuffix
         self.header = header
         self.procs = procs
@@ -99,6 +136,8 @@ class Plot():
             hist = f.Get(signal['name'])
             hist = self.combine(hist)
             hist.SetDirectory(0)
+            if self.rebin>1:
+                hist.Rebin(self.rebin)
             hist.SetFillStyle(0)
             hist.SetLineWidth(signal['style'][0])
             hist.SetLineStyle(signal['style'][1])
@@ -122,29 +161,41 @@ class Plot():
             if f==None:
                 raise Exception("Cannot open file '%s'"%filepath)
                 
-            for i,sample in enumerate(self.procs):
+            for i,sample in enumerate(['topbkg','wjets','dyjets','vgamma','qcd','nonisoqcd']):
                 hist = f.Get(sample)
                 hist = self.combine(hist)
                 hist.SetDirectory(0)
+                
                 hist.SetFillColor(mcStyles[sample]['fill'].GetNumber())
                 hist.SetLineColor(mcStyles[sample]['line'].GetNumber())
                 hist.SetLineWidth(2)
+                
                 if sample not in mcHistDict.keys():
                     mcHistDict[sample] = hist.Clone(self.plot+sample+str(random.random()))
                     mcHistDict[sample].SetDirectory(0)
                 else:
                     mcHistDict[sample].Add(hist)
-                if mcHistSum==None:
-                    mcHistSum = hist.Clone(self.plot+str(random.random())+"sum")
-                    mcHistSum.SetDirectory(0)
-                else:
-                    mcHistSum.Add(hist)
+                    
+                
             f.Close()
+            
+        mcHistDict['nonisoqcd'].Scale(mcHistDict['qcd'].Integral()/mcHistDict['nonisoqcd'].Integral())
+        
+        smooth(mcHistDict['qcd'],0.2,5)
+        
+        if self.rebin>1:
+            for hist in mcHistDict.values():
+                hist.Rebin(self.rebin)
         
         mcStack = ROOT.THStack()
         for sample in self.procs:
             mcStack.Add(mcHistDict[sample])
-            
+            if mcHistSum==None:
+                mcHistSum = mcHistDict[sample].Clone(self.plot+str(random.random())+"sum")
+                mcHistSum.SetDirectory(0)
+            else:
+                mcHistSum.Add(mcHistDict[sample])
+                
         return mcStack,mcHistDict,mcHistSum
         
     def getMC(self):
@@ -188,6 +239,10 @@ class Plot():
                 else:
                     dataHistSum.Add(hist)
             f.Close()
+            
+        if self.rebin>1:
+            dataHistSum.Rebin(self.rebin)
+            
         return dataHistSum
 
     def __call__(self):
@@ -247,6 +302,9 @@ class Plot():
         
         mcStackNominal, mcHistDictNominal, mcHistSumNominal = self.getMC()
         
+        for sample in mcHistDictNominal.keys():
+            print ("   %s: %.1f"%(sample,mcHistDictNominal[sample].Integral()))
+        
         if self.unit!="":
             xaxisTitle = self.title+" ("+self.unit+")"
             
@@ -261,16 +319,30 @@ class Plot():
         ymax = mcHistSumNominal.GetMaximum()
 
         if self.logy:
+            ymin = 0.07
+            ymax = 10**(self.yspace*math.log10(max([ymax,1.0])))
+        
+            if self.yRange is not None:
+                ymin = self.yRange[0]
+                ymax = self.yRange[1]
+        
             axis=ROOT.TH2F(
                 "axis"+str(random.randint(0,99999)),";;"+yaxisTitle,
                 50,self.binRange[0],self.binRange[1],
-                50,0.07,10**(self.yspace*math.log10(max([ymax,1.0])))
+                50,ymin,ymax
             )
         else:
+            ymin = 0.0
+            ymax = self.yspace*ymax
+            
+            if self.yRange is not None:
+                ymin = self.yRange[0]
+                ymax = self.yRange[1]
+        
             axis=ROOT.TH2F(
                 "axis"+str(random.randint(0,99999)),";;"+yaxisTitle,
                 50,self.binRange[0],self.binRange[1],
-                50,0.0,self.yspace*ymax
+                50,ymin,ymax
             )
 
         axis.GetXaxis().SetLabelSize(0)
@@ -282,6 +354,23 @@ class Plot():
         
         if self.logy:
             cv.GetPad(2).SetLogy(1)
+            
+
+        dataHist = self.getData()
+        
+        print ("   %s: %.1f"%('data',dataHist.Integral()))
+        
+        '''
+        if 'nonisoqcd' in mcHistDictNominal.keys():
+            totalMCSum = mcHistSumNominal.Integral()
+            totalDataSum = dataHist.Integral()
+            sumQCD = mcHistDictNominal['nonisoqcd'].Integral()
+            
+            scaleQCD = (totalDataSum-(totalMCSum-sumQCD))/sumQCD
+            print ("   %s: %.3f"%('qcd scale',scaleQCD))
+            mcHistDictNominal['nonisoqcd'].Scale(scaleQCD)
+        '''
+            
 
         mcStackNominal.Draw("HISTSame")
 
@@ -311,10 +400,8 @@ class Plot():
                 rootObj.append(box2)
                 box2.Draw("SameL")
                 '''
-        dataHist = ROOT.TH1F()
-        dataHist.SetMarkerStyle(20)
+        
         if self.showData:
-            dataHist = self.getData()
             dataHist.Draw("HISTPESame")
 
         isignalEntry=0
@@ -361,16 +448,7 @@ class Plot():
         pCMS.SetTextAlign(13)
         pCMS.AddText("CMS")
         pCMS.Draw("Same")
-        '''
-        pPreliminary=ROOT.TPaveText(cvxmin+0.025+0.09,cvymax-0.025,cvxmin+0.025+0.09,cvymax-0.025,"NDC")
-        pPreliminary.SetFillColor(ROOT.kWhite)
-        pPreliminary.SetBorderSize(0)
-        pPreliminary.SetTextFont(53)
-        pPreliminary.SetTextSize(27)
-        pPreliminary.SetTextAlign(13)
-        pPreliminary.AddText("Preliminary")
-        pPreliminary.Draw("Same")
-        '''
+
         pLumi=ROOT.TPaveText(cvxmax,0.94,cvxmax,0.94,"NDC")
         pLumi.SetFillColor(ROOT.kWhite)
         pLumi.SetBorderSize(0)
@@ -383,30 +461,48 @@ class Plot():
             pLumi.AddText("137#kern[-0.5]{ }fb#lower[-0.7]{#scale[0.7]{-1}} (13 TeV)")
         pLumi.Draw("Same")
         
-        legend1 = ROOT.TLegend(cvxmax-0.39,cvymax-0.02,cvxmax-0.21,cvymax-0.02-0.048*3,"","NDC")
-        legend1.SetBorderSize(0)
-        legend1.SetFillStyle(0)
-        legend1.SetTextFont(43)
-        legend1.SetTextSize(25)
         
-        legend2 = ROOT.TLegend(cvxmax-0.21,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.048*4,"","NDC")
-        legend2.SetBorderSize(0)
-        legend2.SetFillStyle(0)
-        legend2.SetTextFont(43)
-        legend2.SetTextSize(25)
+        if self.oneLegend:
+            legend = ROOT.TLegend(cvxmax-0.21,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.048*7,"","NDC")
+            legend.SetBorderSize(0)
+            legend.SetFillStyle(0)
+            legend.SetTextFont(43)
+            legend.SetTextSize(25)
+            
+            legend.AddEntry(dataHist,"Data","P")
+            for sample in self.procs[:2]:
+                legend.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+            for sample in self.procs[2:]:
+                legend.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+                   
+            legend.AddEntry(box,"Unc.","F")
+            legend.Draw()
+            
+        else:
+            legend1 = ROOT.TLegend(cvxmax-0.39,cvymax-0.02,cvxmax-0.21,cvymax-0.02-0.048*3,"","NDC")
+            legend1.SetBorderSize(0)
+            legend1.SetFillStyle(0)
+            legend1.SetTextFont(43)
+            legend1.SetTextSize(25)
+            
+            legend2 = ROOT.TLegend(cvxmax-0.21,cvymax-0.02,cvxmax-0.02,cvymax-0.02-0.048*4,"","NDC")
+            legend2.SetBorderSize(0)
+            legend2.SetFillStyle(0)
+            legend2.SetTextFont(43)
+            legend2.SetTextSize(25)
         
-        legend1.AddEntry(dataHist,"Data","P")
-        for sample in self.procs[:2]:
-            legend1.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
-        for sample in self.procs[2:]:
-            legend2.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+            legend1.AddEntry(dataHist,"Data","P")
+            for sample in self.procs[:2]:
+                legend1.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+            for sample in self.procs[2:]:
+                legend2.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
+                
+                
+            legend2.AddEntry(box,"Unc.","F")
             
             
-        legend2.AddEntry(box,"Unc.","F")
-        
-        
-        legend1.Draw()
-        legend2.Draw()
+            legend1.Draw()
+            legend2.Draw()
 
 
 
@@ -416,7 +512,7 @@ class Plot():
             rootObj.append(pText)
             pText.SetBorderSize(0)
             pText.SetFillStyle(0)
-            pText.SetTextFont(63)
+            pText.SetTextFont(43)
             pText.SetTextSize(25)
             pText.SetTextAlign(13)
             pText.AddText(text)
@@ -495,6 +591,19 @@ class Plot():
         
         cv.Update()      
         cv.Print(self.plot+self.outputSuffix+".pdf")
+        
+        pPreliminary=ROOT.TPaveText(cvxmin+0.025+0.09,cvymax-0.025,cvxmin+0.025+0.09,cvymax-0.025,"NDC")
+        pPreliminary.SetFillColor(ROOT.kWhite)
+        pPreliminary.SetBorderSize(0)
+        pPreliminary.SetTextFont(53)
+        pPreliminary.SetTextSize(27)
+        pPreliminary.SetTextAlign(13)
+        pPreliminary.AddText("Preliminary")
+        pPreliminary.Draw("Same")
+        
+        cv.Update()      
+        cv.Print(self.plot+self.outputSuffix+"_PAS.pdf")
+        
         '''
         os.system("gs -sDEVICE=pdfwrite -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
             7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
@@ -507,11 +616,12 @@ pqj = "P#lower[0.3]{#scale[0.7]{q}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})
 plj = "P#lower[0.3]{#scale[0.7]{#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
 pj = "P#lower[0.3]{#scale[0.7]{q,#kern[-0.7]{ }#font[12]{l}}}#kern[-0.5]{ }(j#lower[-0.2]{#scale[0.8]{*}})"
 
-mlljcutsOS = Plot("mllj_SRcuts","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS, BDT#kern[-0.25]{ }>#kern[-0.25]{ }0.4, "+pj+"#kern[-0.25]{ }>#kern[-0.25]{ }0.5"],yspace=1.8,outputSuffix="_OS")
-mlljcutsOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
-mlljcutsOS()
+mll = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}}}"
+mllj = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}"
 
+dR = "#Delta#kern[-0.25]{ }R(#font[12]{l}#lower[0.2]{#scale[0.8]{2}},#kern[-0.2]{ }j#lower[-0.2]{#scale[0.8]{*}})"
 
+'''
 bdtOS = Plot("bdt_SR","BDT score",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
 bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtOS()
@@ -519,39 +629,46 @@ bdtOS()
 bdtSS = Plot("bdt_SR","BDT score",combine=combineSS,binRange=[0,1],extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
 bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtSS()
-
-mlljOS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineOS,binRange=[0,200], unit="GeV", extraTitles=["SR OS"],yspace=1.8,outputSuffix="_OS")
+'''
+mlljOS = Plot("mllj_SR",mllj,combine=combineOS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["OS, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
 mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljOS()
 
-mlljSS = Plot("mllj_SR","m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}j#lower[-0.2]{#scale[0.8]{*}}}}",combine=combineSS,binRange=[0,200], unit="GeV", extraTitles=["SR SS"],yspace=1.8,outputSuffix="_SS")
+mlljSS = Plot("mllj_SR",mllj,combine=combineSS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["SS, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=2.0,outputSuffix="_SS")
 mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
 
+dROS = Plot("dR_SR",dR,combine=combineOS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["OS, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yRange=[1e3,1e9],outputSuffix="_OS",logy=True)
+dROS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
+dROS()
+
+dRSS = Plot("dR_SR",dR,combine=combineSS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["SS, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yRange=[1e3,1e9],outputSuffix="_SS",logy=True)
+dRSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
+dRSS()
 
 
 
 
-tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, boosted"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
 
-tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, extraTitles=["SR OS, resolved"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_OS()
 
-tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, boosted"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, rebin=5, extraTitles=["SS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_SS()
 
-tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, extraTitles=["SR SS, resolved"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, rebin=5, extraTitles=["SS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_SS()
 
-tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, extraTitles=["CR, boosted"],yspace=1.5,showData=True)
+tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
 tagger_CR_boosted()
 
-tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, extraTitles=["CR, resolved"],yspace=1.5,showData=True)
+tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
 tagger_CR_resolved()
 
 '''

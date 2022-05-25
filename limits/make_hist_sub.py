@@ -55,11 +55,12 @@ for year in years:
         f.write("date\n")
         f.write('eval "$(/vols/cms/$USER/miniconda3/bin/conda shell.bash hook)"; conda activate hnl\n')
         f.write("JOBS=(")
+        '''
         for proc in procsbkg:
             for region in regions:
                 for category in categories:
                     f.write(f'"python -u make_hists.py --proc {proc} --category {category} --region {region} --year {year} "\n')
-        
+        '''
         for proc in procsHNL:
             for region in regions : 
                 for category in categories:
