@@ -245,8 +245,8 @@ parser.add_argument("--region", default="D")
 #parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
 #parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
 
-parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/13Dec20")
-parser.add_argument("--output_path", default="/vols/cms/mkomm/HNL/histo/limits/hists")
+parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/preapproval")
+parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
 
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
@@ -347,12 +347,29 @@ else:
         process.Add(sample)
 
 # Event weights: MC only
-
 if year=="2016":
-    fractionThresPromptBoosted = 3.
-else:
-    fractionThresPromptBoosted = 2.
 
+   if category_name == "mumu_OS":
+    fractionThresPromptBoosted = 3.
+    fractionThresDisplacedBoosted = 3.
+   else : 
+    fractionThresPromptBoosted = 3.
+    fractionThresDisplacedBoosted = 4.
+
+elif year == "2017":
+   if category_name == "mumu_OS":
+    fractionThresPromptBoosted = 2.
+    fractionThresDisplacedBoosted = 2.
+   else :
+    fractionThresPromptBoosted = 2.
+    fractionThresDisplacedBoosted = 4.
+else : 
+    if category_name == "mumu_OS":
+      fractionThresPromptBoosted = 2.
+      fractionThresDisplacedBoosted = 2.
+    else : 
+      fractionThresPromptBoosted = 2.
+      fractionThresDisplacedBoosted = 4.
 if isMC:
     for syst, abrv in systematics_rates.items():
         for variation in ["Up", "Down"]:

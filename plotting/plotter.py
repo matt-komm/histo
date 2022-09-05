@@ -67,11 +67,11 @@ def find_xsec(path, xsecs):
 processes = []
 
 text_dict = {
+             "topbkg": "t#bar{t}/single-t",
              "wjets": "W+jets",
              "dyjets": "Z/#gamma*+jets",
-             "vgamma": "V#gamma*+jets",
              "qcd": "Multijet",
-             "topbkg": "t#bar{t}/single-t",
+             "vgamma": "V#gamma*+jets",
              "muon": "muon",
              "electron": "electron",
              "data": "Data",
@@ -79,9 +79,10 @@ text_dict = {
 
 if "SR" in category:
     #blinding
-    #text_dict["HNL_majorana_all_ctau1p0e02_massHNL4p5_Vall1p016e-03"] = "m_{N} = 4.5 GeV, c#tau_{0} = 10 cm, V_{e}=V_{#mu}"
-    text_dict["HNL_majorana_pt20_ctau1p0e-01_massHNL12p0_Vall2p314e-03"] = "m_{N} = 12 GeV, c\\tau_{0} = 0.1 mm, V_{e}=V_{\\mu} (x100)"
-    text_dict["HNL_majorana_pt20_ctau1p0e03_massHNL2p0_Vall2p871e-03"] = "m_{N} = 2 GeV, c\\tau_{0} = 1 m, V_{e}=V_{\\mu} (x100)"
+    text_dict["HNL_majorana_pt20_ctau1p0e02_massHNL4p5_Vall1p016e-03"] = "m_{N} = 4.5 GeV, c#tau_{0} = 10 cm, V_{e}=V_{\\mu} (x100)"
+    text_dict["HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03"] ="m_{N} = 10 GeV, c#tau_{0} = 1 mm, V_{e}=V_{\\mu} (x100)"
+    #text_dict["HNL_majorana_pt20_ctau1p0e-01_massHNL12p0_Vall2p314e-03"] = "m_{N} = 12 GeV, c\\tau_{0} = 0.1 mm, V_{e}=V_{\\mu} (x100)"
+    #text_dict["HNL_majorana_pt20_ctau1p0e03_massHNL2p0_Vall2p871e-03"] = "m_{N} = 2 GeV, c\\tau_{0} = 1 m, V_{e}=V_{\\mu} (x100)"
     text_dict.pop("data")
     text_dict.pop("muon")
     text_dict.pop("electron")
@@ -99,8 +100,11 @@ for process_name in text_dict.keys():
             process_name = "data"
             isMC = False
 
-    if "HNL" in process_name:
+    if "HNL_majorana_pt20_ctau1p0e02_massHNL4p5" in process_name:
         process = Process("HNL", text_dict[process_name], linecolor='#bd0000')
+        process.Add(Sample(process_name, ntuple_path, ["{}-{}".format(process_name, year)], year=year, limits=False, cut=weight))
+    elif "HNL_majorana_pt20_ctau1p0e00_massHNL10p0" in process_name:
+        process = Process("HNL", text_dict[process_name], linecolor='#0B0B0B')
         process.Add(Sample(process_name, ntuple_path, ["{}-{}".format(process_name, year)], year=year, limits=False, cut=weight))
 
     else:
@@ -127,6 +131,7 @@ for process in processes:
             isData = True
         else:
             isData = False
+            
         hist = process.Histo1D(variable.args, varname.replace("-", "m").replace("(","_").replace(")","_").replace("/", "over"))
         variable.Add(hist, process.title, isSignal=False, isData=isData)
 

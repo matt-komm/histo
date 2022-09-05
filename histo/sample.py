@@ -68,9 +68,9 @@ class Sample:
         if cut is not None:
             self.rdf = self.rdf.Define("sample_cut", cut)
             self.rdf = self.rdf.Filter("sample_cut")
-        selected = self.rdf.Count().GetValue()
+        #selected = self.rdf.Count().GetValue()
 
-        print("RDF {} has entries {}/{}".format(name, selected, count))
+        #print("RDF {} has entries {}/{}".format(name, selected, count))
 
         if self.isMC:
             if "HNL" in name:
@@ -92,7 +92,7 @@ class Sample:
                 tightMuons_weight_id_nominal*tightElectrons_weight_id_nominal*puweight_nominal*genweight*\
                 tightElectrons_weight_reco_nominal*hnlJet_track_weight_nominal*lepton2_track_nominal\
                 *{lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
-            #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_nominal")
+            #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
 
             if "HNL" in name:
                 for coupling in range(1, 68):

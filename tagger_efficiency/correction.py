@@ -41,11 +41,11 @@ for year in ["2016", "2017", "2018"]:
 
     x = np.log10(np.geomspace(centers_mu[0], centers_mu[-1]))
     log_centers = np.log10(centers)
-
     def fitfunc(p, x):
         y = np.piecewise(x, [x < p[0], x >= p[0]],
                         [lambda x:p[2]*x + p[1]-p[2]*p[0], lambda x:p[3]*x + p[1]-p[3]*p[0]])
         return y
+        
     errfunc = lambda p, x, y, err: (y - fitfunc(p, x)) / err
     pinit = [-1.5,  1,  0.1, -0.1]
 
@@ -65,8 +65,8 @@ for year in ["2016", "2017", "2018"]:
     pstd = np.std(bootstrap_parameters, axis=0)
     cov = np.cov(bootstrap_parameters.T)
 
-    print(pfinal, pstd)
-    print(cov)
+    #print(pfinal, pstd)
+    #print(cov)
 
     preds = fitfunc(pfinal, log_centers)
     residuals = np.divide((preds - ratios) ** 2, errors)
