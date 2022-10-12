@@ -23,3 +23,4 @@ for year in "${years[@]}"; do
     #rm hists_merged2/${year}.root
     hadd -f hists_merged/${year}.root hists_merged/*_${year}.root
 done
+
