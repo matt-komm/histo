@@ -219,7 +219,7 @@ def makeHistFromFolder(folder,treeName,var,weight,binning):
 plotCfgs ={
     "tagger_CR_boosted":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}<0.4)*({mll}>80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),met=metVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({dR}<0.4)*({mll}>80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),met=metVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,1,101),
         "signals": {
             #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
@@ -231,7 +231,7 @@ plotCfgs ={
     
     "tagger_CR_resolved":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}>0.4)*({dR}<1.3)*({mll}>80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),met=metVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({dR}>0.4)*({dR}<1.3)*({mll}>80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),met=metVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,1,101),
         "signals": {
             #"HNL_dirac_pt20_ctau1p0e00_massHNL10p0_Vall1p664e-03": {
@@ -243,7 +243,7 @@ plotCfgs ={
     
     "tagger_SR_boosted":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}<0.4)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({dR}<0.4)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,1,101),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
@@ -264,7 +264,7 @@ plotCfgs ={
     
     "tagger_SR_resolved":{
         "var": taggerScore(args.syst),
-        "cut": "({dR}>0.4)*({dR}<1.3)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({dR}>0.4)*({dR}<1.3)*({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,1,101),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
@@ -307,7 +307,7 @@ plotCfgs ={
     
     "mllj_SR":{
         "var": mlljVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,300,301),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
@@ -328,7 +328,7 @@ plotCfgs ={
     
     "dR_SR":{
         "var": dRVar(args.syst),
-        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)*({jlFrac}<4.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
+        "cut": "({mll}>20.)*({mll}<80.)*({njets}>0)*({njets}<5)*({met}<60.)".format(dR=dRVar(args.syst),mll=mllVar(args.syst),met=metVar(args.syst),njets=njetsVar(args.syst),nfwdjets=nfwdjetsVar(args.syst),jlFrac=jlFracVar(args.syst)) ,
         "binning": np.linspace(0,1.3,131),
         "signals": {
             "HNL_dirac_pt20_ctau1p0e02_massHNL4p5_Vall1p438e-03": {
