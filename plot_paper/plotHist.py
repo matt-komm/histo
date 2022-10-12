@@ -96,7 +96,7 @@ class Plot():
         header="(ee,#kern[-0.5]{ }e#mu,#kern[-0.5]{ }#mue,#kern[-0.5]{ }#mu#mu)#kern[-0.2]{ }+#kern[-0.2]{ }jets",
         procs = ['topbkg','wjets','dyjets','vgamma','nonisoqcd'],
         showData=True,
-        path='/vols/cms/mkomm/HNL/histo/plot_paper/hists/hist'
+        path='/vols/cms/mkomm/HNL/histo/plot_paper/hists_met/hist'
     ):
         self.plot = plot
         self.title = title
@@ -182,6 +182,7 @@ class Plot():
         mcHistDict['nonisoqcd'].Scale(mcHistDict['qcd'].Integral()/mcHistDict['nonisoqcd'].Integral())
         
         smooth(mcHistDict['qcd'],0.2,5)
+        #smooth(mcHistDict['nonisoqcd'],0.2,5)
         
         if self.rebin>1:
             for hist in mcHistDict.values():
@@ -590,6 +591,7 @@ class Plot():
                 
         
         cv.Update()      
+        cv.Print(self.plot+self.outputSuffix+".png")
         cv.Print(self.plot+self.outputSuffix+".pdf")
         
         pPreliminary=ROOT.TPaveText(cvxmin+0.025+0.09,cvymax-0.025,cvxmin+0.025+0.09,cvymax-0.025,"NDC")
@@ -649,26 +651,26 @@ dRSS()
 
 
 
-tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["OS, boosted, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
 
-tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
+tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["OS, resolved, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_OS()
 
-tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, rebin=5, extraTitles=["SS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["SS, boosted, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_SS()
 
-tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, rebin=5, extraTitles=["SS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
+tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["SS, resolved, 20#kern[-0.2]{ }<#kern[-0.2]{ }"+mll+"#kern[-0.2]{ }<#kern[-0.2]{ }80 GeV"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_SS()
 
-tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, "+dR+"#kern[-0.2]{ }<#kern[-0.2]{ }0.4, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
+tagger_CR_boosted = Plot("tagger_CR_boosted",pj,binRange=[0,1],logy=True, rebin=10, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, boosted, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
 tagger_CR_boosted()
 
-tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, rebin=5, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, "+dR+"#kern[-0.2]{ }>#kern[-0.2]{ }0.4, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
+tagger_CR_resolved = Plot("tagger_CR_resolved",pj,binRange=[0,1],logy=True, rebin=10, extraTitles=["OS#kern[-0.2]{ }+#kern[-0.2]{ }SS, resolved, "+mll+"#kern[-0.2]{ }>#kern[-0.2]{ }80 GeV"],yspace=1.7,showData=True)
 tagger_CR_resolved()
 
 '''
