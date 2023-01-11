@@ -619,7 +619,7 @@ plj = "P#lower[0.3]{#scale[0.7]{#font[12]{l}}}#kern[-0.5]{ }("+jSym+")"
 pj = "P#lower[0.3]{#scale[0.7]{q,#kern[-0.7]{ }#font[12]{l}}}#kern[-0.5]{ }("+jSym+")"
 
 mll = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}}}"
-mllj = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}jSym}}"
+mllj = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}"+jSym+"}}"
 
 dR = "#Delta#kern[-0.25]{ }R(#font[12]{l}#lower[0.2]{#scale[0.8]{2}},#kern[-0.2]{ }"+jSym+")"
 
