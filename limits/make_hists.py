@@ -1,5 +1,6 @@
 import ROOT
 import os
+import sys
 import yaml
 import json
 import argparse
@@ -32,7 +33,7 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
         hist_limits.GetXaxis().SetBinLabel(index_new, category)
 
     if isMC:
-        remove_neg_entries(hist_limits)
+        fill_zero_bins(hist_limits)
     hist_limits.SetTitle(name)
     hist_limits.SetName(name)
     hist_limits.SetDirectory(root_file)
@@ -60,6 +61,12 @@ def remove_neg_entries(hist: ROOT.TH1D):
                 hist.SetBinError(ibin+1,10**-4)
         #print "bin%2i, %.1f+-%.1f (+-%.1f%%)"%(ibin,c,hist.GetBinError(ibin+1),100.*hist.GetBinError(ibin+1)/c if c>0 else -1)
 
+def fill_zero_bins(hist):
+    for ibin in range(hist.GetNbinsX()):
+        c = hist.GetBinContent(ibin+1)
+        if c<10**-12:
+            hist.SetBinContent(ibin+1,10**-12)
+            hist.SetBinError(ibin+1,10**-13)
 
 def mass_cut(delta_m:float=10., region:str="D", syst:str="nominal", single_lepton=False) -> str:
     """ 
@@ -242,9 +249,8 @@ parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
 
-#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
-#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
-
+#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
+#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
 parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
 parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
 
@@ -255,6 +261,8 @@ parser.add_argument("--suffix", dest="suffix", default='')
 
 args = parser.parse_args()
 print(vars(args))
+
+
 
 year = args.year
 proc = args.proc
@@ -267,6 +275,12 @@ isData = args.data
 isMC = not isData
 output_path = args.output_path
 suffix = args.suffix
+
+
+outputFile = os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root")
+if os.path.exists(outputFile):
+    print("output file exists -> skip")
+    sys.exit(0)
 
 with open("../config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
@@ -311,7 +325,6 @@ else:
 
 category_file = '../config/categories_2l_inclusive.json'
 threshold_file = f'../config/coordsBestThresholds_{year}.json'
-#threshold_file = f'../config/coordsBestThresholds_{year}.json'
 
 with open(category_file, 'r') as fp:
     categories_2l = json.load(fp)
@@ -349,27 +362,30 @@ else:
 # Event weights: MC only
 if year=="2016":
 
-   if category_name == "mumu_OS":
-    fractionThresPromptBoosted = 3.
-    fractionThresDisplacedBoosted = 3.
-   else : 
-    fractionThresPromptBoosted = 3.
-    fractionThresDisplacedBoosted = 4.
+    if category_name == "mumu_OS":
+        fractionThresPromptBoosted = 3.
+        fractionThresDisplacedBoosted = 3.
+    else: 
+        fractionThresPromptBoosted = 3.
+        fractionThresDisplacedBoosted = 4.
 
 elif year == "2017":
-   if category_name == "mumu_OS":
-    fractionThresPromptBoosted = 2.
-    fractionThresDisplacedBoosted = 2.
-   else :
-    fractionThresPromptBoosted = 2.
-    fractionThresDisplacedBoosted = 4.
-else : 
     if category_name == "mumu_OS":
-      fractionThresPromptBoosted = 2.
-      fractionThresDisplacedBoosted = 2.
-    else : 
-      fractionThresPromptBoosted = 2.
-      fractionThresDisplacedBoosted = 4.
+        fractionThresPromptBoosted = 2.
+        fractionThresDisplacedBoosted = 2.
+    else:
+        fractionThresPromptBoosted = 2.
+        fractionThresDisplacedBoosted = 4.
+elif year == "2018":
+    if category_name == "mumu_OS":
+        fractionThresPromptBoosted = 2.
+        fractionThresDisplacedBoosted = 2.
+    else: 
+        fractionThresPromptBoosted = 2.
+        fractionThresDisplacedBoosted = 4.
+
+print ("boosted prompt frac threshold: ",fractionThresPromptBoosted)
+
 if isMC:
     for syst, abrv in systematics_rates.items():
         for variation in ["Up", "Down"]:
@@ -449,7 +465,7 @@ while coupling < 67:
             histsList.append({"hist":hist, "name": "data", "isMC": False})
             #write_hist(hist, category_dict, "data", isMC=False)
 
-root_file = ROOT.TFile.Open(os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root"), "RECREATE")
+root_file = ROOT.TFile.Open(outputFile, "RECREATE")
 print("The category name and cut are:", category_name, category_cut)
 root_file.cd()
 root_file.mkdir(category_name+"_"+region)
