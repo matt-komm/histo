@@ -96,6 +96,7 @@ class Sample:
                 puweight_nominal*genweight*hnlJet_track_weight_nominal*lepton2_track_nominal*\
                 {lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
             
+
             #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
 
             if "HNL" in name:
