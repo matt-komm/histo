@@ -8,6 +8,10 @@ from histo import Process, Sample
 
 ROOT.gErrorIgnoreLevel = ROOT.kError
 
+
+EMPTY_BIN_FILL = 1e-7
+EMPTY_BIN_ERROR = 1e-8
+
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
     Make a new histogram for categorised events passing the cuts and write it to file
@@ -64,9 +68,9 @@ def remove_neg_entries(hist: ROOT.TH1D):
 def fill_zero_bins(hist):
     for ibin in range(hist.GetNbinsX()):
         c = hist.GetBinContent(ibin+1)
-        if c<10**-12:
-            hist.SetBinContent(ibin+1,10**-12)
-            hist.SetBinError(ibin+1,10**-13)
+        if c<EMPTY_BIN_FILL:
+            hist.SetBinContent(ibin+1,EMPTY_BIN_FILL)
+            hist.SetBinError(ibin+1,EMPTY_BIN_ERROR)
 
 def mass_cut(delta_m:float=10., region:str="D", syst:str="nominal", single_lepton=False) -> str:
     """ 
@@ -249,10 +253,10 @@ parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
 
-#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
-#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
-parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
-parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
+parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
+parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_test")
+#parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
+#parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
 
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
@@ -279,8 +283,38 @@ suffix = args.suffix
 
 outputFile = os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root")
 if os.path.exists(outputFile):
-    print("output file exists -> skip")
-    sys.exit(0)
+    outputExists = True
+    rootFile = ROOT.TFile(outputFile)
+    if (rootFile and rootFile.IsZombie()):
+        print ("ROOT file is zombie: ",outputFile)
+        outputExists = False
+    else:
+        print ("ROOT file not zombie: ",outputFile)
+
+    if (outputExists and not rootFile.Get(category_name+"_"+region)):
+        print ("category not found: ",category_name+"_"+region,outputFile)
+        outputExists = False
+    else:
+        print ("category found: ",category_name+"_"+region)
+    
+    if (outputExists and isMC and proc.find("HNL")>=0):
+        for coupling in args.couplings:
+            if not rootFile.Get(category_name+"_"+region+"/HNL_coupling_%i"%coupling):
+                outputExists = False
+                print ("HNL not found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling,outputFile)
+                break
+            else:
+                print ("HNL found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling)
+    if (outputExists and isData):
+        if not rootFile.Get(category_name+"_"+region+"/data"):
+            outputExists = False
+            print ("Data not found: ", category_name+"_"+region+"/data",outputFile)
+        else:
+            print ("Data found: ", category_name+"_"+region+"/data")
+    rootFile.Close()
+    if (outputExists):
+        print("output file exists -> skip")
+        sys.exit(0)
 
 with open("../config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
@@ -295,6 +329,7 @@ systematics_rates = {}
 systematics_rates["IsoMuTrigger_weight_trigger"] = "trigger"
 systematics_rates["tightMuons_weight_iso"] = "tight_muon_iso"
 systematics_rates["tightMuons_weight_id"] = "tight_muon_id"
+systematics_rates["tightMuons_weight_reco"] = "tight_muon_reco"
 systematics_rates["tightElectrons_weight_id"] = "tight_electron_id"
 systematics_rates["tightElectrons_weight_reco"] = "tight_electron_reco"
 systematics_rates["puweight"] = "pu"
@@ -306,9 +341,9 @@ systematics_rates["(nominal_dR_l2j>0.4)*1.+((nominal_dR_l2j<0.4)*subleadingLepto
 systematics_rates["pdf"] = "pdf"
 systematics_rates["scale_shapeonly"] = "scale"
 systematics_rates["looseMuons_weight_id"] = "loose_muon_id"
+systematics_rates["looseMuons_weight_reco"] = "loose_muon_reco"
 systematics_rates["looseElectrons_weight_id"] = "loose_electron_id"
 systematics_rates["lepton2_track"] = "resolvedLepton_track_reco"
-systematics_rates["looseMuons_weight_reco"] = "loose_muon_reco" 
 systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
 ####################################
 if len(args.couplings)==0:
@@ -470,6 +505,31 @@ print("The category name and cut are:", category_name, category_cut)
 root_file.cd()
 root_file.mkdir(category_name+"_"+region)
 root_file.cd(category_name+"_"+region)
+
+if "HNL" in proc:
+    for coupling in couplings:
+        histNominal = list(filter(lambda x: x['name']=="HNL_coupling_"+str(coupling), histsList))[0]['hist']
+        print (coupling)
+        for syst in list(systematics_rates.values())+systematics_shapes:
+            if syst=="nominal":
+                continue
+            histUp = list(filter(lambda x: x['name']=="HNL_coupling_"+str(coupling)+"_"+syst+str(year)+"Up", histsList))[0]['hist']
+            histDown = list(filter(lambda x: x['name']=="HNL_coupling_"+str(coupling)+"_"+syst+str(year)+"Down", histsList))[0]['hist']
+
+            for ibin in range(histNominal.GetNbinsX()):
+                c = histNominal.GetBinContent(ibin+1)
+                u = histUp.GetBinContent(ibin+1)
+                d = histDown.GetBinContent(ibin+1)
+                if c<2.*EMPTY_BIN_FILL:
+                    u = c
+                    d = c
+                else:
+                    if u<2.*EMPTY_BIN_FILL:
+                        u = c
+                    if d<2.*EMPTY_BIN_FILL:
+                        d = c
+                histUp.SetBinContent(ibin+1,u)
+                histDown.SetBinContent(ibin+1,d)
 
 for histDict in histsList:
     #histDict['hist'].SetDirectory(root_file)
