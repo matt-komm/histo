@@ -91,7 +91,7 @@ class Sample:
             self.rdf = self.rdf.Define("weightNominal", f"IsoMuTrigger_weight_trigger_nominal*\
                 tightMuons_weight_iso_nominal*tightMuons_weight_id_nominal*tightMuons_weight_reco_nominal*\
                 tightElectrons_weight_id_nominal*tightElectrons_weight_reco_nominal*\
-                looseMuons_weight_iso_nominal*looseMuons_weight_id_nominal*\
+                looseMuons_weight_reco_nominal*looseMuons_weight_id_nominal*\
                 looseElectrons_weight_id_nominal*\
                 puweight_nominal*genweight*hnlJet_track_weight_nominal*lepton2_track_nominal*\
                 {lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
