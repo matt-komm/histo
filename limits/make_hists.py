@@ -254,7 +254,7 @@ parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
 
 parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
-parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_test")
+parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
 #parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
 
