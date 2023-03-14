@@ -195,6 +195,7 @@ def make_hists(process, systematics_shapes, systematics_rates, cut_nominal, cate
 
         #print(syst, category_variable, cut, weight)
 
+        #print (category_variable,cut,weight)
         hist_nano = process.Histo1D((category_variable, category_variable, 6, 0.5, 6.5), category_variable, cut=cut, weight=weight)
         hist_nano = hist_nano.Clone()
         hist_nano.SetDirectory(0)
@@ -253,10 +254,15 @@ parser.add_argument("--proc", default="wjets")
 parser.add_argument("--category", default="mumu_OS")
 parser.add_argument("--region", default="D")
 
-parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
-parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
+#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/19Jan23")
+#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
 #parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
+#parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/24May20")
+#parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists")
+
+parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/09Mar23")
+parser.add_argument("--output_path", default="/vols/cms/mkomm/HNL/histo/limits/hists")
 
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
@@ -345,6 +351,9 @@ systematics_rates["looseMuons_weight_reco"] = "loose_muon_reco"
 systematics_rates["looseElectrons_weight_id"] = "loose_electron_id"
 systematics_rates["lepton2_track"] = "resolvedLepton_track_reco"
 systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
+
+systematics_rates = {}
+systematics_shapes = ["nominal"]
 ####################################
 if len(args.couplings)==0:
     # couplings to consider
@@ -384,8 +393,13 @@ dilepton_category_dict[6] = "q, dxysig>10"
 
 # Process configuration
 if "HNL" in proc:
-    process = Process("HNL", proc)
-    process.Add(Sample(proc, ntuple_path, ["{}-{}".format(proc, year)], year=year, limits=True))
+    if "_ntau_" in proc:
+        process = Process("HNL", proc)
+        for subprocess in subprocesses: 
+            process.Add(Sample(subprocess, ntuple_path, ["{}-{}".format(subprocess, year)], year=year, limits=True))
+    else:
+        process = Process("HNL", proc)
+        process.Add(Sample(proc, ntuple_path, ["{}-{}".format(proc, year)], year=year, limits=True))
 else:
     process = Process(proc, proc)
     subprocesses = subprocesses[int(year)]
@@ -393,6 +407,7 @@ else:
         print(sample_name)
         sample = Sample(sample_name, ntuple_path, sample_list, year=year, oneFile=oneFile, isMC=isMC)
         process.Add(sample)
+
 
 # Event weights: MC only
 if year=="2016":
@@ -505,7 +520,7 @@ print("The category name and cut are:", category_name, category_cut)
 root_file.cd()
 root_file.mkdir(category_name+"_"+region)
 root_file.cd(category_name+"_"+region)
-
+'''
 if "HNL" in proc:
     for coupling in couplings:
         histNominal = list(filter(lambda x: x['name']=="HNL_coupling_"+str(coupling), histsList))[0]['hist']
@@ -530,7 +545,7 @@ if "HNL" in proc:
                         d = c
                 histUp.SetBinContent(ibin+1,u)
                 histDown.SetBinContent(ibin+1,d)
-
+'''
 for histDict in histsList:
     #histDict['hist'].SetDirectory(root_file)
     write_hist(histDict['hist'], category_dict, histDict['name'], isMC=histDict['isMC'])
