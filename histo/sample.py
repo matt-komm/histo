@@ -99,7 +99,7 @@ class Sample:
                 looseMuons_weight_reco_nominal*looseMuons_weight_id_nominal*\
                 looseElectrons_weight_id_nominal*\
                 puweight_nominal*genweight*hnlJet_track_weight_nominal*lepton2_track_nominal*\
-                {lumi[year]}*1000.0*{xsec}/{self.sum_weight}")
+                {lumi[year]}*1000.0*{xsec}/{self.sum_weight}") #NB: weight will be 1. for HNL
             
 
             #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
@@ -114,7 +114,8 @@ class Sample:
                             weightNormSum = 1.0
                         self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"{filtereff}*weightNominal*LHEWeights_coupling_{coupling}/{weightNormSum}")
                     else:
-                        self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"weightNominal*LHEWeights_coupling_{coupling}/{self.sum_weightHNL[coupling]}")
+                        weightNormSum = self.yieldsHNL[name+"-"+str(year)]['LHEWeights_coupling_'+str(coupling)]
+                        self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"weightNominal*LHEWeights_coupling_{coupling}/{weightNormSum}")
 
         else:
             self.rdf = self.rdf.Define("weightNominal", "1")
