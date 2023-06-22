@@ -1,7 +1,7 @@
 n_lines=$(wc -l < ../config/procs.txt)
 years=(2016)
 #years=($1)
-histPath="hists_09Mar23"
+histPath="hists_14Jun20"
 echo "number of lines" $n_lines
 mkdir -p hists_merged
 

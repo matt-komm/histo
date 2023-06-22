@@ -19,20 +19,27 @@ nregions = len(regions)
 procsbkg = []
 procsHNL = []
 procsData = []
-years = ["2016"]#, "2017", "2018"]
+years = ["2016","2018"]#, "2017", "2018"]
 
 import yaml
 with open("../config/samples.yml") as samples_file:
     samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
 
 for l in samples_dict:
-    if ("HNL" in l) and ("ntau" in l):
-        procsHNL.append(l)
-    #elif l == "muon" or l == "electron": 
-    #    procsData.append(l)
+    
+        
+    if ("HNL" in l):
+        if l.find("HNL_majorana_all_ctau1p0e00_massHNL10p0_Vall1p177e-03")>=0:
+            procsHNL.append(l)
+        if l.find("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03")>=0:
+            procsHNL.append(l)
+        if l.find("HNL_majorana_ntau_ctau1p0e00_massHNL10p0_Vall1p177e-03")>=0:
+            procsHNL.append(l)
+    elif l == "muon" or l == "electron": 
+        procsData.append(l)
     else:
         continue
-        procsbkg.append(l)
+        #procsbkg.append(l)
 
 nprocsbkg = len(procsbkg)
 nprocsHNL = len(procsHNL)
@@ -70,7 +77,7 @@ for year in years:
         for proc in procsHNL:
             for region in regions : 
                 for category in categories:
-                    jobs.append(f'--proc {proc} --category {category} --region {region} --year {year} {optCoupling}')
+                    jobs.append(f'--proc {proc} --category {category} --region {region} --year {year} {optCoupling} --suffix _coupl'+str(couplingRange[0]))
     
     for proc in procsData:
         for region in regions:

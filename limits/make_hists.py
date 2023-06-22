@@ -258,8 +258,8 @@ parser.add_argument("--region", default="D")
 #parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
 #parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
-parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/09Mar23")
-parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_09Mar23")
+parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/14Jun20")
+parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_14Jun20")
 
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/09Mar23")
@@ -268,7 +268,7 @@ parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo
 parser.add_argument("--data", action="store_true", default=False)
 parser.add_argument("--test", action="store_true", dest="oneFile", default=False)
 parser.add_argument("--couplings", default=[], action='append', type=int, dest="couplings")
-parser.add_argument("--suffix", dest="suffix", default='')
+parser.add_argument("--suffix", dest="suffix", default=[], action='append')
 
 args = parser.parse_args()
 print(vars(args))
@@ -285,7 +285,7 @@ oneFile = args.oneFile
 isData = args.data
 isMC = not isData
 output_path = args.output_path
-suffix = args.suffix
+suffix = ''.join(map(str, args.suffix))
 
 
 outputFile = os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root")
