@@ -309,7 +309,7 @@ class Plot():
             print ("   %s: %.1f"%(sample,mcHistDictNominal[sample].Integral()))
         
         if self.unit!="":
-            xaxisTitle = self.title+" ("+self.unit+")"
+            xaxisTitle = self.title+"\\:\\mathrm{("+self.unit+")}"
             
             binwidth = mcHistSumNominal.GetBinWidth(1)
 
@@ -522,7 +522,7 @@ class Plot():
         cv.cd(1)
         
         axisRes=ROOT.TH2F(
-            "axisRes"+str(random.randint(0,99999)),";"+xaxisTitle+";Data/Pred.",
+            "axisRes"+str(random.randint(0,99999)),";;Data/Pred.",
             50,self.binRange[0],self.binRange[-1],50,self.resRange[0],self.resRange[1])#0.55,1.45)#0.1,1.9)
         axisRes.GetYaxis().SetNdivisions(406)
         axisRes.GetXaxis().SetTickLength(0.020/(1-cv.GetPad(1).GetLeftMargin()-cv.GetPad(1).GetRightMargin()))
@@ -537,14 +537,14 @@ class Plot():
         text.SetNDC(True)
         text.DrawMathText(cvxmax,cvymin-0.1, "blabal \\ell")
         '''
-        '''
+        
         xaxisTitlePave = ROOT.TMathText()
         xaxisTitlePave.SetNDC()
         xaxisTitlePave.SetTextFont(43)
         xaxisTitlePave.SetTextAlign(31);
         xaxisTitlePave.SetTextSize(32);
-        xaxisTitlePave.DrawMathText(cvxmax,0.03,)
-        '''
+        xaxisTitlePave.DrawMathText(cvxmax,0.03,xaxisTitle)
+        
         
         if self.showData:
             dataRes = dataHist.Clone(dataHist.GetName()+str(random.random())+"res")
@@ -597,8 +597,8 @@ class Plot():
         hidePave.Draw("Same")
 
         cv.Update()      
-        cv.Print(self.plot+self.outputSuffix+".png")
-        cv.Print(self.plot+self.outputSuffix+".pdf")
+        cv.Print(self.plot+self.outputSuffix+".eps")
+        #cv.Print(self.plot+self.outputSuffix+".pdf")
         '''
         pPreliminary=ROOT.TPaveText(cvxmin+0.025+0.09,cvymax-0.025,cvxmin+0.025+0.09,cvymax-0.025,"NDC")
         pPreliminary.SetFillColor(ROOT.kWhite)
@@ -619,22 +619,26 @@ class Plot():
             self.plot+self.outputSuffix+".eps"
         ))
         '''
+        
+        os.system("epstopdf --outfile "+self.plot+self.outputSuffix+".pdf "+self.plot+self.outputSuffix+".eps")
+        
 jSym = "j#lower[-0.2]{#scale[0.8]{*}}"
 
 
 pqj = "P#lower[0.3]{#scale[0.7]{q}}#kern[-0.5]{ }("+jSym+")"
 plj = "P#lower[0.3]{#scale[0.7]{#font[12]{l}}}#kern[-0.5]{ }("+jSym+")"
-pj = "P#lower[0.3]{#scale[0.7]{q,#kern[-0.7]{ }#font[12]{l}}}#kern[-0.5]{ }("+jSym+")"
 
-mll = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}}}"
 mllj = "m#lower[0.3]{#scale[0.7]{#kern[-0.6]{ }#font[12]{ll}"+jSym+"}}"
 
 dR = "#Delta#kern[-0.25]{ }R(#font[12]{l}#lower[0.2]{#scale[0.8]{2}},#kern[-0.2]{ }"+jSym+")"
 
 
-#jSym = "\\mathrm{j^{*}}"
+jSym = "\\mathrm{j^{*}}"
 
-#mllj = "\\mathrm{m}_{\\ell \\ell "+jSym+"}"
+
+pqj = "\\mathrm{P}_{\\mathrm{q}}("+jSym+")"
+plj = "\\mathrm{P}_{\\ell}("+jSym+")"
+mllj = "\\mathrm{m}_{\\ell\\!\\ell "+jSym+"}"
 
 '''
 bdtOS = Plot("bdt_SR","BDT score",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
@@ -654,7 +658,7 @@ mlljSS = Plot("mllj_SR",mllj,combine=combineSS,binRange=[30,200], unit="GeV", re
 mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
 
-
+'''
 dROS = Plot("dR_SR",dR,combine=combineOS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, OS leptons"],yRange=[1e3,1e9],outputSuffix="_OS",logy=True)
 dROS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 dROS()
@@ -662,30 +666,30 @@ dROS()
 dRSS = Plot("dR_SR",dR,combine=combineSS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, SS leptons"],yRange=[1e3,1e9],outputSuffix="_SS",logy=True)
 dRSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 dRSS()
+'''
 
 
 
-
-tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, boosted "+jSym],yspace=1.8,outputSuffix="_OS")
+tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, boosted"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
 
-tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, resolved "+jSym],yspace=1.8,outputSuffix="_OS")
+tagger_SR_resolved_OS = Plot("tagger_SR_resolved",pqj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, resolved"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_resolved_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_OS()
 
-tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, SS leptons, boosted "+jSym],yspace=1.8,outputSuffix="_SS")
+tagger_SR_boosted_SS = Plot("tagger_SR_boosted",plj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, SS leptons, boosted"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_boosted_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_SS()
 
-tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, SS leptons, resolved "+jSym],yspace=1.8,outputSuffix="_SS")
+tagger_SR_resolved_SS = Plot("tagger_SR_resolved",pqj,combine=combineSS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, SS leptons, resolved"],yspace=1.8,outputSuffix="_SS")
 tagger_SR_resolved_SS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_resolved_SS()
 
-tagger_CR_boosted = Plot("tagger_CR_boosted",plj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, boosted "+jSym],yspace=1.7,showData=True)
+tagger_CR_boosted = Plot("tagger_CR_boosted",plj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, boosted"],yspace=1.7,showData=True)
 tagger_CR_boosted()
 
-tagger_CR_resolved = Plot("tagger_CR_resolved",pqj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, resolved "+jSym],yspace=1.7,showData=True)
+tagger_CR_resolved = Plot("tagger_CR_resolved",pqj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, resolved"],yspace=1.7,showData=True)
 tagger_CR_resolved()
 
 
