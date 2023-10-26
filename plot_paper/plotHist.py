@@ -612,15 +612,15 @@ class Plot():
         cv.Update()      
         cv.Print(self.plot+self.outputSuffix+"_PAS.pdf")
         '''
-        '''
-        os.system("gs -sDEVICE=pdfwrite -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
+        
+        os.system("gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dNoOutputFonts -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
             7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
             self.plot+self.outputSuffix+".pdf",
             self.plot+self.outputSuffix+".eps"
         ))
-        '''
         
-        os.system("epstopdf --outfile "+self.plot+self.outputSuffix+".pdf "+self.plot+self.outputSuffix+".eps")
+        
+        #os.system("epstopdf --outfile "+self.plot+self.outputSuffix+".pdf "+self.plot+self.outputSuffix+".eps")
         
 jSym = "j#lower[-0.2]{#scale[0.8]{*}}"
 
