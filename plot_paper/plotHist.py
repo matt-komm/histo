@@ -612,14 +612,26 @@ class Plot():
         cv.Update()      
         cv.Print(self.plot+self.outputSuffix+"_PAS.pdf")
         '''
-        
+        '''
         os.system("gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dNoOutputFonts -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
             7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
             self.plot+self.outputSuffix+".pdf",
             self.plot+self.outputSuffix+".eps"
         ))
         
-        
+        os.system("gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dPDFSETTINGS=/prepress -dDEVICEWIDTHPOINTS=%i -dDEVICEHEIGHTPOINTS=%i -dPDFFitPage -o %s %s"%(
+            7.0*1.35*28.3465,6.5*1.35*28.3465, #cm to points
+            self.plot+self.outputSuffix+".pdf",
+            self.plot+self.outputSuffix+".eps"
+        ))
+        '''
+        os.system("sed -i \"s/STIXGeneral-Italic/STIXXGeneral-Italic/g\" %s"%(
+            self.plot+self.outputSuffix+".eps"
+        ))
+        os.system("ps2pdf -dPDFSETTINGS=/prepress -dEPSCrop %s %s"%(
+            self.plot+self.outputSuffix+".eps",
+            self.plot+self.outputSuffix+".pdf"
+        ))
         #os.system("epstopdf --outfile "+self.plot+self.outputSuffix+".pdf "+self.plot+self.outputSuffix+".eps")
         
 jSym = "j#lower[-0.2]{#scale[0.8]{*}}"
