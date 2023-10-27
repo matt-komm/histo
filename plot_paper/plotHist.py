@@ -652,6 +652,8 @@ pqj = "\\mathrm{P}_{\\mathrm{q}}("+jSym+")"
 plj = "\\mathrm{P}_{\\ell}("+jSym+")"
 mllj = "\\mathrm{m}_{\\ell\\!\\ell "+jSym+"}"
 
+dR = "\\Delta\\mathrm{R}(\\ell_{\\!2},"+jSym+")"
+
 '''
 bdtOS = Plot("bdt_SR","BDT score",combine=combineOS,binRange=[0,1],extraTitles=["SR OS"],yspace=1.7,outputSuffix="_OS")
 bdtOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
@@ -661,7 +663,7 @@ bdtSS = Plot("bdt_SR","BDT score",combine=combineSS,binRange=[0,1],extraTitles=[
 bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtSS()
 '''
-
+'''
 mlljOS = Plot("mllj_SR",mllj,combine=combineOS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["#font[62]{SR}, OS leptons"],yspace=1.8,resRange=[0.8,1.2],outputSuffix="_OS")
 mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljOS()
@@ -669,19 +671,19 @@ mlljOS()
 mlljSS = Plot("mllj_SR",mllj,combine=combineSS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["#font[62]{SR}, SS leptons"],yspace=2.0,resRange=[0.8,1.2],outputSuffix="_SS")
 mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
-
 '''
-dROS = Plot("dR_SR",dR,combine=combineOS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, OS leptons"],yRange=[1e3,1e9],outputSuffix="_OS",logy=True)
+
+dROS = Plot("dR_SR",dR,combine=combineOS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, OS leptons"],yRange=[1e3,4e10],outputSuffix="_OS",logy=True)
 dROS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 dROS()
 
-dRSS = Plot("dR_SR",dR,combine=combineSS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, SS leptons"],yRange=[1e3,1e9],outputSuffix="_SS",logy=True)
+dRSS = Plot("dR_SR",dR,combine=combineSS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, SS leptons"],yRange=[1e3,4e10],outputSuffix="_SS",logy=True)
 dRSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 dRSS()
+
+
+
 '''
-
-
-
 tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, boosted"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
@@ -703,7 +705,7 @@ tagger_CR_boosted()
 
 tagger_CR_resolved = Plot("tagger_CR_resolved",pqj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, resolved"],yspace=1.7,showData=True)
 tagger_CR_resolved()
-
+'''
 
 
 '''
