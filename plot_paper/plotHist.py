@@ -3,6 +3,7 @@ import math
 import random
 import os
 import sys
+import ctypes
 import numpy as np
 from histo import style
 
@@ -17,15 +18,31 @@ def newColorRGB(red,green,blue):
     colors.append(color)
     return color
 
+def HLS2RGB(hue,light,sat):
+    r, g, b = ctypes.c_int(), ctypes.c_int(), ctypes.c_int()
+    ROOT.TColor.HLS2RGB(
+        int(round(hue*255.)),
+        int(round(light*255.)),
+        int(round(sat*255.)),
+        r,g,b
+    )
+    return r.value/255.,g.value/255.,b.value/255.
+    
+def newColorHLS(hue,light,sat):
+    r,g,b = HLS2RGB(hue,light,sat)
+    return newColorRGB(r,g,b)
+
 newColorRGB.colorindex = 301
+
+
 
 mcStyles = {
     'topbkg': {'legend': "t#bar{t} / t", 'fill': newColorRGB(1.,0.8,0.0)},
     'wjets': {'legend': "W+jets", 'fill': newColorRGB(0.33,0.75,0.35)},
-    'dyjets':{'legend': "Z/#gamma*+jets", 'fill': newColorRGB(0.3,0.75,0.95)},
+    'dyjets':{'legend': "Z/#gamma*+jets", 'fill': newColorRGB(0.42,0.88,0.96)},
     'vgamma': {'legend': "V#gamma*+jets", 'fill': newColorRGB(0.73,0.25,0.96)},
-    'qcd': {'legend': "Multijet", 'fill': newColorRGB(0.85,0.85,0.85)},
-    'nonisoqcd': {'legend': "Multijet", 'fill': newColorRGB(0.85,0.85,0.85)}
+    'qcd': {'legend': "Multijet", 'fill': newColorRGB(0.95,0.85,0.1)},
+    'nonisoqcd': {'legend': "Multijet", 'fill': newColorRGB(0.88,0.88,0.88)}#newColorHLS(0.92,0.8,0.55)}#newColorRGB(0.93,0.93,0.93)}#newColorHLS(0.05,0.5,0.94)}
 }
 
 for name,mcStyle in mcStyles.items():
@@ -233,7 +250,7 @@ class Plot():
                 hist = self.combine(hist)
                 hist.SetDirectory(0)
                 hist.SetMarkerStyle(20)
-                hist.SetMarkerSize(1.5)
+                hist.SetMarkerSize(1.2)
                 hist.SetLineColor(ROOT.kBlack)
                 hist.SetMarkerColor(ROOT.kBlack)
                 if dataHistSum==None:
@@ -259,7 +276,7 @@ class Plot():
 
         cvxmin=0.13
         cvxmax=0.96
-        cvymin=0.13
+        cvymin=0.11
         cvymax=0.92
         resHeight=0.35
 
@@ -378,6 +395,9 @@ class Plot():
         mcStackNominal.Draw("HISTSame")
 
         rootObj=[]
+        
+        uncLine = newColorHLS(0.62,0.6,0.45)#newColorRGB(0.6,0.6,0.6)#newColorHLS(0.63,0.65,0.35)
+        uncFill = newColorHLS(0.62,0.68,0.45)#newColorRGB(0.75,0.75,0.75)#newColorHLS(0.63,0.73,0.5)
 
         for ibin in range(mcHistSumNominal.GetNbinsX()):
             c = mcHistSumNominal.GetBinCenter(ibin+1)
@@ -389,8 +409,8 @@ class Plot():
             if m>0.0:
                 box = ROOT.TBox(c-0.5*w,m-err,c+0.5*w,m+err)
                 box.SetFillStyle(3345)
-                box.SetLineColor(ROOT.kGray+1)
-                box.SetFillColor(ROOT.kGray)
+                box.SetLineColor(uncLine.GetNumber())
+                box.SetFillColor(uncFill.GetNumber())
                 box.SetLineWidth(2)
                 rootObj.append(box)
                 box.Draw("SameF")
@@ -472,7 +492,7 @@ class Plot():
             legend.SetTextFont(43)
             legend.SetTextSize(25)
             
-            legend.AddEntry(dataHist,"Data","P")
+            legend.AddEntry(dataHist,"Data","PE")
             for sample in reversed(self.procs):
                 legend.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
                    
@@ -492,7 +512,7 @@ class Plot():
             legend2.SetTextFont(43)
             legend2.SetTextSize(25)
         
-            legend1.AddEntry(dataHist,"Data","P")
+            legend1.AddEntry(dataHist,"Data","PE")
             for sample in reversed(self.procs[2:]):
                 legend1.AddEntry(mcHistDictNominal[sample],mcStyles[sample]['legend'],"F")
             for sample in reversed(self.procs[:2]):
@@ -565,15 +585,15 @@ class Plot():
                 h = min(mcHistSumNominal.GetBinError(ibin+1)/m,0.999-self.resRange[0])
                 box = ROOT.TBox(c-0.5*w,1-h,c+0.5*w,1+h)
                 box.SetFillStyle(3345)
-                box.SetLineColor(ROOT.kGray+1)
-                box.SetFillColor(ROOT.kGray)
+                box.SetLineColor(uncLine.GetNumber())
+                box.SetFillColor(uncFill.GetNumber())
                 box.SetLineWidth(2)
                 rootObj.append(box)
                 box.Draw("SameF")
                 box2 = ROOT.TBox(c-0.5*w,1-h,c+0.5*w,1+h)
                 box2.SetFillStyle(0)
-                box2.SetLineColor(ROOT.kGray+1)
-                box2.SetFillColor(ROOT.kGray)
+                box2.SetLineColor(uncLine.GetNumber())
+                box2.SetFillColor(uncFill.GetNumber())
                 box2.SetLineWidth(2)
                 rootObj.append(box2)
                 box2.Draw("SameL")
@@ -663,7 +683,7 @@ bdtSS = Plot("bdt_SR","BDT score",combine=combineSS,binRange=[0,1],extraTitles=[
 bdtSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 bdtSS()
 '''
-'''
+
 mlljOS = Plot("mllj_SR",mllj,combine=combineOS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["#font[62]{SR}, OS leptons"],yspace=1.8,resRange=[0.8,1.2],outputSuffix="_OS")
 mlljOS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljOS()
@@ -671,7 +691,7 @@ mlljOS()
 mlljSS = Plot("mllj_SR",mllj,combine=combineSS,binRange=[30,200], unit="GeV", rebin=5, extraTitles=["#font[62]{SR}, SS leptons"],yspace=2.0,resRange=[0.8,1.2],outputSuffix="_SS")
 mlljSS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e4, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{4}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 mlljSS()
-'''
+
 
 dROS = Plot("dR_SR",dR,combine=combineOS,binRange=[0,1.3], rebin=5, unit="", extraTitles=["#font[62]{SR}, OS leptons"],yRange=[1e3,4e10],outputSuffix="_OS",logy=True)
 dROS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e5, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{5}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
@@ -683,7 +703,7 @@ dRSS()
 
 
 
-'''
+
 tagger_SR_boosted_OS = Plot("tagger_SR_boosted",plj,combine=combineOS,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{SR}, OS leptons, boosted"],yspace=1.8,outputSuffix="_OS")
 tagger_SR_boosted_OS.addSignal("HNL_majorana_pt20_ctau1p0e00_massHNL10p0_Vall1p177e-03_all", 1e2, ["Majorana HNL (#times10#lower[-0.7]{#scale[0.7]{2}})","m#lower[0.3]{#scale[0.7]{N}}#kern[-0.2]{ }=#kern[-0.25]{ }10#kern[-0.1]{ }GeV, c#tau#lower[0.3]{#scale[0.7]{0}}#kern[-0.2]{ }=#kern[-0.25]{ }1#kern[-0.1]{ }mm"], style=[3,2,ROOT.kRed+1])
 tagger_SR_boosted_OS()
@@ -705,7 +725,7 @@ tagger_CR_boosted()
 
 tagger_CR_resolved = Plot("tagger_CR_resolved",pqj,binRange=[0,1],logy=True, rebin=10, extraTitles=["#font[62]{CR}, OS#kern[-0.2]{ }+#kern[-0.2]{ }SS leptons, resolved"],yspace=1.7,showData=True)
 tagger_CR_resolved()
-'''
+
 
 
 '''
