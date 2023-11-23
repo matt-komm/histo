@@ -22,6 +22,8 @@ class Sample:
                 self.yieldsHNL = json.load(json_file)        
             with open(os.path.join("/vols/cms/LLP/yields_230309", year, "eventyieldsHNL.json")) as json_file:
                 self.yieldsHNL.update(json.load(json_file))
+            with open(os.path.join("/vols/cms/LLP/yields_230813", year, "eventyieldsHNL.json")) as json_file:
+                self.yieldsHNL.update(json.load(json_file))
 
             with open("/vols/cms/LLP/filterTable.json") as json_file:
                 gen_filter = json.load(json_file)
@@ -40,6 +42,9 @@ class Sample:
                 self.yieldsHNL = json.load(json_file)      
             with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_230309", year, "eventyieldsHNL.json")) as json_file:
                 self.yieldsHNL.update(json.load(json_file))  
+            with open(os.path.join("/nfs/dust/cms/user/mkomm/HNL/LLP/yields_230813", year, "eventyieldsHNL.json")) as json_file:
+                self.yieldsHNL.update(json.load(json_file)) 
+                
             with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterTable.json") as json_file:
                 gen_filter = json.load(json_file)
             with open("/nfs/dust/cms/user/mkomm/HNL/LLP/filterLPairTable.json") as json_file:
@@ -94,6 +99,9 @@ class Sample:
             else:
                 xsec = find_xsec(path, xsecs)
 
+            print ('xsec',xsec)
+            print ('sum',self.sum_weight)
+
             #*\
             self.rdf = self.rdf.Define("weightNominal", f"IsoMuTrigger_weight_trigger_nominal*\
                 tightMuons_weight_iso_nominal*tightMuons_weight_id_nominal*tightMuons_weight_reco_nominal*\
@@ -107,16 +115,20 @@ class Sample:
             #self.rdf = self.rdf.Define("weightNominalCorrectedUp", "weightNominal*hnlJet_track_weight_adapted_nominal")
 
             if "HNL" in name:
+                print (name)
                 for coupling in range(1, 68):
                     if ("pt20" in name) or ("ntau" in name):
                         filtereff = gen_filter[name]['weights'][str(coupling)]['eff']
                         weightNormSum = self.yieldsHNL[name+"-"+str(year)]['LHEWeights_coupling_'+str(coupling)]
+                        
+                        print (coupling,filtereff,weightNormSum)
                         if filtereff<1e-8 and weightNormSum<1e-8:
                             filtereff = 0.0
                             weightNormSum = 1.0
                         self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"{filtereff}*weightNominal*LHEWeights_coupling_{coupling}/{weightNormSum}")
                     else:
                         weightNormSum = self.yieldsHNL[name+"-"+str(year)]['LHEWeights_coupling_'+str(coupling)]
+                        print (coupling,weightNormSum)
                         self.rdf = self.rdf.Define("weightNominalHNL_{}".format(coupling), f"weightNominal*LHEWeights_coupling_{coupling}/{weightNormSum}")
 
         else:

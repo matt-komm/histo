@@ -9,8 +9,8 @@ from histo import Process, Sample
 ROOT.gErrorIgnoreLevel = ROOT.kError
 
 
-EMPTY_BIN_FILL = 1e-7
-EMPTY_BIN_ERROR = 1e-8
+EMPTY_BIN_FILL = 1e-11
+EMPTY_BIN_ERROR = 1e-12
 
 def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=True):
     """
@@ -31,7 +31,10 @@ def write_hist(hist_nano: ROOT.TH1D, category_dict: dict, name: str, isMC: bool=
         index_new += 1
         hist_content = hist_nano.GetBinContent(hist_nano.FindBin(index))
         hist_error = hist_nano.GetBinError(hist_nano.FindBin(index))
-        print(index, index_new, category, hist_content)
+        if hist_content>0:
+            print(index, index_new, category, hist_content, 100.*hist_error/hist_content,"%")
+        else:
+            print(index, index_new, category, hist_content)
         hist_limits.SetBinContent(index_new, hist_content)
         hist_limits.SetBinError(index_new, hist_error)
         hist_limits.GetXaxis().SetBinLabel(index_new, category)
@@ -258,8 +261,8 @@ parser.add_argument("--region", default="D")
 #parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/21Sep20")
 #parser.add_argument("--output_path", default="/vols/cms/hsfar/hists")
-parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/14Jun20")
-parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_14Jun20")
+parser.add_argument("--ntuple_path", default="/nfs/dust/cms/user/mkomm/HNL/ntuples/CWR")
+parser.add_argument("--output_path", default="/nfs/dust/cms/user/mkomm/HNL/histo/limits/hists_CWR3")
 
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/19Jan23")
 #parser.add_argument("--ntuple_path", default="/vols/cms/hsfar/nanoAOD_friends/09Mar23")
@@ -287,45 +290,6 @@ isMC = not isData
 output_path = args.output_path
 suffix = ''.join(map(str, args.suffix))
 
-
-outputFile = os.path.join(output_path, f"{proc}_{args.category}_{region}_{year}{suffix}.root")
-if os.path.exists(outputFile):
-    outputExists = True
-    rootFile = ROOT.TFile(outputFile)
-    if (rootFile and rootFile.IsZombie()):
-        print ("ROOT file is zombie: ",outputFile)
-        outputExists = False
-    else:
-        print ("ROOT file not zombie: ",outputFile)
-
-    if (outputExists and not rootFile.Get(category_name+"_"+region)):
-        print ("category not found: ",category_name+"_"+region,outputFile)
-        outputExists = False
-    else:
-        print ("category found: ",category_name+"_"+region)
-    
-    if (outputExists and isMC and proc.find("HNL")>=0):
-        for coupling in args.couplings:
-            if not rootFile.Get(category_name+"_"+region+"/HNL_coupling_%i"%coupling):
-                outputExists = False
-                print ("HNL not found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling,outputFile)
-                break
-            else:
-                print ("HNL found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling)
-    if (outputExists and isData):
-        if not rootFile.Get(category_name+"_"+region+"/data"):
-            outputExists = False
-            print ("Data not found: ", category_name+"_"+region+"/data",outputFile)
-        else:
-            print ("Data found: ", category_name+"_"+region+"/data")
-    rootFile.Close()
-    if (outputExists):
-        print("output file exists -> skip")
-        sys.exit(0)
-
-with open("../config/samples.yml") as samples_file:
-    samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
-    subprocesses = samples_dict[proc]
 
 #####################################
 ### Various configurations go here
@@ -356,6 +320,65 @@ systematics_shapes = ["nominal", "jesTotal", "jer", "unclEn"]
 #systematics_rates = {}
 #systematics_shapes = ["nominal"]
 ####################################
+
+
+try:
+    os.makedirs(output_path, f"{proc}",f"{args.category}_{region}")
+except:
+    pass
+    
+    
+outputFile = os.path.join(output_path, f"{proc}",f"{args.category}_{region}",f"{year}{suffix}.root")
+
+if os.path.exists(outputFile):
+    outputExists = True
+    rootFile = ROOT.TFile(outputFile)
+    if (rootFile and rootFile.IsZombie()):
+        print ("ROOT file is zombie: ",outputFile)
+        outputExists = False
+    else:
+        print ("ROOT file not zombie: ",outputFile)
+
+    if (outputExists and not rootFile.Get(category_name+"_"+region)):
+        print ("category not found: ",category_name+"_"+region,outputFile)
+        outputExists = False
+    else:
+        print ("category found: ",category_name+"_"+region)
+    
+    if (outputExists and isMC and proc.find("HNL")>=0):
+        for coupling in args.couplings:
+            if not rootFile.Get(category_name+"_"+region+"/HNL_coupling_%i"%coupling):
+                outputExists = False
+                print ("HNL not found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling,outputFile)
+                break
+            else:
+                print ("HNL found: ", category_name+"_"+region+"/HNL_coupling_%i"%coupling)
+            
+            for syst in list(systematics_rates.values())+systematics_shapes:
+                if syst=="nominal":
+                    continue
+                if not rootFile.Get(category_name+"_"+region+"/HNL_coupling_%i_%s"%(coupling,syst+str(year)+"Up")):
+                    outputExists = False
+                    print ("\tHNL not found: ", category_name+"_"+region+"/HNL_coupling_%i_%s"%(coupling,syst+str(year)+"Up"),outputFile)
+                    break
+                else:
+                    print ("\tHNL found: ", category_name+"_"+region+"/HNL_coupling_%i_%s"%(coupling,syst+str(year)+"Up"))
+    if (outputExists and isData):
+        if not rootFile.Get(category_name+"_"+region+"/data"):
+            outputExists = False
+            print ("Data not found: ", category_name+"_"+region+"/data",outputFile)
+        else:
+            print ("Data found: ", category_name+"_"+region+"/data")
+    rootFile.Close()
+    if (outputExists):
+        print("output file exists -> skip")
+        sys.exit(0)
+
+with open("../config/samples.yml") as samples_file:
+    samples_dict = yaml.load(samples_file, Loader=yaml.FullLoader)
+    subprocesses = samples_dict[proc]
+
+
 if len(args.couplings)==0:
     # couplings to consider
     #couplings = range(1, 68)
