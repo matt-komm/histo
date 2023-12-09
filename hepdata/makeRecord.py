@@ -207,10 +207,6 @@ def buildHistTable(filePath,descr="",loc=""):
     table.description = descr
     table.location = loc
 
-    leptFlavour = ["ee","emu","mue","mumu"]*6
-    leptCharge = ["OS"]*12+["SS"]*12
-    leptDispl = (["$d_{xy}^\\text{sig}<3$"]*4+["$3<d_{xy}^\\text{sig}<10$"]*4+["$d_{xy}^\\text{sig}>10$"]*4)*2
-
     signCatVar = Variable("Lepton charge combination", is_independent=True, is_binned=False, units="")
     signCatVar.values = ["OS"]*12+["SS"]*12
     table.add_variable(signCatVar)
@@ -220,7 +216,7 @@ def buildHistTable(filePath,descr="",loc=""):
     table.add_variable(displCatVar)
 
     flavCatVar = Variable("Lepton flavour combination", is_independent=True, is_binned=False, units="")
-    flavCatVar.values = ["$\\text{ee}$","$\\text{e}\\mu$","$\\mu\\text{e}$","$\\mu\\mu$"]*6
+    flavCatVar.values = ["$\\mu\\mu$","$\\text{ee}$","$\\mu\\text{e}$","$\\text{e}\\mu$"]*6
     table.add_variable(flavCatVar)
 
 
