@@ -3,16 +3,14 @@ from hepdata_lib.c_file_reader import CFileReader
 import numpy as np
 import scipy.interpolate
 import tarfile
+import ROOT
 
 submission = Submission()
-#TODO
+
 submission.read_abstract("abstract.txt")
-#TODO
 submission.add_link("Webpage with all figures and tables", "https://cms-results.web.cern.ch/cms-results/public-results/publications/EXO-21-013/")
-#TODO
-submission.add_link("arXiv", "http://arxiv.org/abs/arXiv:XXXXXXX")
-#TODO
-submission.add_record_id(0, "inspire")
+submission.add_link("arXiv", "http://arxiv.org/abs/arXiv:2312.07484")
+submission.add_record_id(2735808, "inspire")
 
 itable = 1
 
@@ -176,8 +174,16 @@ def buildTriangleCouplingTable(dataName,descr="",loc="",quantity=""):
     return table
     
     
-
-
+def makePoissonInterval(data):
+    alpha = 1 - 0.6827
+    down = np.zeros(len(data))
+    up = np.zeros(len(data))
+    for i in range(len(data)):
+        N = data[i]
+        down[i] =  0 if (N<1e-8) else (ROOT.Math.gamma_quantile(alpha/2,N,1.))
+        up[i] =  ROOT.Math.gamma_quantile_c(alpha/2,N+1,1)
+    return down,up
+        
 
 def buildHistTable(filePath,descr="",loc=""):
     global itable
@@ -194,9 +200,17 @@ def buildHistTable(filePath,descr="",loc=""):
         var = Variable(name, is_independent=dep, is_binned=False)
         var.values = arr
         if unc is not None:
-            uncVar = Uncertainty(uncName, is_symmetric=True)
-            uncVar.values = unc
-            var.add_uncertainty(uncVar)
+            if type(unc)==type(tuple()):
+                uncVar = Uncertainty(uncName, is_symmetric=False)
+                uncVar.set_values_from_intervals(
+                    [(unc[0][i],unc[1][i]) for i in range(len(arr))],
+                    arr
+                )
+                var.add_uncertainty(uncVar)
+            else:
+                uncVar = Uncertainty(uncName, is_symmetric=True)
+                uncVar.values = unc
+                var.add_uncertainty(uncVar)
         if not dep:
             var.add_qualifier("SQRT(S)", 13, "TeV")
             var.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
@@ -225,9 +239,12 @@ def buildHistTable(filePath,descr="",loc=""):
         unc=bkgErr["dy"], uncName="Uncertainty"
     ))
     
+    up,down = makePoissonInterval(data["y"])
+    
+    
     table.add_variable(addVar(
         "Data", data["y"],
-        unc=data["dy"], uncName="Poisson errors"
+        unc=(down,up), uncName="Statistical uncertainty"
     ))
     
     table.add_variable(addVar(
